@@ -4,788 +4,723 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#080812"/>
 <title>StudyNet</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#080812;--surface:#111122;--surface2:#161628;
-  --border:#1c1c35;--border2:#252540;
-  --text:#ededf5;--muted:#5a5a80;--muted2:#8888aa;
-  --accent:#634cdc;--accent2:#38b69b;
+  --bg:#080812;--sf:#111122;--sf2:#161628;
+  --bd:#1c1c35;--bd2:#252540;
+  --tx:#ededf5;--mu:#5a5a80;--mu2:#8888aa;
+  --ac:#634cdc;--ac2:#38b69b;
   --fh:'Fraunces',serif;--fb:'DM Sans',sans-serif;
-  --r:14px;--rlg:20px;
+  --r:13px;--rl:20px;
 }
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px;line-height:1.65;min-height:100vh;overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(99,76,220,.07),transparent),radial-gradient(ellipse 60% 50% at 90% 100%,rgba(56,182,155,.05),transparent);pointer-events:none;z-index:0}
+html,body{min-height:100vh}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);font-size:15px;line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 0%,rgba(99,76,220,.08),transparent),radial-gradient(ellipse 50% 40% at 85% 100%,rgba(56,182,155,.06),transparent);pointer-events:none;z-index:0}
 #app{position:relative;z-index:1;min-height:100vh}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:9px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-/* Layout */
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ── LAYOUT ── */
 .page{min-height:100vh;display:flex;flex-direction:column}
-.main{max-width:980px;margin:0 auto;padding:36px 20px;width:100%;flex:1}
-.main-sm{max-width:600px}
-.center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;padding:24px;text-align:center}
-/* Header */
-.header{background:rgba(8,8,18,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.logo{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--text)}
-.logo-mark{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
-.logo-text{font-family:var(--fh);font-weight:900;font-size:19px;letter-spacing:-.5px}
-.header-right{display:flex;align-items:center;gap:8px}
-.badge{background:rgba(99,76,220,.15);color:#a48fff;border:1px solid rgba(99,76,220,.35);border-radius:6px;padding:2px 9px;font-size:11px;font-weight:600;letter-spacing:.8px}
-/* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:var(--r);font-family:var(--fb);font-weight:600;font-size:14px;cursor:pointer;transition:all .18s;white-space:nowrap;text-decoration:none;padding:11px 22px}
-.btn:active{transform:scale(.97)}.btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
-.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 20px rgba(99,76,220,.28)}
-.btn-ghost{background:var(--surface2);color:var(--muted2);border:1px solid var(--border2)}
-.btn-ghost:hover{color:var(--text)}
-.btn-danger{background:rgba(255,77,109,.1);color:#ff4d6d;border:1px solid rgba(255,77,109,.35)}
-.btn-green{background:rgba(56,182,155,.1);color:var(--accent2);border:1.5px solid var(--accent2)}
-.btn-yellow{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.4)}
-.btn-sm{padding:7px 14px;font-size:13px}.btn-full{width:100%}
-/* Inputs */
-.inp,.sel{width:100%;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:12px 15px;color:var(--text);font-family:var(--fb);font-size:14px;outline:none;transition:border-color .2s;appearance:none}
-.inp:focus,.sel:focus{border-color:var(--accent)}.inp::placeholder{color:var(--muted)}
-/* Gate */
-.gate-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);background-image:radial-gradient(ellipse at 20% 40%,rgba(99,76,220,.09),transparent 60%),radial-gradient(ellipse at 80% 70%,rgba(56,182,155,.06),transparent 50%)}
-.gate-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:44px 36px;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:16px;animation:up .4s ease;box-shadow:0 12px 60px rgba(0,0,0,.5)}
-.gate-logo{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px}
-.gate-title{font-family:var(--fh);font-weight:900;font-size:32px;letter-spacing:-1px}
-.gate-sub{color:var(--muted);font-size:14px}
-.divider{width:100%;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px}
-.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+.wrap{max-width:860px;margin:0 auto;padding:32px 18px;width:100%;flex:1}
+.wrap-sm{max-width:540px}
+.ctr{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;padding:24px;text-align:center}
+
+/* ── HEADER ── */
+.hdr{background:rgba(8,8,18,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);padding:0 18px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:9px;color:var(--tx)}
+.logo-mk{width:32px;height:32px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-tx{font-family:var(--fh);font-weight:900;font-size:18px;letter-spacing:-.4px}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.badge{background:rgba(99,76,220,.15);color:#a48fff;border:1px solid rgba(99,76,220,.3);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;letter-spacing:.7px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--r);font-family:var(--fb);font-weight:600;font-size:14px;cursor:pointer;transition:all .17s;white-space:nowrap;text-decoration:none;padding:10px 20px}
+.btn:active{transform:scale(.96)}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.btn-p{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 3px 18px rgba(99,76,220,.28)}
+.btn-g{background:var(--sf2);color:var(--mu2);border:1px solid var(--bd2)}.btn-g:hover{color:var(--tx)}
+.btn-d{background:rgba(255,77,109,.1);color:#ff4d6d;border:1px solid rgba(255,77,109,.3)}
+.btn-gr{background:rgba(56,182,155,.1);color:var(--ac2);border:1.5px solid var(--ac2)}
+.btn-sm{padding:6px 13px;font-size:13px}.btn-fw{width:100%}
+
+/* ── INPUTS ── */
+.inp,.sel{width:100%;background:var(--sf);border:1.5px solid var(--bd2);border-radius:var(--r);padding:11px 14px;color:var(--tx);font-family:var(--fb);font-size:14px;outline:none;transition:border-color .18s;appearance:none}
+.inp:focus,.sel:focus{border-color:var(--ac)}.inp::placeholder{color:var(--mu)}
+.lbl{display:block;font-size:12px;color:var(--mu2);font-weight:600;margin-bottom:6px}
+
+/* ── GATE ── */
+.gate-pg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 25% 35%,rgba(99,76,220,.1),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(56,182,155,.07),transparent 50%),var(--bg)}
+.gate-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:40px 32px;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:14px;animation:up .4s ease;box-shadow:0 10px 50px rgba(0,0,0,.5)}
+.gate-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 6px 24px rgba(99,76,220,.4)}
+.gate-title{font-family:var(--fh);font-weight:900;font-size:30px;letter-spacing:-.8px}
+.gate-sub{color:var(--mu);font-size:13px;margin-bottom:2px}
+.dvd{width:100%;display:flex;align-items:center;gap:10px;color:var(--mu);font-size:11px}
+.dvd::before,.dvd::after{content:"";flex:1;height:1px;background:var(--bd)}
 .gate-row{display:flex;gap:8px;width:100%}
 .gate-err{color:#ff4d6d;font-size:13px;text-align:center;animation:up .2s ease}
-/* Hero */
-.hero{margin-bottom:32px}
-.hero-title{font-family:var(--fh);font-weight:900;font-size:32px;letter-spacing:-.8px;line-height:1.15}
-.hero-sub{color:var(--muted2);font-size:14px;margin-top:6px}
-/* Subject grid */
-.subj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
-.subj-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:0;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;animation:up .35s ease both}
-.subj-card:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(0,0,0,.38)}
-.subj-bar{height:3px;border-radius:20px 20px 0 0}
-.subj-body{padding:22px}
-.subj-icon{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:12px}
-.subj-name{font-family:var(--fh);font-weight:700;font-size:16px;line-height:1.3;margin-bottom:3px}
-.subj-sub{font-size:12px;color:var(--muted);margin-bottom:14px;min-height:16px}
-.subj-footer{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
-.subj-chip{display:inline-block;font-size:12px;font-weight:600;padding:4px 13px;border-radius:99px;cursor:pointer}
-.subj-adm-btns{display:flex;gap:6px}
-/* Tabs */
-.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.tabs::-webkit-scrollbar{display:none}
-.tab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;padding:11px 16px;font-family:var(--fb);font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;transition:color .15s}
-.tab:hover{color:var(--text)}.tab-active{color:#a48fff;border-bottom-color:var(--accent)}
-/* Drop zone */
-.drop{border:2px dashed var(--border2);border-radius:var(--rlg);padding:40px 20px;text-align:center;cursor:pointer;transition:all .22s;margin-bottom:20px}
-.drop:hover,.drop-on{border-color:var(--accent);background:rgba(99,76,220,.05)}
-.drop-icon{font-size:42px;margin-bottom:10px}
-.drop-label{font-family:var(--fh);font-weight:700;font-size:16px;margin-bottom:4px}
-.drop-hint{font-size:13px;color:var(--muted)}
-/* Progress bars */
-.prog-wrap{height:5px;background:var(--border);border-radius:99px;overflow:hidden}
-.prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .3s}
-/* File card */
-.file-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rlg);margin-bottom:20px;overflow:hidden}
-.file-card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;gap:12px;flex-wrap:wrap}
-.file-info{display:flex;align-items:center;gap:12px}
-.file-name{font-weight:600;font-size:14px}
-.file-meta{font-size:12px;color:var(--muted);margin-top:2px}
-.file-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.link-section{padding:0 18px 16px}
-.link-label{font-size:12px;color:var(--muted2);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.link-display{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px}
-.link-display a{color:#a48fff;font-size:13px;text-decoration:none;flex:1;word-break:break-all}
-.link-display a:hover{text-decoration:underline}
-.link-edit-row{display:flex;gap:8px}
-.link-edit-row .inp{font-size:13px;padding:9px 12px}
-/* Markdown */
-.md-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:28px;line-height:1.85;margin-top:4px}
-.md-box h2{font-family:var(--fh);font-size:18px;font-weight:700;color:#a48fff;border-bottom:1px solid var(--border);padding-bottom:7px;margin:26px 0 11px}
-.md-box h2:first-child{margin-top:0}
-.md-box h3{font-family:var(--fh);font-size:14px;font-weight:700;color:#5fd4bb;margin:16px 0 6px}
-.md-box p{color:#9898bb;font-size:14px;margin:4px 0}
-.md-box li{color:#9898bb;font-size:14px;margin:3px 0 3px 20px;list-style:disc}
-.md-box strong{color:var(--text)}
-/* Flashcard */
-.fc-wrap{display:flex;flex-direction:column;align-items:center;width:100%}
-.fc-meta{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:20px}
-.fc-count{font-size:12px;color:var(--muted);white-space:nowrap}
-.fc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:46px 26px;text-align:center;cursor:pointer;min-height:200px;width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 8px 36px rgba(0,0,0,.28);user-select:none;transition:transform .18s;animation:up .22s ease}
-.fc-card:hover{transform:translateY(-2px)}
-.fc-side{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
-.fc-text{font-family:var(--fh);font-size:20px;font-weight:700;line-height:1.45}
-.fc-hint{font-size:12px;color:var(--border2);margin-top:16px}
-.fc-btns{display:flex;gap:12px;margin-top:20px;width:100%}
-.fc-btns .btn{flex:1}
-/* Quiz */
-.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:24px}
-.quiz-q{font-family:var(--fh);font-size:17px;font-weight:700;line-height:1.45;margin-bottom:20px}
-.opt{display:flex;align-items:center;gap:12px;width:100%;padding:12px 15px;margin-bottom:9px;border:1.5px solid var(--border2);border-radius:var(--r);cursor:pointer;background:var(--surface2);color:var(--muted2);font-size:14px;text-align:left;transition:all .15s;font-family:var(--fb)}
-.opt:hover:not(:disabled){border-color:var(--accent);color:var(--text)}
-.opt-correct{background:rgba(56,182,155,.1)!important;border-color:var(--accent2)!important;color:var(--accent2)!important}
-.opt-wrong{background:rgba(255,77,109,.1)!important;border-color:#ff4d6d!important;color:#ff4d6d!important}
-.opt-faded{opacity:.3}
-.opt-letter{background:var(--border);border-radius:7px;width:27px;height:27px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.quiz-fb{border-radius:var(--r);padding:12px 14px;margin-top:14px;font-size:13px;font-weight:600}
-.quiz-fb-ok{background:rgba(56,182,155,.1);color:var(--accent2);border:1px solid var(--accent2)}
-.quiz-fb-err{background:rgba(255,77,109,.1);color:#ff4d6d;border-color:#ff4d6d}
-/* Result */
-.result{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:46px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:13px;max-width:420px;margin:28px auto;animation:up .3s ease}
-.result-title{font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px}
-.result-sub{color:var(--muted);font-size:15px}
-.result-score{font-family:var(--fh);font-weight:900;font-size:52px;background:linear-gradient(135deg,#a48fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.result-acts{display:flex;flex-direction:column;gap:9px;width:100%;margin-top:6px}
-/* Stats */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px;margin-bottom:28px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-top:3px solid;border-radius:var(--rlg);padding:18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:5px}
-.stat-val{font-family:var(--fh);font-weight:900;font-size:27px}
-.stat-label{font-size:12px;color:var(--muted)}
-.hist-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:8px}
-/* Empty & Spinner */
-.empty{text-align:center;padding:56px 20px;display:flex;flex-direction:column;align-items:center;gap:13px}
-.empty-title{font-family:var(--fh);font-weight:700;font-size:20px;color:var(--muted2)}
-.empty-sub{color:var(--muted);max-width:320px;font-size:14px}
-.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
-.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:48px 0}
-/* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:up .2s ease}
-.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--rlg);padding:32px 28px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px;box-shadow:0 16px 60px rgba(0,0,0,.6)}
-.modal-title{font-family:var(--fh);font-weight:900;font-size:22px;letter-spacing:-.5px}
-.modal-sub{font-size:13px;color:var(--muted)}
-.modal-actions{display:flex;gap:10px;margin-top:4px}
-.modal-actions .btn{flex:1}
-/* Emoji picker */
-.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:4px}
-.emoji-btn{background:var(--surface2);border:2px solid transparent;border-radius:9px;padding:7px;font-size:20px;cursor:pointer;transition:all .15s;text-align:center}
-.emoji-btn:hover,.emoji-btn-sel{border-color:var(--accent);background:rgba(99,76,220,.15)}
-/* Color picker */
-.color-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
-.color-btn{width:32px;height:32px;border-radius:8px;border:3px solid transparent;cursor:pointer;transition:all .15s}
-.color-btn-sel{border-color:white;transform:scale(1.1)}
-/* Settings */
-.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:26px;display:flex;flex-direction:column;gap:12px}
-.settings-card h3{font-family:var(--fh);font-weight:700;font-size:17px}
-.settings-card p{color:var(--muted);font-size:13px}
-.ok-msg{color:var(--accent2);font-size:14px;animation:up .2s ease}
-.error-msg{color:#ff4d6d;font-size:13px;animation:up .2s ease;padding:12px;background:rgba(255,77,109,.1);border-radius:var(--r);margin-bottom:12px}
-/* Responsive */
-@media(max-width:640px){
-  .main{padding:24px 14px}.header{padding:0 14px}
+
+/* ── HOME ── */
+.hero{margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hero-title{font-family:var(--fh);font-weight:900;font-size:30px;letter-spacing:-.7px;line-height:1.15}
+.hero-sub{color:var(--mu2);font-size:13px;margin-top:5px}
+.subj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.subj-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:transform .18s,box-shadow .18s;animation:up .3s ease both}
+.subj-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.subj-top{height:3px}
+.subj-body{padding:20px}
+.subj-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:11px}
+.subj-name{font-family:var(--fh);font-weight:700;font-size:15px;line-height:1.3;margin-bottom:3px}
+.subj-sub{font-size:11px;color:var(--mu);margin-bottom:12px;min-height:14px}
+.subj-ft{display:flex;align-items:center;justify-content:space-between}
+.subj-chip{font-size:11px;font-weight:600;padding:3px 11px;border-radius:99px}
+.subj-adm{display:flex;gap:5px}
+
+/* ── SUBJECT VIEW ── */
+.subj-hdr{margin-bottom:24px}
+.subj-title{font-family:var(--fh);font-weight:900;font-size:24px;letter-spacing:-.5px;line-height:1.2;margin-bottom:4px}
+.subj-meta{font-size:13px;color:var(--mu)}
+.file-list{display:flex;flex-direction:column;gap:12px}
+.file-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;animation:up .25s ease both}
+.file-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;gap:12px;flex-wrap:wrap}
+.file-info{display:flex;align-items:center;gap:12px;min-width:0}
+.file-ico{font-size:24px;flex-shrink:0}
+.file-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-date{font-size:11px;color:var(--mu);margin-top:2px}
+.file-acts{display:flex;gap:7px;flex-shrink:0;flex-wrap:wrap}
+.link-zone{padding:0 18px 15px;border-top:1px solid var(--bd)}
+.link-lbl{font-size:11px;color:var(--mu2);font-weight:600;padding:10px 0 7px;display:flex;align-items:center;gap:5px}
+.link-box{display:flex;align-items:center;gap:8px;background:rgba(99,76,220,.07);border:1px solid rgba(99,76,220,.2);border-radius:var(--r);padding:9px 13px}
+.link-box a{color:#a48fff;font-size:13px;text-decoration:none;flex:1;word-break:break-all}
+.link-box a:hover{text-decoration:underline}
+.link-edit-row{display:flex;gap:7px}
+.link-edit-row .inp{font-size:13px;padding:8px 12px}
+.link-empty{font-size:13px;color:var(--mu);font-style:italic}
+
+/* ── UPLOAD ── */
+.drop{border:2px dashed var(--bd2);border-radius:var(--rl);padding:38px 18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.drop:hover,.drop-on{border-color:var(--ac);background:rgba(99,76,220,.05)}
+.drop-ico{font-size:40px;margin-bottom:10px}
+.drop-lbl{font-family:var(--fh);font-weight:700;font-size:16px;margin-bottom:3px}
+.drop-hint{font-size:13px;color:var(--mu)}
+.prog-wrap{height:5px;background:var(--bd);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .25s}
+.prog-msg{font-size:13px;color:var(--mu);text-align:center}
+
+/* ── MODAL ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;animation:fade .2s ease}
+.modal{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--rl);padding:28px 24px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:13px;box-shadow:0 14px 50px rgba(0,0,0,.6);animation:up .22s ease}
+.modal-title{font-family:var(--fh);font-weight:900;font-size:20px;letter-spacing:-.4px}
+.modal-row{display:flex;gap:8px}
+.modal-row .btn{flex:1}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
+.emj{background:var(--sf2);border:2px solid transparent;border-radius:8px;padding:6px;font-size:19px;cursor:pointer;transition:all .14s;text-align:center}
+.emj:hover,.emj-on{border-color:var(--ac);background:rgba(99,76,220,.15)}
+.clr-grid{display:flex;flex-wrap:wrap;gap:7px}
+.clr{width:30px;height:30px;border-radius:8px;border:3px solid transparent;cursor:pointer;transition:all .14s}
+.clr-on{border-color:#fff;transform:scale(1.12)}
+
+/* ── SETTINGS ── */
+.set-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:24px;display:flex;flex-direction:column;gap:11px}
+.set-card h3{font-family:var(--fh);font-weight:700;font-size:16px}
+.set-card p{color:var(--mu);font-size:13px}
+.ok-msg{color:var(--ac2);font-size:13px;animation:up .2s ease}
+
+/* ── EMPTY & SPINNER ── */
+.empty{text-align:center;padding:52px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty-title{font-family:var(--fh);font-weight:700;font-size:19px;color:var(--mu2)}
+.empty-sub{color:var(--mu);max-width:300px;font-size:13px}
+.spin{width:34px;height:34px;border:3px solid var(--bd2);border-top-color:var(--ac);border-radius:50%;animation:spin .65s linear infinite}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .wrap{padding:22px 14px}.hdr{padding:0 14px}
   .subj-grid{grid-template-columns:1fr}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .fc-card{padding:34px 18px}.result{padding:36px 18px}
-  .gate-card{padding:34px 20px}.hero-title{font-size:26px}
-  .tab{padding:10px 11px;font-size:12px}
-  .modal{padding:26px 20px}
+  .gate-card{padding:32px 20px}.hero-title{font-size:24px}
+  .modal{padding:24px 18px}
 }
 </style>
 </head>
 <body>
-<div id="app"><div class="center"><div class="spinner"></div></div></div>
+<div id="app"><div class="ctr"><div class="spin"></div></div></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// ⚠️  COLE SUAS CREDENCIAIS AQUI
-// ═══════════════════════════════════════════════════════════════════
-
-// JSONBIN.IO → jsonbin.io → cadastre-se → Bins → Create Bin (crie com {})
-const JSONBIN = {
-  binId:     "69b1e91cc3097a1dd5190795", // Se der erro 404, troque por um novo ID
-  accessKey: "$2a$10$U0z9wAWSoLXYzldl4grbY.1yrURXzy/OqIR2ST4jCLcXFXutGjzi2",
-};
-
-const CLOUDINARY = {
-  cloudName:    "dzaogzywr",
+// ═══════════════════════════════════════════════════════
+// CONFIGURAÇÕES — já preenchidas!
+// ═══════════════════════════════════════════════════════
+const CFG = {
+  jsonbinId:  "69b1e91cc3097a1dd5190795",
+  jsonbinKey: "$2a$10$U0z9wAWSoLXYzldl4grbY.1yrURXzy/OqIR2ST4jCLcXFXutGjzi2",
+  cloudName:  "dzaogzywr",
   uploadPreset: "studynet",
+  admSenhaInicial: "adm2024",
 };
+// ═══════════════════════════════════════════════════════
 
-const ADM_SENHA_INICIAL = "adm2024";
+// ── JSONBin ───────────────────────────────────────────
+const BIN = `https://api.jsonbin.io/v3/b/${CFG.jsonbinId}`;
+const HDR = {"Content-Type":"application/json","X-Access-Key":CFG.jsonbinKey,"X-Bin-Versioning":"false"};
 
-// ═══════════════════════════════════════════════════════════════════
-
-const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN.binId}`;
-const BIN_HDR = {"Content-Type":"application/json","X-Access-Key":JSONBIN.accessKey,"X-Bin-Versioning":"false"};
-
-// Helper para salvar localmente se a API falhar
-function localSave(data){ localStorage.setItem("sn_offline_db", JSON.stringify(data)); }
-function localRead(){ const d=localStorage.getItem("sn_offline_db"); return d?JSON.parse(d):null; }
-
-async function dbRead() {
-  try {
-    const r = await fetch(BIN_URL, {headers:BIN_HDR});
-    if(r.status === 404) {
-      console.warn("JSONBin não encontrado. Usando banco local.");
-      return localRead() || {};
-    }
-    if(!r.ok) throw new Error(`Erro API: ${r.status}`);
-    const d = await r.json();
-    return d.record || {};
-  } catch(e) {
-    console.error("Falha ao ler nuvem, tentando local...", e);
-    return localRead() || {};
-  }
+async function dbRead(){
+  const r = await fetch(BIN,{headers:HDR});
+  if(!r.ok) throw new Error("Erro JSONBin: "+r.status);
+  return (await r.json()).record || {};
+}
+async function dbWrite(data){
+  const r = await fetch(BIN,{method:"PUT",headers:HDR,body:JSON.stringify(data)});
+  if(!r.ok) throw new Error("Erro ao salvar: "+r.status);
 }
 
-async function dbWrite(data) {
-  localSave(data); // Sempre salva local por segurança
-  try {
-    const r = await fetch(BIN_URL, {method:"PUT", headers:BIN_HDR, body:JSON.stringify(data)});
-    if(!r.ok) console.error("Falha ao sincronizar com nuvem.");
-  } catch(e) {
-    console.error("Erro de rede ao salvar na nuvem.");
-  }
-}
+// ── Cloudinary ────────────────────────────────────────
+function uploadCloudinary(file, onProgress){
+  return new Promise((resolve, reject)=>{
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", CFG.uploadPreset);
+    fd.append("folder", "studynet");
 
-// ── Cloudinary upload ─────────────────────────────────────────────
-async function uploadCloud(file, onPct) {
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", CLOUDINARY.uploadPreset);
-  fd.append("folder", "studynet");
-  return new Promise((res,rej)=>{
     const xhr = new XMLHttpRequest();
-    xhr.open("POST",`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/auto/upload`);
-    xhr.upload.onprogress = e=>{if(e.lengthComputable)onPct(Math.round(e.loaded/e.total*100))};
-    xhr.onload=()=>{
-      try{
-        const d=JSON.parse(xhr.responseText);
-        if(xhr.status===200)res({url:d.secure_url,publicId:d.public_id});
-        else rej(new Error(d.error?.message||`Erro Cloudinary: ${xhr.status}`));
-      }catch(e){rej(new Error("Resposta inválida do Cloudinary"))}
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CFG.cloudName}/auto/upload`);
+
+    xhr.upload.onprogress = e => {
+      if(e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
     };
-    xhr.onerror=()=>rej(new Error("Falha de rede ao enviar arquivo"));
+
+    xhr.onload = () => {
+      if(xhr.status === 200){
+        const d = JSON.parse(xhr.responseText);
+        resolve({ url: d.secure_url, publicId: d.public_id, bytes: d.bytes });
+      } else {
+        let msg = "Erro Cloudinary";
+        try{ msg = JSON.parse(xhr.responseText).error?.message || msg; }catch{}
+        reject(new Error(msg));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Sem conexão com Cloudinary"));
     xhr.send(fd);
   });
 }
 
-// ── Text extraction ───────────────────────────────────────────────
-async function extractText(file){
-  if(file.name.toLowerCase().endsWith(".pdf")){
-    const ab=await file.arrayBuffer();
-    const raw=new TextDecoder("latin1").decode(new Uint8Array(ab));
-    const m=raw.match(/\(([^)]{2,})\)/g)||[];
-    let t=m.map(x=>x.slice(1,-1)).join(" ").replace(/\\n/g,"\n");
-    if(t.length<120)t=raw.replace(/[^\x20-\x7E\n]/g," ").slice(0,8000);
-    return t;
-  }
-  return new Promise((res,rej)=>{
-    const script=document.createElement("script");
-    script.src="https://cdn.jsdelivr.net/npm/mammoth@1.7.0/mammoth.browser.min.js";
-    script.onload=async()=>{
-      try{
-        const ab=await file.arrayBuffer();
-        const r=await mammoth.extractRawText({arrayBuffer:ab});
-        res(r.value);
-      }catch(e){rej(new Error("Erro ao extrair texto do Word"))}
-    };
-    script.onerror=()=>rej(new Error("Falha ao carregar biblioteca de leitura de Word"));
-    document.head.appendChild(script);
-  });
-}
+// ── Helpers ───────────────────────────────────────────
+function uid(){ let id=localStorage.getItem("sn_uid"); if(!id){id=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem("sn_uid",id);} return id; }
+function gid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString("pt-BR"); }catch{ return ""; } }
+function fmtSize(b){ if(!b)return""; if(b<1024)return b+"B"; if(b<1048576)return Math.round(b/1024)+"KB"; return (b/1048576).toFixed(1)+"MB"; }
+function fileIcon(name){ const n=(name||"").toLowerCase(); if(n.endsWith(".pdf"))return"📄"; if(n.endsWith(".doc")||n.endsWith(".docx"))return"📝"; if(n.endsWith(".ppt")||n.endsWith(".pptx"))return"📊"; if(n.endsWith(".xls")||n.endsWith(".xlsx"))return"📈"; if(n.endsWith(".zip"))return"🗜"; return"📎"; }
 
-// ── Helpers ───────────────────────────────────────────────────────
-function uid(){let id=localStorage.getItem("sn_uid");if(!id){id=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("sn_uid",id);}return id;}
-function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
-function md2html(md){
-  return String(md||"").split("\n").map(l=>{
-    if(l.startsWith("## ")) return`<h2>${esc(l.slice(3))}</h2>`;
-    if(l.startsWith("### "))return`<h3>${esc(l.slice(4))}</h3>`;
-    if(l.startsWith("- ")) return`<li>${esc(l.slice(2))}</li>`;
-    if(/^\*\*(.+)\*\*$/.test(l))return`<strong>${esc(l.slice(2,-2))}</strong>`;
-    if(l.trim()==="")return"<br/>";
-    return`<p>${esc(l)}</p>`;
-  }).join("");
-}
-function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
-
-// ── State ─────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────
 const S = {
-  role: sessionStorage.getItem("sn_role"),
-  admHash: null,
+  role: sessionStorage.getItem("sn_role") || null,
   userId: uid(),
   db: null,
   subjId: null,
-  tab: "summary",
-  sessIdx: 0,
-  unsubs: [],
 };
 
-// ── Render engine ─────────────────────────────────────────────────
+// ── DB shortcuts ──────────────────────────────────────
+function subjects(){ return S.db.subjects || []; }
+function subject(id){ return subjects().find(s=>s.id===id); }
+function files(subjId){ return (S.db.files||{})[subjId] || []; }
+
+async function save(){ await dbWrite(S.db); }
+
+async function addSubject(s){ S.db.subjects=[...subjects(),s]; await save(); }
+async function editSubject(id,p){ S.db.subjects=subjects().map(s=>s.id===id?{...s,...p}:s); await save(); }
+async function delSubject(id){ S.db.subjects=subjects().filter(s=>s.id!==id); if(S.db.files)delete S.db.files[id]; await save(); }
+
+async function addFile(subjId,f){ if(!S.db.files)S.db.files={}; S.db.files[subjId]=[...files(subjId),f]; await save(); }
+async function editFile(subjId,fid,p){ S.db.files[subjId]=files(subjId).map(f=>f.id===fid?{...f,...p}:f); await save(); }
+async function delFile(subjId,fid){ S.db.files[subjId]=files(subjId).filter(f=>f.id!==fid); await save(); }
+
+// ── Render ────────────────────────────────────────────
 const ROOT = document.getElementById("app");
-function go(view, patch={}) {
-  S.unsubs.forEach(u=>{try{u()}catch{}});
-  S.unsubs=[];
+let currentView = null;
+
+function go(view, patch={}){
   Object.assign(S, patch);
-  ROOT.innerHTML="";
+  ROOT.innerHTML = "";
   window.scrollTo(0,0);
-  ({gate,home,upload,subject,settings})[view]?.();
+  currentView = view;
+  ({gate, home, subjectView, uploadView, settingsView})[view]?.();
 }
 
-// ── DB accessors ──────────────────────────────────────────────────
-function getSubjects(){ return S.db.subjects || []; }
-function getSubject(id){ return getSubjects().find(s=>s.id===id); }
-function getSessions(subjId){ return (S.db.sessions||{})[subjId] || []; }
-function getProgress(userId, subjId){ return ((S.db.progress||{})[`${userId}_${subjId}`]) || {}; }
+function refresh(){ go(currentView); }
 
-async function persistDB(){ await dbWrite(S.db); }
-async function addSubject(subj){
-  S.db.subjects = [...(S.db.subjects||[]), subj];
-  await persistDB();
+// ── Modal ─────────────────────────────────────────────
+function modal(html, onMount){
+  document.getElementById("_ov")?.remove();
+  const ov = document.createElement("div");
+  ov.className = "ov"; ov.id = "_ov";
+  ov.innerHTML = `<div class="modal">${html}</div>`;
+  ov.onclick = e=>{ if(e.target===ov) closeModal(); };
+  document.body.appendChild(ov);
+  onMount?.(ov.querySelector(".modal"));
 }
-async function updateSubject(id, patch){
-  S.db.subjects = (S.db.subjects||[]).map(s=>s.id===id?{...s,...patch}:s);
-  await persistDB();
-}
-async function deleteSubject(id){
-  S.db.subjects = (S.db.subjects||[]).filter(s=>s.id!==id);
-  if(S.db.sessions) delete S.db.sessions[id];
-  await persistDB();
-}
-async function addSession(subjId, sess){
-  if(!S.db.sessions) S.db.sessions={};
-  S.db.sessions[subjId] = [...(S.db.sessions[subjId]||[]), sess];
-  await persistDB();
-}
-async function updateSession(subjId, sessId, patch){
-  S.db.sessions[subjId] = (S.db.sessions[subjId]||[]).map(s=>s.id===sessId?{...s,...patch}:s);
-  await persistDB();
-}
-async function deleteSessionDB(subjId, sessId){
-  S.db.sessions[subjId] = (S.db.sessions[subjId]||[]).filter(s=>s.id!==sessId);
-  await persistDB();
-}
-async function saveProgressDB(userId, subjId, data){
-  if(!S.db.progress) S.db.progress={};
-  S.db.progress[`${userId}_${subjId}`] = data;
-  await persistDB();
-}
+function closeModal(){ document.getElementById("_ov")?.remove(); }
 
-// ── Header ────────────────────────────────────────────────────────
+// ── Header ────────────────────────────────────────────
 function mkHdr(){
-  const h=document.createElement("header"); h.className="header";
-  h.innerHTML=`<button class="logo" id="hL"><div class="logo-mark">📚</div><span class="logo-text">StudyNet</span></button>
-    <div class="header-right">${S.role==="adm"?`<span class="badge">ADM</span><button class="btn btn-ghost btn-sm" id="hS">⚙️</button>`:""}</div>`;
-  h.querySelector("#hL").onclick=()=>go("home");
-  h.querySelector("#hS")?.addEventListener("click",()=>go("settings"));
+  const h = document.createElement("header"); h.className = "hdr";
+  h.innerHTML = `
+    <button class="logo" id="hL">
+      <div class="logo-mk">📚</div>
+      <span class="logo-tx">StudyNet</span>
+    </button>
+    <div class="hdr-r">
+      ${S.role==="adm" ? `<span class="badge">ADM</span><button class="btn btn-g btn-sm" id="hS">⚙️</button>` : ""}
+      <button class="btn btn-g btn-sm" id="hExit">Sair</button>
+    </div>`;
+  h.querySelector("#hL").onclick = ()=>go("home");
+  h.querySelector("#hS")?.addEventListener("click", ()=>go("settingsView"));
+  h.querySelector("#hExit").onclick = ()=>{ sessionStorage.removeItem("sn_role"); S.role=null; go("gate"); };
   return h;
 }
 
-// ── Tabs ──────────────────────────────────────────────────────────
-function mkTabs(active, tc){
-  const T=[{k:"summary",i:"📋",l:"Resumo"},{k:"flashcards",i:"🃏",l:"Flashcards"},{k:"quiz",i:"❓",l:"Quiz"},{k:"progress",i:"📈",l:"Progresso"}];
-  const d=document.createElement("div"); d.className="tabs";
-  d.innerHTML=T.map(t=>`<button class="tab${active===t.k?" tab-active":""}" data-k="${t.k}">${t.i} ${t.l}</button>`).join("");
-  d.querySelectorAll(".tab").forEach(b=>{
-    b.onclick=()=>{
-      S.tab=b.dataset.k;
-      d.querySelectorAll(".tab").forEach(x=>x.className="tab"+(x.dataset.k===S.tab?" tab-active":""));
-      renderTab(tc, getSessions(S.subjId)[S.sessIdx]);
-    };
-  });
-  return d;
-}
-
-// ── GATE (Login) ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// GATE
+// ══════════════════════════════════════════════════════
 function gate(){
-  const page=document.createElement("div"); page.className="gate-page";
-  page.innerHTML=`
+  ROOT.innerHTML = `
+  <div class="gate-pg">
     <div class="gate-card">
       <div class="gate-logo">📚</div>
       <h1 class="gate-title">StudyNet</h1>
-      <p class="gate-sub">Plataforma de estudos colaborativa</p>
-      <div class="divider">Escolha seu acesso</div>
+      <p class="gate-sub">Repositório de materiais de estudo</p>
+      <button class="btn btn-p btn-fw" id="gStu" style="margin-top:6px">📖 Entrar como Aluno</button>
+      <div class="dvd">acesso ADM</div>
       <div class="gate-row">
-        <button class="btn btn-primary btn-full" id="gS">👤 Estudante</button>
+        <input class="inp" id="gPass" type="password" placeholder="Senha do ADM" style="flex:1"/>
+        <button class="btn btn-g" id="gAdm">→</button>
       </div>
-      <div class="gate-row">
-        <input class="inp" id="gP" type="password" placeholder="Senha do ADM"/>
-        <button class="btn btn-primary" id="gA">🔐 ADM</button>
-      </div>
-      <div id="gE"></div>
-    </div>`;
-  ROOT.appendChild(page);
-  
-  document.getElementById("gS").onclick=()=>{sessionStorage.setItem("sn_role","student");go("home")};
-  document.getElementById("gA").onclick=()=>{
-    const p=document.getElementById("gP").value;
-    if(!p){document.getElementById("gE").innerHTML=`<p class="gate-err">Digite a senha</p>`;return}
-    if(btoa(p)===S.admHash){sessionStorage.setItem("sn_role","adm");go("home")}
-    else{document.getElementById("gE").innerHTML=`<p class="gate-err">Senha incorreta</p>`}
+      <p id="gErr" class="gate-err" style="display:none">❌ Senha incorreta</p>
+    </div>
+  </div>`;
+
+  document.getElementById("gStu").onclick = ()=>{
+    sessionStorage.setItem("sn_role","student"); S.role="student"; go("home");
   };
-  document.getElementById("gP").onkeypress=e=>{if(e.key==="Enter")document.getElementById("gA").click()};
+
+  const tryAdm = ()=>{
+    const p = document.getElementById("gPass").value;
+    const h = S.db?.admHash || btoa(CFG.admSenhaInicial);
+    if(btoa(p)===h){
+      sessionStorage.setItem("sn_role","adm"); S.role="adm"; go("home");
+    } else {
+      const e = document.getElementById("gErr");
+      e.style.display = "block";
+      setTimeout(()=>{ if(e) e.style.display="none"; }, 2500);
+    }
+  };
+
+  document.getElementById("gAdm").onclick = tryAdm;
+  document.getElementById("gPass").onkeydown = e=>{ if(e.key==="Enter") tryAdm(); };
 }
 
-// ── HOME (Dashboard) ───────────────────────────────────────────────
-const COLORS = ["#634cdc","#38b69b","#f472b6","#fbbf24","#f97316"];
-const EMOJIS = ["📚","🧪","🔬","💻","🎨","🎭","🎵","⚽","🍕","✈️"];
+// ══════════════════════════════════════════════════════
+// HOME — lista de matérias
+// ══════════════════════════════════════════════════════
+const EMOJIS = ["🧠","📊","📈","📉","🗂","🏛","🔬","🔗","📚","📐","🎯","💡","🧮","🌍","⚗️","🏗","📝","🎓","🔭","💰","📜","🧬","📡","🎲","🖊","🖥","📱","🏆"];
+const COLORS  = ["#a78bfa","#34d399","#60a5fa","#f472b6","#fb923c","#facc15","#2dd4bf","#f87171","#818cf8","#4ade80","#38bdf8","#e879f9","#f97316","#a3e635","#fb7185","#fcd34d"];
 
 function home(){
-  const page=document.createElement("div"); page.className="page";
+  const page = document.createElement("div"); page.className="page";
   page.appendChild(mkHdr());
-  const main=document.createElement("main"); main.className="main";
-  
-  main.innerHTML=`
+  const wrap = document.createElement("main"); wrap.className="wrap";
+
+  const subjs = subjects();
+
+  wrap.innerHTML = `
     <div class="hero">
-      <h1 class="hero-title">Bem-vindo ao StudyNet</h1>
-      <p class="hero-sub">${S.role==="adm"?"Gerencie matérias e materiais de estudo":"Estude com resumos, flashcards e quizzes"}</p>
+      <div>
+        <h1 class="hero-title">Matérias</h1>
+        <p class="hero-sub">${subjs.length} matéria(s) disponível(is)</p>
+      </div>
+      ${S.role==="adm" ? `<button class="btn btn-p" id="btnNew">+ Nova Matéria</button>` : ""}
     </div>
-    ${S.role==="adm"?`<button class="btn btn-primary" id="hN" style="margin-bottom:24px">+ Nova matéria</button>`:""}
-    <div class="subj-grid" id="hG"></div>`;
-  page.appendChild(main);
-  ROOT.appendChild(page);
-  
-  if(S.role==="adm") document.getElementById("hN").onclick=()=>editSubject();
-  
-  const grid=document.getElementById("hG");
-  const subjs=getSubjects();
-  if(!subjs.length){
-    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div style="font-size:56px">📂</div>
-      <p class="empty-title">${S.role==="adm"?"Nenhuma matéria criada":"Nenhuma matéria disponível"}</p>
-      <p class="empty-sub">${S.role==="adm"?"Clique em + Nova matéria para começar":"O ADM ainda não criou matérias"}</p>
-    </div>`;
-    return;
-  }
-  
-  subjs.forEach(s=>{
-    const c=document.createElement("div"); c.className="subj-card";
-    const sess=getSessions(s.id);
-    c.innerHTML=`
-      <div class="subj-bar" style="background:${s.color}"></div>
+    <div class="subj-grid" id="grid"></div>
+    ${subjs.length===0 ? `<div class="empty">
+      <div style="font-size:52px">🎓</div>
+      <p class="empty-title">Nenhuma matéria ainda</p>
+      <p class="empty-sub">${S.role==="adm" ? "Clique em + Nova Matéria para começar!" : "O ADM ainda não criou nenhuma matéria."}</p>
+    </div>` : ""}`;
+
+  page.appendChild(wrap); ROOT.appendChild(page);
+
+  // Cards
+  const grid = document.getElementById("grid");
+  subjs.forEach((s,i)=>{
+    const cnt = files(s.id).length;
+    const card = document.createElement("div");
+    card.className = "subj-card";
+    card.style.animationDelay = `${i*40}ms`;
+    card.innerHTML = `
+      <div class="subj-top" style="background:${s.color}"></div>
       <div class="subj-body">
-        <div class="subj-icon" style="background:${s.color}40">${s.emoji}</div>
+        <div class="subj-ico" style="background:${s.color}22;color:${s.color}">${s.emoji}</div>
         <div class="subj-name">${esc(s.name)}</div>
         <div class="subj-sub">${esc(s.sub||"")}</div>
-        <div class="subj-footer">
-          <span class="subj-chip" style="background:${s.color}20;color:${s.color}">${sess.length} arquivo(s)</span>
-          ${S.role==="adm"?`<div class="subj-adm-btns"><button class="btn btn-yellow btn-sm" id="sE">✏️</button><button class="btn btn-danger btn-sm" id="sD">🗑</button></div>`:""}
+        <div class="subj-ft">
+          <span class="subj-chip" style="background:${s.color}22;color:${s.color}" data-go="${s.id}">
+            ${cnt} arquivo(s) →
+          </span>
+          ${S.role==="adm" ? `<div class="subj-adm">
+            <button class="btn btn-g btn-sm" data-edit="${s.id}" title="Editar">✏️</button>
+            <button class="btn btn-d btn-sm" data-del="${s.id}" title="Excluir">🗑</button>
+          </div>` : ""}
         </div>
       </div>`;
-    c.onclick=()=>go("subject",{subjId:s.id,tab:"summary",sessIdx:0});
-    if(S.role==="adm"){
-      c.querySelector("#sE").onclick=e=>{e.stopPropagation();editSubject(s)};
-      c.querySelector("#sD").onclick=e=>{e.stopPropagation();if(confirm("Deletar matéria e todos os arquivos?"))deleteSubject(s.id).then(()=>go("home"))};
+    grid.appendChild(card);
+  });
+
+  // Events
+  document.getElementById("btnNew")?.addEventListener("click", ()=>openSubjModal());
+  document.querySelectorAll("[data-go]").forEach(el=>
+    el.onclick = ()=>go("subjectView", {subjId: el.dataset.go})
+  );
+  document.querySelectorAll("[data-edit]").forEach(el=>
+    el.onclick = e=>{ e.stopPropagation(); openSubjModal(subject(el.dataset.edit)); }
+  );
+  document.querySelectorAll("[data-del]").forEach(el=>
+    el.onclick = async e=>{
+      e.stopPropagation();
+      const s = subject(el.dataset.del);
+      if(!confirm(`Excluir a matéria "${s?.name}" e todos os seus arquivos?`)) return;
+      await delSubject(el.dataset.del);
+      go("home");
     }
-    grid.appendChild(c);
+  );
+}
+
+// ── Subject modal (criar / editar) ────────────────────
+function openSubjModal(existing=null){
+  const isEdit = !!existing;
+  let selEmoji = existing?.emoji || "📚";
+  let selColor = existing?.color || "#a78bfa";
+
+  modal(`
+    <p class="modal-title">${isEdit ? "Editar Matéria" : "Nova Matéria"}</p>
+    <div>
+      <span class="lbl">Ícone</span>
+      <div class="emoji-grid">${EMOJIS.map(e=>`<button class="emj${e===selEmoji?" emj-on":""}" data-e="${e}">${e}</button>`).join("")}</div>
+    </div>
+    <div>
+      <span class="lbl">Cor</span>
+      <div class="clr-grid">${COLORS.map(c=>`<div class="clr${c===selColor?" clr-on":""}" data-c="${c}" style="background:${c}"></div>`).join("")}</div>
+    </div>
+    <div><label class="lbl">Nome da matéria *</label><input class="inp" id="mName" placeholder="ex: Cálculo I" value="${esc(existing?.name||"")}"/></div>
+    <div><label class="lbl">Subtítulo (opcional)</label><input class="inp" id="mSub" placeholder="ex: Derivadas e Integrais" value="${esc(existing?.sub||"")}"/></div>
+    <div class="modal-row">
+      <button class="btn btn-g" id="mCan">Cancelar</button>
+      <button class="btn btn-p" id="mOk">${isEdit?"Salvar":"Criar"}</button>
+    </div>`,
+  (m)=>{
+    m.querySelectorAll(".emj").forEach(b=>{
+      b.onclick=()=>{ selEmoji=b.dataset.e; m.querySelectorAll(".emj").forEach(x=>x.className="emj"+(x.dataset.e===selEmoji?" emj-on":"")); };
+    });
+    m.querySelectorAll(".clr").forEach(b=>{
+      b.onclick=()=>{ selColor=b.dataset.c; m.querySelectorAll(".clr").forEach(x=>x.className="clr"+(x.dataset.c===selColor?" clr-on":"")); };
+    });
+    m.querySelector("#mCan").onclick = closeModal;
+    m.querySelector("#mOk").onclick = async()=>{
+      const name = m.querySelector("#mName").value.trim();
+      if(!name){ m.querySelector("#mName").focus(); return; }
+      const sub = m.querySelector("#mSub").value.trim();
+      const btn = m.querySelector("#mOk");
+      btn.disabled = true; btn.textContent = "Salvando…";
+      try{
+        if(isEdit) await editSubject(existing.id, {name,sub,emoji:selEmoji,color:selColor});
+        else       await addSubject({id:gid(),name,sub,emoji:selEmoji,color:selColor,createdAt:new Date().toISOString()});
+        closeModal(); go("home");
+      }catch(e){ alert("Erro: "+e.message); btn.disabled=false; btn.textContent=isEdit?"Salvar":"Criar"; }
+    };
   });
 }
 
-// ── EDIT SUBJECT (Modal) ───────────────────────────────────────────
-let selEmoji="📚",selColor="#634cdc";
-function editSubject(existing=null){
-  if(existing){selEmoji=existing.emoji;selColor=existing.color}
-  const isEdit=!!existing;
-  function closeModal(){ROOT.querySelector(".modal-overlay")?.remove()}
-  const overlay=document.createElement("div"); overlay.className="modal-overlay";
-  overlay.innerHTML=`
-    <div class="modal">
-      <h2 class="modal-title">${isEdit?"Editar":"Criar"} matéria</h2>
-      <div>
-        <label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Emoji</label>
-        <div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-btn${e===selEmoji?" emoji-btn-sel":""}" data-e="${e}" type="button">${e}</button>`).join("")}</div>
-      </div>
-      <div>
-        <label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Cor</label>
-        <div class="color-grid">${COLORS.map(c=>`<div class="color-btn${c===selColor?" color-btn-sel":""}" data-c="${c}" style="background:${c}"></div>`).join("")}</div>
-      </div>
-      <div><label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Nome da matéria</label>
-        <input class="inp" id="mName" placeholder="ex: Cálculo I" value="${esc(existing?.name||"")}"/>
-      </div>
-      <div><label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Subtítulo (opcional)</label>
-        <input class="inp" id="mSub" placeholder="ex: Derivadas e Integrais" value="${esc(existing?.sub||"")}"/>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-ghost" id="mCancel">Cancelar</button>
-        <button class="btn btn-primary" id="mSave">${isEdit?"Salvar":"Criar"}</button>
-      </div>`;
-  
-  ROOT.appendChild(overlay);
-  overlay.onclick=e=>{if(e.target===overlay)closeModal()};
-  
-  overlay.querySelectorAll(".emoji-btn").forEach(b=>{
-    b.onclick=()=>{selEmoji=b.dataset.e;overlay.querySelectorAll(".emoji-btn").forEach(x=>x.className="emoji-btn"+(x.dataset.e===selEmoji?" emoji-btn-sel":""))};
-  });
-  overlay.querySelectorAll(".color-btn").forEach(b=>{
-    b.onclick=()=>{selColor=b.dataset.c;overlay.querySelectorAll(".color-btn").forEach(x=>x.className="color-btn"+(x.dataset.c===selColor?" color-btn-sel":""))};
-  });
-  overlay.querySelector("#mCancel").onclick=closeModal;
-  overlay.querySelector("#mSave").onclick=async()=>{
-    const name=overlay.querySelector("#mName").value.trim();
-    if(!name){overlay.querySelector("#mName").style.borderColor="#ff4d6d";return}
-    const sub=overlay.querySelector("#mSub").value.trim();
-    if(isEdit){
-      await updateSubject(existing.id,{name,sub,emoji:selEmoji,color:selColor});
-    } else {
-      await addSubject({id:genId(),name,sub,emoji:selEmoji,color:selColor,createdAt:new Date().toISOString()});
-    }
-    closeModal();
-    go("home");
-  };
-}
+// ══════════════════════════════════════════════════════
+// SUBJECT VIEW — lista de arquivos
+// ══════════════════════════════════════════════════════
+function subjectView(){
+  const subj = subject(S.subjId);
+  if(!subj){ go("home"); return; }
 
-// ── UPLOAD ────────────────────────────────────────────────────────
-function upload(){
-  const subj=getSubject(S.subjId);
-  const page=document.createElement("div"); page.className="page";
+  const page = document.createElement("div"); page.className="page";
   page.appendChild(mkHdr());
-  const main=document.createElement("div"); main.className="main main-sm";
-  main.innerHTML=`
-    <div class="hero" style="margin-bottom:24px">
-      <button class="btn btn-ghost btn-sm" id="uB" style="margin-bottom:16px">← Voltar</button>
-      <h1 class="hero-title">Upload de Material</h1>
-      <p style="margin-top:10px;font-size:14px">
+  const wrap = document.createElement("main"); wrap.className="wrap";
+
+  const fs = files(S.subjId);
+
+  wrap.innerHTML = `
+    <div class="subj-hdr">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-g btn-sm" id="sBack">← Voltar</button>
+        ${S.role==="adm" ? `<button class="btn btn-p btn-sm" id="sUp">⬆ Upload</button>` : ""}
+      </div>
+      <div class="subj-title">
+        <span style="color:${subj.color}">${subj.emoji}</span> ${esc(subj.name)}
+        ${subj.sub ? `<span style="color:var(--mu);font-size:16px;font-weight:400"> — ${esc(subj.sub)}</span>` : ""}
+      </div>
+      <div class="subj-meta">${fs.length} arquivo(s) disponível(is)</div>
+    </div>
+    <div class="file-list" id="fileList"></div>
+    ${fs.length===0 ? `<div class="empty">
+      <div style="font-size:48px">📂</div>
+      <p class="empty-title">Nenhum arquivo ainda</p>
+      <p class="empty-sub">${S.role==="adm" ? "Clique em ⬆ Upload para adicionar o primeiro arquivo." : "O ADM ainda não publicou arquivos nesta matéria."}</p>
+    </div>` : ""}`;
+
+  page.appendChild(wrap); ROOT.appendChild(page);
+
+  document.getElementById("sBack").onclick = ()=>go("home");
+  document.getElementById("sUp")?.addEventListener("click", ()=>go("uploadView"));
+
+  // File cards
+  const list = document.getElementById("fileList");
+  fs.forEach((f,i)=>{
+    const card = document.createElement("div");
+    card.className = "file-card";
+    card.style.animationDelay = `${i*35}ms`;
+
+    card.innerHTML = `
+      <div class="file-card-hdr">
+        <div class="file-info">
+          <div class="file-ico">${fileIcon(f.name)}</div>
+          <div style="min-width:0">
+            <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
+            <div class="file-date">${fmtDate(f.uploadedAt)}${f.size ? " · "+fmtSize(f.size) : ""}</div>
+          </div>
+        </div>
+        <div class="file-acts">
+          <a href="${esc(f.url)}" target="_blank" download="${esc(f.name)}" class="btn btn-gr btn-sm">⬇ Baixar</a>
+          ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-fdel="${f.id}">🗑</button>` : ""}
+        </div>
+      </div>
+      <div class="link-zone">
+        <div class="link-lbl">🔗 Link do Resumo (Claude)</div>
+        <div id="lz_${f.id}"></div>
+      </div>`;
+    list.appendChild(card);
+
+    // Render link zone
+    renderLinkZone(f);
+
+    // Delete file
+    card.querySelector(`[data-fdel="${f.id}"]`)?.addEventListener("click", async()=>{
+      if(!confirm(`Excluir "${f.name}"?`)) return;
+      await delFile(S.subjId, f.id);
+      go("subjectView");
+    });
+  });
+}
+
+function renderLinkZone(f){
+  const lz = document.getElementById(`lz_${f.id}`);
+  if(!lz) return;
+
+  if(f.resumeLink){
+    lz.innerHTML = `<div class="link-box">
+      <a href="${esc(f.resumeLink)}" target="_blank">📄 Abrir resumo do Claude</a>
+      ${S.role==="adm" ? `<button class="btn btn-g btn-sm" id="ledit_${f.id}">✏️</button>` : ""}
+    </div>`;
+    document.getElementById(`ledit_${f.id}`)?.addEventListener("click", ()=>editLinkZone(f));
+  } else {
+    lz.innerHTML = S.role==="adm"
+      ? `<button class="btn btn-g btn-sm" id="ladd_${f.id}">+ Adicionar link</button>`
+      : `<span class="link-empty">Nenhum resumo disponível ainda.</span>`;
+    document.getElementById(`ladd_${f.id}`)?.addEventListener("click", ()=>editLinkZone(f));
+  }
+}
+
+function editLinkZone(f){
+  const lz = document.getElementById(`lz_${f.id}`);
+  if(!lz) return;
+  lz.innerHTML = `<div class="link-edit-row">
+    <input class="inp" id="linp_${f.id}" placeholder="Cole o link do resumo aqui…" value="${esc(f.resumeLink||"")}"/>
+    <button class="btn btn-p btn-sm" id="lsave_${f.id}">Salvar</button>
+    <button class="btn btn-g btn-sm" id="lcan_${f.id}">✕</button>
+  </div>`;
+  document.getElementById(`lsave_${f.id}`).onclick = async()=>{
+    const v = document.getElementById(`linp_${f.id}`).value.trim();
+    await editFile(S.subjId, f.id, {resumeLink: v});
+    f.resumeLink = v;
+    renderLinkZone(f);
+  };
+  document.getElementById(`lcan_${f.id}`).onclick = ()=>renderLinkZone(f);
+}
+
+// ══════════════════════════════════════════════════════
+// UPLOAD VIEW
+// ══════════════════════════════════════════════════════
+function uploadView(){
+  if(S.role !== "adm"){ go("home"); return; }
+  const subj = subject(S.subjId);
+
+  const page = document.createElement("div"); page.className="page";
+  page.appendChild(mkHdr());
+  const wrap = document.createElement("main"); wrap.className="wrap wrap-sm";
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:24px">
+      <button class="btn btn-g btn-sm" id="uBack" style="margin-bottom:14px">← Voltar</button>
+      <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">⬆ Upload de Arquivo</h1>
+      <p style="font-size:13px;margin-top:8px">
         <span style="color:${subj?.color};font-weight:600">${subj?.emoji} ${esc(subj?.name)}</span>
-        ${subj?.sub?`<span style="color:var(--muted)"> — ${esc(subj.sub)}</span>`:""}
+        ${subj?.sub ? `<span style="color:var(--mu)"> — ${esc(subj.sub)}</span>` : ""}
       </p>
     </div>
-    <div id="errMsg"></div>
+
     <div class="drop" id="dz">
-      <input type="file" id="fi" accept=".pdf,.doc,.docx" style="display:none"/>
-      <div class="drop-icon" id="dI">☁️</div>
-      <p class="drop-label" id="dL">Toque para selecionar o arquivo</p>
-      <p class="drop-hint">PDF ou Word (.docx)</p>
+      <input type="file" id="fi" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt" style="display:none"/>
+      <div class="drop-ico" id="dIco">☁️</div>
+      <p class="drop-lbl" id="dLbl">Toque aqui para escolher o arquivo</p>
+      <p class="drop-hint">PDF, Word, PowerPoint, Excel, ZIP…</p>
     </div>
-    <button class="btn btn-primary btn-full" id="bP" disabled>🚀 Enviar Material</button>
-    <div id="pS" style="display:none;margin-top:20px;text-align:center">
-      <div class="prog-wrap" style="margin-bottom:10px"><div class="prog-bar" id="pB" style="width:5%"></div></div>
-      <p style="font-size:13px;color:var(--muted);animation:pulse 1.5s ease infinite" id="pM">Iniciando…</p>
-    </div>`;
-  page.appendChild(main); ROOT.appendChild(page);
-  document.getElementById("uB").onclick=()=>go("subject",{tab:"summary"});
-  let sf=null;
-  const dz=document.getElementById("dz"),fi=document.getElementById("fi");
-  dz.onclick=()=>fi.click();
-  dz.ondragover=e=>{e.preventDefault();dz.classList.add("drop-on")};
-  dz.ondragleave=()=>dz.classList.remove("drop-on");
-  dz.ondrop=e=>{e.preventDefault();dz.classList.remove("drop-on");pick(e.dataTransfer.files[0])};
-  fi.onchange=e=>pick(e.target.files[0]);
-  function pick(f){
-    if(!f)return;
-    if(!f.name.match(/\.(pdf|docx?|doc)$/i)){
-      document.getElementById("errMsg").innerHTML=`<div class="error-msg">❌ Formato inválido! Use PDF ou DOCX</div>`;
-      return;
-    }
-    sf=f;
-    document.getElementById("errMsg").innerHTML="";
-    document.getElementById("dI").textContent="📄";
-    document.getElementById("dL").textContent=f.name;
-    document.getElementById("bP").disabled=false;
+
+    <div id="progArea" style="display:none;margin-bottom:16px">
+      <div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+      <p class="prog-msg" id="progMsg">Aguardando…</p>
+    </div>
+
+    <button class="btn btn-p btn-fw" id="btnUp" disabled>🚀 Enviar arquivo</button>
+    <p id="upErr" style="color:#ff4d6d;font-size:13px;margin-top:10px;display:none"></p>`;
+
+  page.appendChild(wrap); ROOT.appendChild(page);
+
+  document.getElementById("uBack").onclick = ()=>go("subjectView");
+
+  let selectedFile = null;
+
+  const dz  = document.getElementById("dz");
+  const fi  = document.getElementById("fi");
+  const btn = document.getElementById("btnUp");
+  const err = document.getElementById("upErr");
+
+  function pick(file){
+    if(!file) return;
+    selectedFile = file;
+    document.getElementById("dIco").textContent = fileIcon(file.name);
+    document.getElementById("dLbl").textContent = file.name;
+    btn.disabled = false;
+    err.style.display = "none";
   }
-  document.getElementById("bP").onclick=async()=>{
-    if(!sf)return;
-    document.getElementById("bP").disabled=true;
-    const ps=document.getElementById("pS"),pb=document.getElementById("pB"),pm=document.getElementById("pM"),em=document.getElementById("errMsg");
-    ps.style.display="block";
-    em.innerHTML="";
+
+  dz.onclick = ()=>fi.click();
+  dz.ondragover  = e=>{ e.preventDefault(); dz.classList.add("drop-on"); };
+  dz.ondragleave = ()=>dz.classList.remove("drop-on");
+  dz.ondrop = e=>{ e.preventDefault(); dz.classList.remove("drop-on"); pick(e.dataTransfer.files[0]); };
+  fi.onchange = e=>pick(e.target.files[0]);
+
+  btn.onclick = async()=>{
+    if(!selectedFile) return;
+
+    btn.disabled = true;
+    err.style.display = "none";
+
+    const prog = document.getElementById("progArea");
+    const bar  = document.getElementById("progBar");
+    const msg  = document.getElementById("progMsg");
+    prog.style.display = "block";
+
     try{
-      pm.textContent="Enviando para o Cloudinary…";
-      const{url}=await uploadCloud(sf,pct=>{pb.style.width=Math.max(5,Math.round(pct*.5))+"%"});
-      pb.style.width="75%"; pm.textContent="Salvando no banco de dados…";
-      await addSession(S.subjId,{id:genId(),fileName:sf.name,fileUrl:url,summary:"",flashcards:[],quiz:[],uploadedAt:new Date().toISOString(),resumeLink:""});
-      pb.style.width="100%";
-      setTimeout(()=>go("subject",{tab:"summary"}),500);
-    }catch(err){
-      em.innerHTML=`<div class="error-msg">❌ Erro: ${esc(err.message)}</div>`;
-      document.getElementById("bP").disabled=false;
-      ps.style.display="none";
+      msg.textContent = "Enviando para o Cloudinary…";
+      bar.style.width = "5%";
+
+      const result = await uploadCloudinary(selectedFile, pct=>{
+        bar.style.width = pct + "%";
+        msg.textContent = `Enviando… ${pct}%`;
+      });
+
+      bar.style.width = "90%";
+      msg.textContent = "Salvando informações…";
+
+      await addFile(S.subjId, {
+        id:         gid(),
+        name:       selectedFile.name,
+        url:        result.url,
+        publicId:   result.publicId,
+        size:       result.bytes || selectedFile.size,
+        uploadedAt: new Date().toISOString(),
+        resumeLink: "",
+      });
+
+      bar.style.width = "100%";
+      msg.textContent = "✅ Enviado com sucesso!";
+
+      setTimeout(()=>go("subjectView"), 900);
+
+    } catch(e){
+      prog.style.display = "none";
+      btn.disabled = false;
+      err.textContent = "❌ Erro: " + e.message;
+      err.style.display = "block";
     }
   };
 }
 
-// ── SUBJECT VIEW ──────────────────────────────────────────────────
-function subject(){
-  const subj=getSubject(S.subjId);
-  const page=document.createElement("div"); page.className="page";
+// ══════════════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════════════
+function settingsView(){
+  const page = document.createElement("div"); page.className="page";
   page.appendChild(mkHdr());
-  const main=document.createElement("main"); main.className="main";
-
-  const hdr=document.createElement("div");
-  hdr.innerHTML=`
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap">
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-          <button class="btn btn-ghost btn-sm" id="sB">← Home</button>
-          ${S.role==="adm"?`<button class="btn btn-primary btn-sm" id="sU">+ Upload</button>`:""}
-        </div>
-        <div style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px;line-height:1.2">
-          <span style="color:${subj?.color}">${subj?.emoji}</span> ${esc(subj?.name||"")}
-          ${subj?.sub?`<span style="color:var(--muted);font-size:16px;font-weight:400"> — ${esc(subj.sub)}</span>`:""}
-        </div>
-        <div style="font-size:13px;color:var(--muted);margin-top:4px" id="sM">
-          ${getSessions(S.subjId).length} arquivo(s) disponível(is)
-        </div>
-      </div>
-    </div>`;
-  main.appendChild(hdr);
-  document.getElementById("sB").onclick=()=>go("home");
-  document.getElementById("sU")?.addEventListener("click",()=>go("upload"));
-
-  const tc=document.createElement("div"); tc.id="tc";
-  const tabsEl=mkTabs(S.tab,tc);
-  main.appendChild(tabsEl);
-  main.appendChild(tc);
-  page.appendChild(main);
-  ROOT.appendChild(page);
-
-  renderTab(tc, getSessions(S.subjId)[S.sessIdx]);
-}
-
-function renderTab(tc, session){
-  tc.innerHTML="";
-  const sess=getSessions(S.subjId);
-  if(S.tab==="summary")    tabSummary(tc,session,sess);
-  else if(S.tab==="flashcards")tabFlashcards(tc,session);
-  else if(S.tab==="quiz")  tabQuiz(tc,session);
-  else if(S.tab==="progress")tabProgress(tc);
-}
-
-// ── SUMMARY TAB ───────────────────────────────────────────────────
-function tabSummary(tc, session, sess){
-  if(!sess.length){
-    tc.innerHTML=`<div class="empty"><div style="font-size:56px">📂</div>
-      <p class="empty-title">Nenhum conteúdo ainda</p>
-      <p class="empty-sub">${S.role==="adm"?"Clique em + Upload para adicionar o primeiro arquivo.":"O ADM ainda não publicou arquivos nesta matéria."}</p>
-      ${S.role==="adm"?`<button class="btn btn-primary" id="eU">+ Upload</button>`:""}
-    </div>`;
-    document.getElementById("eU")?.addEventListener("click",()=>go("upload"));
-    return;
-  }
-  if(sess.length>1){
-    const sel=document.createElement("select"); sel.className="sel"; sel.style.marginBottom="16px";
-    sess.forEach((s,i)=>{const o=document.createElement("option");o.value=i;o.textContent=s.fileName;if(i===S.sessIdx)o.selected=true;sel.appendChild(o)});
-    sel.onchange=e=>{S.sessIdx=Number(e.target.value);tabSummary(tc,sess[S.sessIdx],sess)};
-    tc.appendChild(sel);
-  }
-  if(!session) return;
-
-  const fc=document.createElement("div"); fc.className="file-card";
-  fc.innerHTML=`
-    <div class="file-card-header">
-      <div class="file-info">
-        <span style="font-size:22px">${session.fileName?.toLowerCase().endsWith(".pdf")?"📄":"📝"}</span>
-        <div>
-          <div class="file-name">${esc(session.fileName)}</div>
-          <div class="file-meta">${session.uploadedAt?new Date(session.uploadedAt).toLocaleDateString("pt-BR"):""}</div>
-        </div>
-      </div>
-      <div class="file-actions">
-        <a href="${session.fileUrl}" target="_blank" class="btn btn-green btn-sm" download="${esc(session.fileName)}">⬇ Baixar</a>
-        ${S.role==="adm"?`<button class="btn btn-danger btn-sm" id="bDel">🗑</button>`:""}
-      </div>
+  const wrap = document.createElement("main"); wrap.className="wrap wrap-sm";
+  wrap.innerHTML = `
+    <div style="margin-bottom:26px">
+      <button class="btn btn-g btn-sm" id="stBack" style="margin-bottom:14px">← Voltar</button>
+      <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">⚙️ Configurações</h1>
     </div>
-    <div class="link-section">
-      <div class="link-label">🔗 Link do Resumo Externo</div>
-      <div id="linkArea"></div>
+    <div class="set-card">
+      <h3>Alterar senha do ADM</h3>
+      <p>A nova senha será usada no próximo login como ADM.</p>
+      <input class="inp" id="nPass" type="password" placeholder="Nova senha (mín. 4 caracteres)"/>
+      <button class="btn btn-p" id="sSave">Salvar senha</button>
+      <p id="sOk" class="ok-msg" style="display:none">✅ Senha atualizada com sucesso!</p>
     </div>`;
-  tc.appendChild(fc);
+  page.appendChild(wrap); ROOT.appendChild(page);
 
-  const linkArea=fc.querySelector("#linkArea");
-  function renderLink(editing=false){
-    if(editing && S.role==="adm"){
-      linkArea.innerHTML=`<div class="link-edit-row">
-        <input class="inp" id="linkInp" placeholder="Cole o link do resumo aqui…" value="${esc(session.resumeLink||"")}"/>
-        <button class="btn btn-primary btn-sm" id="linkSave">Salvar</button>
-        <button class="btn btn-ghost btn-sm" id="linkCancel">✕</button>
-      </div>`;
-      linkArea.querySelector("#linkSave").onclick=async()=>{
-        const v=linkArea.querySelector("#linkInp").value.trim();
-        session.resumeLink=v;
-        await updateSession(S.subjId, session.id, {resumeLink:v});
-        renderLink(false);
-      };
-      linkArea.querySelector("#linkCancel").onclick=()=>renderLink(false);
-    } else {
-      if(session.resumeLink){
-        linkArea.innerHTML=`<div class="link-display">
-          <a href="${esc(session.resumeLink)}" target="_blank">📄 Abrir resumo externo</a>
-          ${S.role==="adm"?`<button class="btn btn-ghost btn-sm" id="linkEdit">✏️</button>`:""}
-        </div>`;
-        linkArea.querySelector("#linkEdit")?.addEventListener("click",()=>renderLink(true));
-      } else {
-        linkArea.innerHTML=`${S.role==="adm"
-          ?`<button class="btn btn-ghost btn-sm" id="linkAdd">+ Adicionar link do resumo</button>`
-          :`<p style="color:var(--muted);font-size:13px">Nenhum link de resumo disponível ainda.</p>`}`;
-        linkArea.querySelector("#linkAdd")?.addEventListener("click",()=>renderLink(true));
-      }
-    }
-  }
-  renderLink(false);
-
-  fc.querySelector("#bDel")?.addEventListener("click",async()=>{
-    if(confirm("Deletar este arquivo?")){
-      S.sessIdx=0;
-      await deleteSessionDB(S.subjId,session.id);
-      go("subject",{tab:"summary"});
-    }
-  });
-}
-
-// ── FLASHCARD TAB ─────────────────────────────────────────────────
-function tabFlashcards(tc,session){
-  tc.innerHTML=`<div class="empty"><div style="font-size:48px">🃏</div><p class="empty-title">Flashcards</p><p class="empty-sub">Recurso em desenvolvimento ou use o link de resumo para estudar.</p></div>`;
-}
-
-// ── QUIZ TAB ──────────────────────────────────────────────────────
-function tabQuiz(tc,session){
-  tc.innerHTML=`<div class="empty"><div style="font-size:48px">❓</div><p class="empty-title">Quiz</p><p class="empty-sub">Recurso em desenvolvimento.</p></div>`;
-}
-
-// ── PROGRESS TAB ──────────────────────────────────────────────────
-function tabProgress(tc){
-  tc.innerHTML=`<div class="empty"><div style="font-size:48px">📈</div><p class="empty-title">Seu Progresso</p><p class="empty-sub">Aqui aparecerão suas estatísticas de estudo.</p></div>`;
-}
-
-// ── SETTINGS ──────────────────────────────────────────────────────
-function settings(){
-  const page=document.createElement("div"); page.className="page";
-  page.appendChild(mkHdr());
-  const main=document.createElement("main"); main.className="main main-sm";
-  main.innerHTML=`<div class="hero" style="margin-bottom:28px">
-    <button class="btn btn-ghost btn-sm" id="stB" style="margin-bottom:16px">← Voltar</button>
-    <h1 class="hero-title">⚙️ Configurações</h1>
-  </div>
-  <div class="settings-card">
-    <h3>Alterar senha do ADM</h3>
-    <p>A nova senha será usada no próximo acesso como ADM.</p>
-    <input class="inp" id="nP" type="password" placeholder="Nova senha"/>
-    <button class="btn btn-primary" id="sS">Salvar senha</button>
-    <p id="sO" class="ok-msg" style="display:none">✓ Senha atualizada!</p>
-  </div>`;
-  ROOT.appendChild(page);
-  document.getElementById("stB").onclick=()=>go("home");
-  document.getElementById("sS").onclick=async()=>{
-    const p=document.getElementById("nP").value.trim(); if(!p)return;
-    const h=btoa(p);
-    S.admHash=h;
-    S.db.admHash=h;
-    await persistDB();
-    document.getElementById("nP").value="";
-    const ok=document.getElementById("sO"); ok.style.display="block";
-    setTimeout(()=>{if(ok)ok.style.display="none"},3000);
+  document.getElementById("stBack").onclick = ()=>go("home");
+  document.getElementById("sSave").onclick = async()=>{
+    const p = document.getElementById("nPass").value.trim();
+    if(p.length < 4){ alert("Senha muito curta."); return; }
+    const btn = document.getElementById("sSave");
+    btn.disabled = true; btn.textContent = "Salvando…";
+    S.db.admHash = btoa(p);
+    await save();
+    document.getElementById("nPass").value = "";
+    const ok = document.getElementById("sOk");
+    ok.style.display = "block";
+    btn.disabled = false; btn.textContent = "Salvar senha";
+    setTimeout(()=>{ if(ok) ok.style.display="none"; }, 3500);
   };
 }
 
-// ── BOOT ──────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════
 async function boot(){
-  ROOT.innerHTML=`<div class="center"><div class="spinner"></div><p style="color:var(--muted);font-size:14px">Iniciando StudyNet…</p></div>`;
+  ROOT.innerHTML = `<div class="ctr"><div class="spin"></div><p style="color:var(--mu);font-size:13px">Carregando StudyNet…</p></div>`;
   try{
     S.db = await dbRead();
-    if(!S.db || !S.db.subjects){
-      S.db = {subjects:[], sessions:{}, progress:{}, admHash: btoa(ADM_SENHA_INICIAL)};
-      await persistDB();
+    if(!S.db.subjects){
+      S.db = { subjects:[], files:{}, admHash: btoa(CFG.admSenhaInicial) };
+      await dbWrite(S.db);
     }
-    S.admHash = S.db.admHash || btoa(ADM_SENHA_INICIAL);
-  }catch(e){
-    console.error("Erro no boot:", e);
+  } catch(e){
+    ROOT.innerHTML = `<div class="ctr">
+      <div style="font-size:46px">⚠️</div>
+      <p style="font-family:'Fraunces',serif;font-weight:700;font-size:18px">Erro de conexão</p>
+      <p style="color:var(--mu);font-size:13px;max-width:320px">Não foi possível conectar ao banco de dados (JSONBin). Verifique sua conexão e tente recarregar.</p>
+      <code style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;font-size:12px;color:#ff4d6d;word-break:break-all;max-width:320px">${esc(e.message)}</code>
+      <button class="btn btn-p" onclick="location.reload()">🔄 Tentar novamente</button>
+    </div>`;
+    return;
   }
-  if(!S.role)go("gate");else go("home");
+  if(!S.role) go("gate");
+  else go("home");
 }
 
 boot();
