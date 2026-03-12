@@ -25,22 +25,16 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-
-/* ── LAYOUT ── */
 .page{min-height:100vh;display:flex;flex-direction:column}
 .wrap{max-width:860px;margin:0 auto;padding:32px 18px;width:100%;flex:1}
 .wrap-sm{max-width:540px}
 .ctr{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;padding:24px;text-align:center}
-
-/* ── HEADER ── */
 .hdr{background:rgba(8,8,18,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--bd);padding:0 18px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .logo{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:9px;color:var(--tx)}
 .logo-mk{width:32px;height:32px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .logo-tx{font-family:var(--fh);font-weight:900;font-size:18px;letter-spacing:-.4px}
 .hdr-r{display:flex;align-items:center;gap:8px}
 .badge{background:rgba(99,76,220,.15);color:#a48fff;border:1px solid rgba(99,76,220,.3);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;letter-spacing:.7px}
-
-/* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--r);font-family:var(--fb);font-weight:600;font-size:14px;cursor:pointer;transition:all .17s;white-space:nowrap;text-decoration:none;padding:10px 20px}
 .btn:active{transform:scale(.96)}.btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .btn-p{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 3px 18px rgba(99,76,220,.28)}
@@ -48,24 +42,18 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .btn-d{background:rgba(255,77,109,.1);color:#ff4d6d;border:1px solid rgba(255,77,109,.3)}
 .btn-gr{background:rgba(56,182,155,.1);color:var(--ac2);border:1.5px solid var(--ac2)}
 .btn-sm{padding:6px 13px;font-size:13px}.btn-fw{width:100%}
-
-/* ── INPUTS ── */
 .inp,.sel{width:100%;background:var(--sf);border:1.5px solid var(--bd2);border-radius:var(--r);padding:11px 14px;color:var(--tx);font-family:var(--fb);font-size:14px;outline:none;transition:border-color .18s;appearance:none}
 .inp:focus,.sel:focus{border-color:var(--ac)}.inp::placeholder{color:var(--mu)}
 .lbl{display:block;font-size:12px;color:var(--mu2);font-weight:600;margin-bottom:6px}
-
-/* ── GATE ── */
 .gate-pg{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 25% 35%,rgba(99,76,220,.1),transparent 55%),radial-gradient(ellipse at 75% 70%,rgba(56,182,155,.07),transparent 50%),var(--bg)}
 .gate-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:40px 32px;width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:14px;animation:up .4s ease;box-shadow:0 10px 50px rgba(0,0,0,.5)}
-.gate-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 6px 24px rgba(99,76,220,.4)}
+.gate-logo{width:60px;height:60px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px}
 .gate-title{font-family:var(--fh);font-weight:900;font-size:30px;letter-spacing:-.8px}
-.gate-sub{color:var(--mu);font-size:13px;margin-bottom:2px}
+.gate-sub{color:var(--mu);font-size:13px}
 .dvd{width:100%;display:flex;align-items:center;gap:10px;color:var(--mu);font-size:11px}
 .dvd::before,.dvd::after{content:"";flex:1;height:1px;background:var(--bd)}
 .gate-row{display:flex;gap:8px;width:100%}
 .gate-err{color:#ff4d6d;font-size:13px;text-align:center;animation:up .2s ease}
-
-/* ── HOME ── */
 .hero{margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .hero-title{font-family:var(--fh);font-weight:900;font-size:30px;letter-spacing:-.7px;line-height:1.15}
 .hero-sub{color:var(--mu2);font-size:13px;margin-top:5px}
@@ -80,17 +68,15 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .subj-ft{display:flex;align-items:center;justify-content:space-between}
 .subj-chip{font-size:11px;font-weight:600;padding:3px 11px;border-radius:99px}
 .subj-adm{display:flex;gap:5px}
-
-/* ── SUBJECT VIEW ── */
 .subj-hdr{margin-bottom:24px}
 .subj-title{font-family:var(--fh);font-weight:900;font-size:24px;letter-spacing:-.5px;line-height:1.2;margin-bottom:4px}
 .subj-meta{font-size:13px;color:var(--mu)}
 .file-list{display:flex;flex-direction:column;gap:12px}
 .file-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;animation:up .25s ease both}
 .file-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;gap:12px;flex-wrap:wrap}
-.file-info{display:flex;align-items:center;gap:12px;min-width:0}
+.file-info{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
 .file-ico{font-size:24px;flex-shrink:0}
-.file-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .file-date{font-size:11px;color:var(--mu);margin-top:2px}
 .file-acts{display:flex;gap:7px;flex-shrink:0;flex-wrap:wrap}
 .link-zone{padding:0 18px 15px;border-top:1px solid var(--bd)}
@@ -101,18 +87,14 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .link-edit-row{display:flex;gap:7px}
 .link-edit-row .inp{font-size:13px;padding:8px 12px}
 .link-empty{font-size:13px;color:var(--mu);font-style:italic}
-
-/* ── UPLOAD ── */
-.drop{border:2px dashed var(--bd2);border-radius:var(--rl);padding:38px 18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px}
+.drop{border:2px dashed var(--bd2);border-radius:var(--rl);padding:38px 18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;user-select:none}
 .drop:hover,.drop-on{border-color:var(--ac);background:rgba(99,76,220,.05)}
 .drop-ico{font-size:40px;margin-bottom:10px}
 .drop-lbl{font-family:var(--fh);font-weight:700;font-size:16px;margin-bottom:3px}
 .drop-hint{font-size:13px;color:var(--mu)}
-.prog-wrap{height:5px;background:var(--bd);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.prog-wrap{height:6px;background:var(--bd);border-radius:99px;overflow:hidden;margin-bottom:8px}
 .prog-bar{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .25s}
 .prog-msg{font-size:13px;color:var(--mu);text-align:center}
-
-/* ── MODAL ── */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;animation:fade .2s ease}
 .modal{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--rl);padding:28px 24px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:13px;box-shadow:0 14px 50px rgba(0,0,0,.6);animation:up .22s ease}
 .modal-title{font-family:var(--fh);font-weight:900;font-size:20px;letter-spacing:-.4px}
@@ -124,20 +106,14 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .clr-grid{display:flex;flex-wrap:wrap;gap:7px}
 .clr{width:30px;height:30px;border-radius:8px;border:3px solid transparent;cursor:pointer;transition:all .14s}
 .clr-on{border-color:#fff;transform:scale(1.12)}
-
-/* ── SETTINGS ── */
 .set-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:24px;display:flex;flex-direction:column;gap:11px}
 .set-card h3{font-family:var(--fh);font-weight:700;font-size:16px}
 .set-card p{color:var(--mu);font-size:13px}
 .ok-msg{color:var(--ac2);font-size:13px;animation:up .2s ease}
-
-/* ── EMPTY & SPINNER ── */
 .empty{text-align:center;padding:52px 20px;display:flex;flex-direction:column;align-items:center;gap:12px}
 .empty-title{font-family:var(--fh);font-weight:700;font-size:19px;color:var(--mu2)}
 .empty-sub{color:var(--mu);max-width:300px;font-size:13px}
 .spin{width:34px;height:34px;border:3px solid var(--bd2);border-top-color:var(--ac);border-radius:50%;animation:spin .65s linear infinite}
-
-/* ── RESPONSIVE ── */
 @media(max-width:600px){
   .wrap{padding:22px 14px}.hdr{padding:0 14px}
   .subj-grid{grid-template-columns:1fr}
@@ -147,124 +123,156 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 </style>
 </head>
 <body>
-<div id="app"><div class="ctr"><div class="spin"></div></div></div>
-
+<div id="app"><div class="ctr"><div class="spin"></div><p style="color:var(--mu);font-size:13px;margin-top:8px">Carregando…</p></div></div>
 <script>
-// ═══════════════════════════════════════════════════════
-// CONFIGURAÇÕES — já preenchidas!
-// ═══════════════════════════════════════════════════════
-const CFG = {
-  jsonbinId:  "69b1e91cc3097a1dd5198795",
-  jsonbinKey: "$2a$10$U0z9wAWSoLXYzldl4grbY.1yrURXzy/OqIR2ST4jCLcXFXutGjzi2",
-  cloudName:  "dzaogzywr",
-  uploadPreset: "studynet",
-  admSenhaInicial: "adm2024",
-};
-// ═══════════════════════════════════════════════════════
+"use strict";
 
-// ── JSONBin ───────────────────────────────────────────
-const BIN = `https://api.jsonbin.io/v3/b/${CFG.jsonbinId}`;
-const HDR = {"Content-Type":"application/json","X-Access-Key":CFG.jsonbinKey,"X-Bin-Versioning":"false"};
+// ═══════════════════════════════════════════════════
+// CLOUDINARY (único serviço externo necessário)
+// ═══════════════════════════════════════════════════
+const CLOUD_NAME   = "dzaogzywr";
+const UPLOAD_PRESET = "studynet";
+// ═══════════════════════════════════════════════════
 
-async function dbRead(){
-  const r = await fetch(BIN,{headers:HDR});
-  if(!r.ok) throw new Error("Erro JSONBin: "+r.status);
-  return (await r.json()).record || {};
-}
-async function dbWrite(data){
-  const r = await fetch(BIN,{method:"PUT",headers:HDR,body:JSON.stringify(data)});
-  if(!r.ok) throw new Error("Erro ao salvar: "+r.status);
+// ── Banco de dados local (localStorage) ─────────────
+// Simples, sem depender de serviço externo
+const DB_KEY = "studynet_db";
+
+function dbLoad() {
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { subjects: [], files: {}, admHash: null };
 }
 
-// ── Cloudinary ────────────────────────────────────────
-function uploadCloudinary(file, onProgress){
-  return new Promise((resolve, reject)=>{
+function dbSave(data) {
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(data));
+    return true;
+  } catch(e) {
+    alert("Erro ao salvar dados: " + e.message);
+    return false;
+  }
+}
+
+// ── Hash SHA-256 para senha ──────────────────────────
+async function sha256(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+}
+
+// ── Cloudinary upload ─────────────────────────────
+function uploadToCloudinary(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    // Valida tamanho (max 100MB)
+    if (file.size > 100 * 1024 * 1024) {
+      reject(new Error("Arquivo muito grande. Máximo: 100MB"));
+      return;
+    }
+
     const fd = new FormData();
     fd.append("file", file);
-    fd.append("upload_preset", CFG.uploadPreset);
+    fd.append("upload_preset", UPLOAD_PRESET);
     fd.append("folder", "studynet");
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CFG.cloudName}/auto/upload`);
 
     xhr.upload.onprogress = e => {
-      if(e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
+      if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
     };
 
     xhr.onload = () => {
-      if(xhr.status === 200){
-        const d = JSON.parse(xhr.responseText);
-        resolve({ url: d.secure_url, publicId: d.public_id, bytes: d.bytes });
+      if (xhr.status === 200) {
+        try {
+          const d = JSON.parse(xhr.responseText);
+          resolve({ url: d.secure_url, publicId: d.public_id, bytes: d.bytes });
+        } catch(e) {
+          reject(new Error("Resposta inválida do Cloudinary"));
+        }
       } else {
-        let msg = "Erro Cloudinary";
-        try{ msg = JSON.parse(xhr.responseText).error?.message || msg; }catch{}
+        let msg = "Erro no upload (status " + xhr.status + ")";
+        try { msg = JSON.parse(xhr.responseText).error?.message || msg; } catch {}
         reject(new Error(msg));
       }
     };
-    xhr.onerror = () => reject(new Error("Sem conexão com Cloudinary"));
+
+    xhr.onerror = () => reject(new Error("Falha de conexão com Cloudinary"));
+    xhr.ontimeout = () => reject(new Error("Timeout no upload"));
+    xhr.timeout = 120000; // 2 minutos
+
+    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);
     xhr.send(fd);
   });
 }
 
-// ── Helpers ───────────────────────────────────────────
-function uid(){ let id=localStorage.getItem("sn_uid"); if(!id){id=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem("sn_uid",id);} return id; }
-function gid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
-function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString("pt-BR"); }catch{ return ""; } }
-function fmtSize(b){ if(!b)return""; if(b<1024)return b+"B"; if(b<1048576)return Math.round(b/1024)+"KB"; return (b/1048576).toFixed(1)+"MB"; }
-function fileIcon(name){ const n=(name||"").toLowerCase(); if(n.endsWith(".pdf"))return"📄"; if(n.endsWith(".doc")||n.endsWith(".docx"))return"📝"; if(n.endsWith(".ppt")||n.endsWith(".pptx"))return"📊"; if(n.endsWith(".xls")||n.endsWith(".xlsx"))return"📈"; if(n.endsWith(".zip"))return"🗜"; return"📎"; }
+// ── Helpers ──────────────────────────────────────────
+function gid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function esc(s) { return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function fmtDate(iso) { try { return new Date(iso).toLocaleDateString("pt-BR"); } catch { return ""; } }
+function fmtSize(b) {
+  if (!b) return "";
+  if (b < 1024) return b + " B";
+  if (b < 1048576) return Math.round(b/1024) + " KB";
+  return (b/1048576).toFixed(1) + " MB";
+}
+function fileIcon(name) {
+  const n = (name||"").toLowerCase();
+  if (n.endsWith(".pdf")) return "📄";
+  if (n.endsWith(".doc") || n.endsWith(".docx")) return "📝";
+  if (n.endsWith(".ppt") || n.endsWith(".pptx")) return "📊";
+  if (n.endsWith(".xls") || n.endsWith(".xlsx")) return "📈";
+  if (n.endsWith(".zip") || n.endsWith(".rar")) return "🗜";
+  if (n.endsWith(".txt")) return "📃";
+  return "📎";
+}
 
-// ── State ─────────────────────────────────────────────
+// ── Estado global ────────────────────────────────────
 const S = {
-  role: sessionStorage.getItem("sn_role") || null,
-  userId: uid(),
-  db: null,
+  role:   sessionStorage.getItem("sn_role") || null,
+  db:     dbLoad(),
   subjId: null,
 };
 
-// ── DB shortcuts ──────────────────────────────────────
-function subjects(){ return S.db.subjects || []; }
-function subject(id){ return subjects().find(s=>s.id===id); }
-function files(subjId){ return (S.db.files||{})[subjId] || []; }
+// ── Atalhos DB ────────────────────────────────────────
+function subjects()     { return S.db.subjects || []; }
+function subject(id)    { return subjects().find(s => s.id === id); }
+function files(sid)     { return (S.db.files || {})[sid] || []; }
+function save()         { dbSave(S.db); }
 
-async function save(){ await dbWrite(S.db); }
+function addSubject(s)       { S.db.subjects = [...subjects(), s]; save(); }
+function editSubject(id, p)  { S.db.subjects = subjects().map(s => s.id===id ? {...s,...p} : s); save(); }
+function delSubject(id)      { S.db.subjects = subjects().filter(s => s.id!==id); delete (S.db.files||{})[id]; save(); }
+function addFile(sid, f)     { if(!S.db.files) S.db.files={}; S.db.files[sid]=[...files(sid), f]; save(); }
+function editFile(sid,fid,p) { S.db.files[sid]=files(sid).map(f=>f.id===fid?{...f,...p}:f); save(); }
+function delFile(sid, fid)   { S.db.files[sid]=files(sid).filter(f=>f.id!==fid); save(); }
 
-async function addSubject(s){ S.db.subjects=[...subjects(),s]; await save(); }
-async function editSubject(id,p){ S.db.subjects=subjects().map(s=>s.id===id?{...s,...p}:s); await save(); }
-async function delSubject(id){ S.db.subjects=subjects().filter(s=>s.id!==id); if(S.db.files)delete S.db.files[id]; await save(); }
-
-async function addFile(subjId,f){ if(!S.db.files)S.db.files={}; S.db.files[subjId]=[...files(subjId),f]; await save(); }
-async function editFile(subjId,fid,p){ S.db.files[subjId]=files(subjId).map(f=>f.id===fid?{...f,...p}:f); await save(); }
-async function delFile(subjId,fid){ S.db.files[subjId]=files(subjId).filter(f=>f.id!==fid); await save(); }
-
-// ── Render ────────────────────────────────────────────
+// ── Render engine ─────────────────────────────────────
 const ROOT = document.getElementById("app");
-let currentView = null;
+let _view = null;
 
-function go(view, patch={}){
+function go(view, patch = {}) {
   Object.assign(S, patch);
   ROOT.innerHTML = "";
-  window.scrollTo(0,0);
-  currentView = view;
-  ({gate, home, subjectView, uploadView, settingsView})[view]?.();
+  window.scrollTo(0, 0);
+  _view = view;
+  ({ gate, home, subjectView, uploadView, settingsView })[view]?.();
 }
 
-function refresh(){ go(currentView); }
-
 // ── Modal ─────────────────────────────────────────────
-function modal(html, onMount){
+function openModal(html, onMount) {
   document.getElementById("_ov")?.remove();
   const ov = document.createElement("div");
   ov.className = "ov"; ov.id = "_ov";
   ov.innerHTML = `<div class="modal">${html}</div>`;
-  ov.onclick = e=>{ if(e.target===ov) closeModal(); };
+  ov.onclick = e => { if (e.target === ov) closeModal(); };
   document.body.appendChild(ov);
   onMount?.(ov.querySelector(".modal"));
 }
-function closeModal(){ document.getElementById("_ov")?.remove(); }
+function closeModal() { document.getElementById("_ov")?.remove(); }
 
-// ── Header ────────────────────────────────────────────
-function mkHdr(){
+// ── Header ─────────────────────────────────────────────
+function mkHdr() {
   const h = document.createElement("header"); h.className = "hdr";
   h.innerHTML = `
     <button class="logo" id="hL">
@@ -272,19 +280,21 @@ function mkHdr(){
       <span class="logo-tx">StudyNet</span>
     </button>
     <div class="hdr-r">
-      ${S.role==="adm" ? `<span class="badge">ADM</span><button class="btn btn-g btn-sm" id="hS">⚙️</button>` : ""}
-      <button class="btn btn-g btn-sm" id="hExit">Sair</button>
+      ${S.role==="adm" ? `<span class="badge">ADM</span><button class="btn btn-g btn-sm" id="hSet">⚙️</button>` : ""}
+      <button class="btn btn-g btn-sm" id="hSair">Sair</button>
     </div>`;
-  h.querySelector("#hL").onclick = ()=>go("home");
-  h.querySelector("#hS")?.addEventListener("click", ()=>go("settingsView"));
-  h.querySelector("#hExit").onclick = ()=>{ sessionStorage.removeItem("sn_role"); S.role=null; go("gate"); };
+  h.querySelector("#hL").onclick = () => go("home");
+  h.querySelector("#hSet")?.addEventListener("click", () => go("settingsView"));
+  h.querySelector("#hSair").onclick = () => {
+    sessionStorage.removeItem("sn_role"); S.role = null; go("gate");
+  };
   return h;
 }
 
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // GATE
-// ══════════════════════════════════════════════════════
-function gate(){
+// ════════════════════════════════════════════════════
+function gate() {
   ROOT.innerHTML = `
   <div class="gate-pg">
     <div class="gate-card">
@@ -295,45 +305,49 @@ function gate(){
       <div class="dvd">acesso ADM</div>
       <div class="gate-row">
         <input class="inp" id="gPass" type="password" placeholder="Senha do ADM" style="flex:1"/>
-        <button class="btn btn-g" id="gAdm">→</button>
+        <button class="btn btn-p" id="gAdm">→</button>
       </div>
       <p id="gErr" class="gate-err" style="display:none">❌ Senha incorreta</p>
     </div>
   </div>`;
 
-  document.getElementById("gStu").onclick = ()=>{
+  document.getElementById("gStu").onclick = () => {
     sessionStorage.setItem("sn_role","student"); S.role="student"; go("home");
   };
 
-  const tryAdm = ()=>{
-    const p = document.getElementById("gPass").value;
-    const h = S.db?.admHash || btoa(CFG.admSenhaInicial);
-    if(btoa(p)===h){
+  const tryAdm = async () => {
+    const btn = document.getElementById("gAdm");
+    const p   = document.getElementById("gPass").value;
+    if (!p) return;
+    btn.disabled = true; btn.textContent = "…";
+    const h = await sha256(p);
+    const stored = S.db.admHash || await sha256("adm2024");
+    if (h === stored) {
       sessionStorage.setItem("sn_role","adm"); S.role="adm"; go("home");
     } else {
       const e = document.getElementById("gErr");
       e.style.display = "block";
-      setTimeout(()=>{ if(e) e.style.display="none"; }, 2500);
+      setTimeout(() => { if(e) e.style.display="none"; }, 2500);
+      btn.disabled = false; btn.textContent = "→";
     }
   };
 
   document.getElementById("gAdm").onclick = tryAdm;
-  document.getElementById("gPass").onkeydown = e=>{ if(e.key==="Enter") tryAdm(); };
+  document.getElementById("gPass").onkeydown = e => { if(e.key==="Enter") tryAdm(); };
 }
 
-// ══════════════════════════════════════════════════════
-// HOME — lista de matérias
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// HOME
+// ════════════════════════════════════════════════════
 const EMOJIS = ["🧠","📊","📈","📉","🗂","🏛","🔬","🔗","📚","📐","🎯","💡","🧮","🌍","⚗️","🏗","📝","🎓","🔭","💰","📜","🧬","📡","🎲","🖊","🖥","📱","🏆"];
 const COLORS  = ["#a78bfa","#34d399","#60a5fa","#f472b6","#fb923c","#facc15","#2dd4bf","#f87171","#818cf8","#4ade80","#38bdf8","#e879f9","#f97316","#a3e635","#fb7185","#fcd34d"];
 
-function home(){
-  const page = document.createElement("div"); page.className="page";
+function home() {
+  const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
-  const wrap = document.createElement("main"); wrap.className="wrap";
+  const wrap = document.createElement("main"); wrap.className = "wrap";
 
   const subjs = subjects();
-
   wrap.innerHTML = `
     <div class="hero">
       <div>
@@ -351,10 +365,9 @@ function home(){
 
   page.appendChild(wrap); ROOT.appendChild(page);
 
-  // Cards
   const grid = document.getElementById("grid");
-  subjs.forEach((s,i)=>{
-    const cnt = files(s.id).length;
+  subjs.forEach((s, i) => {
+    const cnt  = files(s.id).length;
     const card = document.createElement("div");
     card.className = "subj-card";
     card.style.animationDelay = `${i*40}ms`;
@@ -369,40 +382,38 @@ function home(){
             ${cnt} arquivo(s) →
           </span>
           ${S.role==="adm" ? `<div class="subj-adm">
-            <button class="btn btn-g btn-sm" data-edit="${s.id}" title="Editar">✏️</button>
-            <button class="btn btn-d btn-sm" data-del="${s.id}" title="Excluir">🗑</button>
+            <button class="btn btn-g btn-sm" data-edit="${s.id}">✏️</button>
+            <button class="btn btn-d btn-sm" data-del="${s.id}">🗑</button>
           </div>` : ""}
         </div>
       </div>`;
     grid.appendChild(card);
   });
 
-  // Events
-  document.getElementById("btnNew")?.addEventListener("click", ()=>openSubjModal());
-  document.querySelectorAll("[data-go]").forEach(el=>
-    el.onclick = ()=>go("subjectView", {subjId: el.dataset.go})
+  document.getElementById("btnNew")?.addEventListener("click", () => openSubjModal());
+  document.querySelectorAll("[data-go]").forEach(el =>
+    el.onclick = () => go("subjectView", { subjId: el.dataset.go })
   );
-  document.querySelectorAll("[data-edit]").forEach(el=>
-    el.onclick = e=>{ e.stopPropagation(); openSubjModal(subject(el.dataset.edit)); }
+  document.querySelectorAll("[data-edit]").forEach(el =>
+    el.onclick = e => { e.stopPropagation(); openSubjModal(subject(el.dataset.edit)); }
   );
-  document.querySelectorAll("[data-del]").forEach(el=>
-    el.onclick = async e=>{
+  document.querySelectorAll("[data-del]").forEach(el =>
+    el.onclick = e => {
       e.stopPropagation();
       const s = subject(el.dataset.del);
-      if(!confirm(`Excluir a matéria "${s?.name}" e todos os seus arquivos?`)) return;
-      await delSubject(el.dataset.del);
+      if (!confirm(`Excluir a matéria "${s?.name}"?`)) return;
+      delSubject(el.dataset.del);
       go("home");
     }
   );
 }
 
-// ── Subject modal (criar / editar) ────────────────────
-function openSubjModal(existing=null){
+function openSubjModal(existing = null) {
   const isEdit = !!existing;
   let selEmoji = existing?.emoji || "📚";
   let selColor = existing?.color || "#a78bfa";
 
-  modal(`
+  openModal(`
     <p class="modal-title">${isEdit ? "Editar Matéria" : "Nova Matéria"}</p>
     <div>
       <span class="lbl">Ícone</span>
@@ -412,48 +423,43 @@ function openSubjModal(existing=null){
       <span class="lbl">Cor</span>
       <div class="clr-grid">${COLORS.map(c=>`<div class="clr${c===selColor?" clr-on":""}" data-c="${c}" style="background:${c}"></div>`).join("")}</div>
     </div>
-    <div><label class="lbl">Nome da matéria *</label><input class="inp" id="mName" placeholder="ex: Cálculo I" value="${esc(existing?.name||"")}"/></div>
+    <div><label class="lbl">Nome *</label><input class="inp" id="mName" placeholder="ex: Cálculo I" value="${esc(existing?.name||"")}"/></div>
     <div><label class="lbl">Subtítulo (opcional)</label><input class="inp" id="mSub" placeholder="ex: Derivadas e Integrais" value="${esc(existing?.sub||"")}"/></div>
     <div class="modal-row">
       <button class="btn btn-g" id="mCan">Cancelar</button>
-      <button class="btn btn-p" id="mOk">${isEdit?"Salvar":"Criar"}</button>
+      <button class="btn btn-p" id="mOk">${isEdit ? "Salvar" : "Criar"}</button>
     </div>`,
-  (m)=>{
-    m.querySelectorAll(".emj").forEach(b=>{
-      b.onclick=()=>{ selEmoji=b.dataset.e; m.querySelectorAll(".emj").forEach(x=>x.className="emj"+(x.dataset.e===selEmoji?" emj-on":"")); };
+  m => {
+    m.querySelectorAll(".emj").forEach(b => {
+      b.onclick = () => { selEmoji=b.dataset.e; m.querySelectorAll(".emj").forEach(x=>x.className="emj"+(x.dataset.e===selEmoji?" emj-on":"")); };
     });
-    m.querySelectorAll(".clr").forEach(b=>{
-      b.onclick=()=>{ selColor=b.dataset.c; m.querySelectorAll(".clr").forEach(x=>x.className="clr"+(x.dataset.c===selColor?" clr-on":"")); };
+    m.querySelectorAll(".clr").forEach(b => {
+      b.onclick = () => { selColor=b.dataset.c; m.querySelectorAll(".clr").forEach(x=>x.className="clr"+(x.dataset.c===selColor?" clr-on":"")); };
     });
     m.querySelector("#mCan").onclick = closeModal;
-    m.querySelector("#mOk").onclick = async()=>{
+    m.querySelector("#mOk").onclick = () => {
       const name = m.querySelector("#mName").value.trim();
-      if(!name){ m.querySelector("#mName").focus(); return; }
+      if (!name) { m.querySelector("#mName").focus(); return; }
       const sub = m.querySelector("#mSub").value.trim();
-      const btn = m.querySelector("#mOk");
-      btn.disabled = true; btn.textContent = "Salvando…";
-      try{
-        if(isEdit) await editSubject(existing.id, {name,sub,emoji:selEmoji,color:selColor});
-        else       await addSubject({id:gid(),name,sub,emoji:selEmoji,color:selColor,createdAt:new Date().toISOString()});
-        closeModal(); go("home");
-      }catch(e){ alert("Erro: "+e.message); btn.disabled=false; btn.textContent=isEdit?"Salvar":"Criar"; }
+      if (isEdit) editSubject(existing.id, {name, sub, emoji:selEmoji, color:selColor});
+      else        addSubject({id:gid(), name, sub, emoji:selEmoji, color:selColor, createdAt:new Date().toISOString()});
+      closeModal(); go("home");
     };
   });
 }
 
-// ══════════════════════════════════════════════════════
-// SUBJECT VIEW — lista de arquivos
-// ══════════════════════════════════════════════════════
-function subjectView(){
+// ════════════════════════════════════════════════════
+// SUBJECT VIEW
+// ════════════════════════════════════════════════════
+function subjectView() {
   const subj = subject(S.subjId);
-  if(!subj){ go("home"); return; }
+  if (!subj) { go("home"); return; }
 
-  const page = document.createElement("div"); page.className="page";
+  const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
-  const wrap = document.createElement("main"); wrap.className="wrap";
+  const wrap = document.createElement("main"); wrap.className = "wrap";
 
   const fs = files(S.subjId);
-
   wrap.innerHTML = `
     <div class="subj-hdr">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
@@ -470,98 +476,93 @@ function subjectView(){
     ${fs.length===0 ? `<div class="empty">
       <div style="font-size:48px">📂</div>
       <p class="empty-title">Nenhum arquivo ainda</p>
-      <p class="empty-sub">${S.role==="adm" ? "Clique em ⬆ Upload para adicionar o primeiro arquivo." : "O ADM ainda não publicou arquivos nesta matéria."}</p>
+      <p class="empty-sub">${S.role==="adm" ? "Clique em ⬆ Upload para adicionar arquivos." : "O ADM ainda não publicou arquivos nesta matéria."}</p>
     </div>` : ""}`;
 
   page.appendChild(wrap); ROOT.appendChild(page);
 
-  document.getElementById("sBack").onclick = ()=>go("home");
-  document.getElementById("sUp")?.addEventListener("click", ()=>go("uploadView"));
+  document.getElementById("sBack").onclick = () => go("home");
+  document.getElementById("sUp")?.addEventListener("click", () => go("uploadView"));
 
-  // File cards
   const list = document.getElementById("fileList");
-  fs.forEach((f,i)=>{
+  fs.forEach((f, i) => {
     const card = document.createElement("div");
     card.className = "file-card";
     card.style.animationDelay = `${i*35}ms`;
-
     card.innerHTML = `
       <div class="file-card-hdr">
         <div class="file-info">
           <div class="file-ico">${fileIcon(f.name)}</div>
           <div style="min-width:0">
             <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
-            <div class="file-date">${fmtDate(f.uploadedAt)}${f.size ? " · "+fmtSize(f.size) : ""}</div>
+            <div class="file-date">${fmtDate(f.uploadedAt)}${f.size?" · "+fmtSize(f.size):""}</div>
           </div>
         </div>
         <div class="file-acts">
-          <a href="${esc(f.url)}" target="_blank" download="${esc(f.name)}" class="btn btn-gr btn-sm">⬇ Baixar</a>
-          ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-fdel="${f.id}">🗑</button>` : ""}
+          <a href="${esc(f.url)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>
+          ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-del="${f.id}">🗑</button>` : ""}
         </div>
       </div>
       <div class="link-zone">
-        <div class="link-lbl">🔗 Link do Resumo (Claude)</div>
+        <div class="link-lbl">🔗 Link do Resumo</div>
         <div id="lz_${f.id}"></div>
       </div>`;
     list.appendChild(card);
 
-    // Render link zone
     renderLinkZone(f);
 
-    // Delete file
-    card.querySelector(`[data-fdel="${f.id}"]`)?.addEventListener("click", async()=>{
-      if(!confirm(`Excluir "${f.name}"?`)) return;
-      await delFile(S.subjId, f.id);
+    card.querySelector(`[data-del="${f.id}"]`)?.addEventListener("click", () => {
+      if (!confirm(`Excluir "${f.name}"?`)) return;
+      delFile(S.subjId, f.id);
       go("subjectView");
     });
   });
 }
 
-function renderLinkZone(f){
+function renderLinkZone(f) {
   const lz = document.getElementById(`lz_${f.id}`);
-  if(!lz) return;
-
-  if(f.resumeLink){
+  if (!lz) return;
+  if (f.resumeLink) {
     lz.innerHTML = `<div class="link-box">
-      <a href="${esc(f.resumeLink)}" target="_blank">📄 Abrir resumo do Claude</a>
-      ${S.role==="adm" ? `<button class="btn btn-g btn-sm" id="ledit_${f.id}">✏️</button>` : ""}
+      <a href="${esc(f.resumeLink)}" target="_blank" rel="noopener">📄 Abrir resumo</a>
+      ${S.role==="adm" ? `<button class="btn btn-g btn-sm" id="le_${f.id}">✏️</button>` : ""}
     </div>`;
-    document.getElementById(`ledit_${f.id}`)?.addEventListener("click", ()=>editLinkZone(f));
+    document.getElementById(`le_${f.id}`)?.addEventListener("click", () => editLinkZone(f));
   } else {
     lz.innerHTML = S.role==="adm"
-      ? `<button class="btn btn-g btn-sm" id="ladd_${f.id}">+ Adicionar link</button>`
+      ? `<button class="btn btn-g btn-sm" id="la_${f.id}">+ Adicionar link do resumo</button>`
       : `<span class="link-empty">Nenhum resumo disponível ainda.</span>`;
-    document.getElementById(`ladd_${f.id}`)?.addEventListener("click", ()=>editLinkZone(f));
+    document.getElementById(`la_${f.id}`)?.addEventListener("click", () => editLinkZone(f));
   }
 }
 
-function editLinkZone(f){
+function editLinkZone(f) {
   const lz = document.getElementById(`lz_${f.id}`);
-  if(!lz) return;
+  if (!lz) return;
   lz.innerHTML = `<div class="link-edit-row">
-    <input class="inp" id="linp_${f.id}" placeholder="Cole o link do resumo aqui…" value="${esc(f.resumeLink||"")}"/>
-    <button class="btn btn-p btn-sm" id="lsave_${f.id}">Salvar</button>
-    <button class="btn btn-g btn-sm" id="lcan_${f.id}">✕</button>
+    <input class="inp" id="li_${f.id}" placeholder="Cole o link do resumo aqui…" value="${esc(f.resumeLink||"")}"/>
+    <button class="btn btn-p btn-sm" id="ls_${f.id}">Salvar</button>
+    <button class="btn btn-g btn-sm" id="lc_${f.id}">✕</button>
   </div>`;
-  document.getElementById(`lsave_${f.id}`).onclick = async()=>{
-    const v = document.getElementById(`linp_${f.id}`).value.trim();
-    await editFile(S.subjId, f.id, {resumeLink: v});
+  document.getElementById(`ls_${f.id}`).onclick = () => {
+    const v = document.getElementById(`li_${f.id}`).value.trim();
+    editFile(S.subjId, f.id, { resumeLink: v });
     f.resumeLink = v;
     renderLinkZone(f);
   };
-  document.getElementById(`lcan_${f.id}`).onclick = ()=>renderLinkZone(f);
+  document.getElementById(`lc_${f.id}`).onclick = () => renderLinkZone(f);
 }
 
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // UPLOAD VIEW
-// ══════════════════════════════════════════════════════
-function uploadView(){
-  if(S.role !== "adm"){ go("home"); return; }
+// ════════════════════════════════════════════════════
+function uploadView() {
+  if (S.role !== "adm") { go("home"); return; }
   const subj = subject(S.subjId);
 
-  const page = document.createElement("div"); page.className="page";
+  const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
-  const wrap = document.createElement("main"); wrap.className="wrap wrap-sm";
+  const wrap = document.createElement("main"); wrap.className = "wrap wrap-sm";
 
   wrap.innerHTML = `
     <div style="margin-bottom:24px">
@@ -569,15 +570,15 @@ function uploadView(){
       <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">⬆ Upload de Arquivo</h1>
       <p style="font-size:13px;margin-top:8px">
         <span style="color:${subj?.color};font-weight:600">${subj?.emoji} ${esc(subj?.name)}</span>
-        ${subj?.sub ? `<span style="color:var(--mu)"> — ${esc(subj.sub)}</span>` : ""}
+        ${subj?.sub ? `<span style="color:var(--mu)"> — ${esc(subj?.sub)}</span>` : ""}
       </p>
     </div>
 
     <div class="drop" id="dz">
-      <input type="file" id="fi" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.txt" style="display:none"/>
+      <input type="file" id="fi" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt" style="display:none"/>
       <div class="drop-ico" id="dIco">☁️</div>
       <p class="drop-lbl" id="dLbl">Toque aqui para escolher o arquivo</p>
-      <p class="drop-hint">PDF, Word, PowerPoint, Excel, ZIP…</p>
+      <p class="drop-hint">PDF, Word, PowerPoint, Excel, ZIP… (máx. 100MB)</p>
     </div>
 
     <div id="progArea" style="display:none;margin-bottom:16px">
@@ -586,58 +587,59 @@ function uploadView(){
     </div>
 
     <button class="btn btn-p btn-fw" id="btnUp" disabled>🚀 Enviar arquivo</button>
-    <p id="upErr" style="color:#ff4d6d;font-size:13px;margin-top:10px;display:none"></p>`;
+    <p id="upErr" style="color:#ff4d6d;font-size:13px;margin-top:10px;text-align:center;display:none"></p>`;
 
   page.appendChild(wrap); ROOT.appendChild(page);
 
-  document.getElementById("uBack").onclick = ()=>go("subjectView");
+  document.getElementById("uBack").onclick = () => go("subjectView");
 
   let selectedFile = null;
 
   const dz  = document.getElementById("dz");
   const fi  = document.getElementById("fi");
   const btn = document.getElementById("btnUp");
-  const err = document.getElementById("upErr");
+  const errEl = document.getElementById("upErr");
 
-  function pick(file){
-    if(!file) return;
+  function pick(file) {
+    if (!file) return;
     selectedFile = file;
     document.getElementById("dIco").textContent = fileIcon(file.name);
-    document.getElementById("dLbl").textContent = file.name;
+    document.getElementById("dLbl").textContent = file.name + " (" + fmtSize(file.size) + ")";
     btn.disabled = false;
-    err.style.display = "none";
+    errEl.style.display = "none";
+    dz.classList.remove("drop-on");
   }
 
-  dz.onclick = ()=>fi.click();
-  dz.ondragover  = e=>{ e.preventDefault(); dz.classList.add("drop-on"); };
-  dz.ondragleave = ()=>dz.classList.remove("drop-on");
-  dz.ondrop = e=>{ e.preventDefault(); dz.classList.remove("drop-on"); pick(e.dataTransfer.files[0]); };
-  fi.onchange = e=>pick(e.target.files[0]);
+  dz.onclick = () => fi.click();
+  fi.onchange = e => pick(e.target.files[0]);
+  dz.ondragover  = e => { e.preventDefault(); dz.classList.add("drop-on"); };
+  dz.ondragleave = () => dz.classList.remove("drop-on");
+  dz.ondrop = e => { e.preventDefault(); pick(e.dataTransfer.files[0]); };
 
-  btn.onclick = async()=>{
-    if(!selectedFile) return;
+  btn.onclick = async () => {
+    if (!selectedFile) return;
 
     btn.disabled = true;
-    err.style.display = "none";
+    errEl.style.display = "none";
 
-    const prog = document.getElementById("progArea");
-    const bar  = document.getElementById("progBar");
-    const msg  = document.getElementById("progMsg");
-    prog.style.display = "block";
+    const progArea = document.getElementById("progArea");
+    const progBar  = document.getElementById("progBar");
+    const progMsg  = document.getElementById("progMsg");
 
-    try{
-      msg.textContent = "Enviando para o Cloudinary…";
-      bar.style.width = "5%";
+    progArea.style.display = "block";
+    progBar.style.width = "2%";
+    progMsg.textContent = "Conectando ao Cloudinary…";
 
-      const result = await uploadCloudinary(selectedFile, pct=>{
-        bar.style.width = pct + "%";
-        msg.textContent = `Enviando… ${pct}%`;
+    try {
+      const result = await uploadToCloudinary(selectedFile, pct => {
+        progBar.style.width = pct + "%";
+        progMsg.textContent = `Enviando… ${pct}%`;
       });
 
-      bar.style.width = "90%";
-      msg.textContent = "Salvando informações…";
+      progBar.style.width = "95%";
+      progMsg.textContent = "Salvando…";
 
-      await addFile(S.subjId, {
+      addFile(S.subjId, {
         id:         gid(),
         name:       selectedFile.name,
         url:        result.url,
@@ -647,27 +649,28 @@ function uploadView(){
         resumeLink: "",
       });
 
-      bar.style.width = "100%";
-      msg.textContent = "✅ Enviado com sucesso!";
+      progBar.style.width = "100%";
+      progMsg.textContent = "✅ Enviado com sucesso!";
 
-      setTimeout(()=>go("subjectView"), 900);
+      setTimeout(() => go("subjectView"), 800);
 
-    } catch(e){
-      prog.style.display = "none";
+    } catch(e) {
+      progArea.style.display = "none";
+      progBar.style.width = "0%";
       btn.disabled = false;
-      err.textContent = "❌ Erro: " + e.message;
-      err.style.display = "block";
+      errEl.textContent = "❌ " + e.message;
+      errEl.style.display = "block";
     }
   };
 }
 
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // SETTINGS
-// ══════════════════════════════════════════════════════
-function settingsView(){
-  const page = document.createElement("div"); page.className="page";
+// ════════════════════════════════════════════════════
+function settingsView() {
+  const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
-  const wrap = document.createElement("main"); wrap.className="wrap wrap-sm";
+  const wrap = document.createElement("main"); wrap.className = "wrap wrap-sm";
   wrap.innerHTML = `
     <div style="margin-bottom:26px">
       <button class="btn btn-g btn-sm" id="stBack" style="margin-bottom:14px">← Voltar</button>
@@ -675,51 +678,40 @@ function settingsView(){
     </div>
     <div class="set-card">
       <h3>Alterar senha do ADM</h3>
-      <p>A nova senha será usada no próximo login como ADM.</p>
+      <p>Senha atual padrão: <strong>adm2024</strong></p>
       <input class="inp" id="nPass" type="password" placeholder="Nova senha (mín. 4 caracteres)"/>
-      <button class="btn btn-p" id="sSave">Salvar senha</button>
-      <p id="sOk" class="ok-msg" style="display:none">✅ Senha atualizada com sucesso!</p>
+      <button class="btn btn-p" id="sSave">Salvar nova senha</button>
+      <p id="sOk" class="ok-msg" style="display:none">✅ Senha atualizada!</p>
     </div>`;
   page.appendChild(wrap); ROOT.appendChild(page);
 
-  document.getElementById("stBack").onclick = ()=>go("home");
-  document.getElementById("sSave").onclick = async()=>{
+  document.getElementById("stBack").onclick = () => go("home");
+  document.getElementById("sSave").onclick = async () => {
     const p = document.getElementById("nPass").value.trim();
-    if(p.length < 4){ alert("Senha muito curta."); return; }
+    if (p.length < 4) { alert("Senha muito curta (mín. 4 caracteres)."); return; }
     const btn = document.getElementById("sSave");
     btn.disabled = true; btn.textContent = "Salvando…";
-    S.db.admHash = btoa(p);
-    await save();
+    S.db.admHash = await sha256(p);
+    save();
     document.getElementById("nPass").value = "";
     const ok = document.getElementById("sOk");
     ok.style.display = "block";
-    btn.disabled = false; btn.textContent = "Salvar senha";
-    setTimeout(()=>{ if(ok) ok.style.display="none"; }, 3500);
+    btn.disabled = false; btn.textContent = "Salvar nova senha";
+    setTimeout(() => { if(ok) ok.style.display="none"; }, 3500);
   };
 }
 
-// ══════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // BOOT
-// ══════════════════════════════════════════════════════
-async function boot(){
-  ROOT.innerHTML = `<div class="ctr"><div class="spin"></div><p style="color:var(--mu);font-size:13px">Carregando StudyNet…</p></div>`;
-  try{
-    S.db = await dbRead();
-    if(!S.db.subjects){
-      S.db = { subjects:[], files:{}, admHash: btoa(CFG.admSenhaInicial) };
-      await dbWrite(S.db);
-    }
-  } catch(e){
-    ROOT.innerHTML = `<div class="ctr">
-      <div style="font-size:46px">⚠️</div>
-      <p style="font-family:'Fraunces',serif;font-weight:700;font-size:18px">Erro de conexão</p>
-      <p style="color:var(--mu);font-size:13px;max-width:320px">Não foi possível conectar ao banco de dados (JSONBin). Verifique sua conexão e tente recarregar.</p>
-      <code style="background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 14px;font-size:12px;color:#ff4d6d;word-break:break-all;max-width:320px">${esc(e.message)}</code>
-      <button class="btn btn-p" onclick="location.reload()">🔄 Tentar novamente</button>
-    </div>`;
-    return;
+// ════════════════════════════════════════════════════
+async function boot() {
+  // Inicializa admHash se não existir
+  if (!S.db.admHash) {
+    S.db.admHash = await sha256("adm2024");
+    save();
   }
-  if(!S.role) go("gate");
+  // Vai direto para a view correta
+  if (!S.role) go("gate");
   else go("home");
 }
 
