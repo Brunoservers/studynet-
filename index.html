@@ -180,8 +180,9 @@ function uploadToCloudinary(file, onProgress) {
     }
 
     var fd = new FormData();
-    fd.append("file", file);
     fd.append("upload_preset", UPLOAD_PRESET);
+    fd.append("file", file);
+    console.log("Enviando para Cloudinary. Preset:", UPLOAD_PRESET, "Cloud:", CLOUD_NAME);
 
     var xhr = new XMLHttpRequest();
 
