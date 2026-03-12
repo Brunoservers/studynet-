@@ -207,8 +207,8 @@ function uploadToCloudinary(file, onProgress) {
       reject(new Error("Falha de conexao com Cloudinary"));
     };
 
-        fd.append("resource_type", "auto"); 
-    xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/upload");
+            fd.append("resource_type", "auto");
+    xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload");
     xhr.send(fd);
 
   });
