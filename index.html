@@ -120,10 +120,34 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
   .gate-card{padding:32px 20px}.hero-title{font-size:24px}
   .modal{padding:24px 18px}
 }
+
+/* ── Visualizador de documentos ── */
+.doc-viewer-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:300;display:flex;flex-direction:column;animation:fade .2s ease}
+.doc-viewer-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#0d0f18;border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:wrap}
+.doc-viewer-title{flex:1;font-family:var(--fh);font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.doc-viewer-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-right:4px;flex-shrink:0}
+.dvb-pdf{background:rgba(248,113,113,.15);color:#f87171}
+.dvb-docx{background:rgba(99,76,220,.18);color:#a48fff}
+.dvb-ppt{background:rgba(251,146,60,.15);color:#fb923c}
+.dvb-xls{background:rgba(52,211,153,.15);color:#34d399}
+.dvb-other{background:rgba(136,136,170,.12);color:var(--mu2)}
+.doc-viewer-body{flex:1;overflow:hidden;position:relative;background:#1a1a2e}
+.doc-viewer-body iframe{width:100%;height:100%;border:none;display:block}
+.doc-viewer-body #dv-docx-out{width:100%;height:100%;overflow-y:auto;background:#fff;color:#111;font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.75;padding:32px clamp(16px,5vw,72px);box-sizing:border-box}
+.doc-viewer-body #dv-docx-out h1,#dv-docx-out h2,#dv-docx-out h3{margin:1.2em 0 .4em;font-weight:700}
+.doc-viewer-body #dv-docx-out p{margin-bottom:.7em}
+.doc-viewer-body #dv-docx-out table{border-collapse:collapse;width:100%;margin:1em 0}
+.doc-viewer-body #dv-docx-out td,#dv-docx-out th{border:1px solid #ddd;padding:.4rem .7rem}
+.doc-viewer-status{text-align:center;position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--mu2);font-size:13px;pointer-events:none}
+.doc-viewer-status .spin{width:30px;height:30px}
+.btn-eye{background:rgba(99,76,220,.12);color:#a48fff;border:1px solid rgba(99,76,220,.3)}
+.btn-eye:hover{background:rgba(99,76,220,.22);color:#c4b5fd}
+
 </style>
 </head>
 <body>
 <div id="app"><div class="ctr"><div class="spin"></div><p style="color:var(--mu);font-size:13px;margin-top:8px">Carregando…</p></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
 "use strict";
 
@@ -557,6 +581,7 @@ async function subjectView() {
           </div>
         </div>
         <div class="file-acts">
+          ${canPreview(f.name) ? `<button class="btn btn-eye btn-sm" data-view="${f.id}">👁 Visualizar</button>` : ""}
           <a href="${esc(f.url)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>
           ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-del="${f.id}">🗑</button>` : ""}
         </div>
@@ -568,6 +593,10 @@ async function subjectView() {
     list.appendChild(card);
 
     renderLinkZone(f);
+
+    card.querySelector(`[data-view="${f.id}"]`)?.addEventListener("click", () => {
+      openDocViewer(f.name, f.url);
+    });
 
     card.querySelector(`[data-del="${f.id}"]`)?.addEventListener("click", async () => {
       if (!confirm(`Excluir "${f.name}"?`)) return;
@@ -772,6 +801,128 @@ function settingsView() {
     }
     saveBtn.disabled = false; saveBtn.textContent = "Salvar nova senha";
   };
+}
+
+// ════════════════════════════════════════════════════
+// VISUALIZADOR DE DOCUMENTOS
+// ════════════════════════════════════════════════════
+function docViewerBadge(name) {
+  const n = (name || "").toLowerCase();
+  if (n.endsWith(".pdf"))  return ["PDF",  "dvb-pdf"];
+  if (n.endsWith(".docx") || n.endsWith(".doc")) return ["DOCX", "dvb-docx"];
+  if (n.endsWith(".pptx") || n.endsWith(".ppt")) return ["PPT",  "dvb-ppt"];
+  if (n.endsWith(".xlsx") || n.endsWith(".xls")) return ["XLS",  "dvb-xls"];
+  return ["DOC", "dvb-other"];
+}
+
+function canPreview(name) {
+  const n = (name || "").toLowerCase();
+  return n.endsWith(".pdf") || n.endsWith(".docx") || n.endsWith(".doc") ||
+         n.endsWith(".pptx") || n.endsWith(".ppt") ||
+         n.endsWith(".xlsx") || n.endsWith(".xls");
+}
+
+function openDocViewer(fileName, fileUrl) {
+  // Remove viewer anterior se existir
+  document.getElementById("_dv")?.remove();
+
+  const [badgeText, badgeClass] = docViewerBadge(fileName);
+  const n = fileName.toLowerCase();
+  const isDocx = n.endsWith(".docx") || n.endsWith(".doc");
+  const isOffice = n.endsWith(".pptx") || n.endsWith(".ppt") || n.endsWith(".xlsx") || n.endsWith(".xls");
+
+  const ov = document.createElement("div");
+  ov.className = "doc-viewer-ov";
+  ov.id = "_dv";
+  ov.innerHTML = `
+    <div class="doc-viewer-bar">
+      <span class="doc-viewer-badge ${badgeClass}">${badgeText}</span>
+      <span class="doc-viewer-title">${esc(fileName)}</span>
+      <a href="${esc(fileUrl)}" download="${esc(fileName)}" class="btn btn-gr btn-sm" style="flex-shrink:0">⬇ Baixar</a>
+      <button class="btn btn-g btn-sm" id="dvClose" style="flex-shrink:0">✕ Fechar</button>
+    </div>
+    <div class="doc-viewer-body">
+      <div class="doc-viewer-status" id="dvStatus">
+        <div class="spin"></div>
+        <span>Carregando documento…</span>
+      </div>
+      ${isDocx
+        ? `<div id="dv-docx-out" style="display:none"></div>`
+        : `<iframe id="dv-frame" title="Visualizador" style="display:none"></iframe>`
+      }
+    </div>`;
+
+  document.body.appendChild(ov);
+
+  document.getElementById("dvClose").onclick = () => {
+    ov.style.animation = "fade .15s ease reverse";
+    setTimeout(() => ov.remove(), 140);
+  };
+
+  // Fechar com ESC
+  const escHandler = e => { if (e.key === "Escape") { ov.remove(); document.removeEventListener("keydown", escHandler); } };
+  document.addEventListener("keydown", escHandler);
+
+  function hideStatus() {
+    const st = document.getElementById("dvStatus");
+    if (st) st.style.display = "none";
+  }
+
+  if (isDocx) {
+    // Renderiza DOCX com mammoth
+    fetch(fileUrl)
+      .then(r => {
+        if (!r.ok) throw new Error("HTTP " + r.status + " — verifique se o arquivo é público no Cloudinary");
+        return r.arrayBuffer();
+      })
+      .then(buf => mammoth.convertToHtml({ arrayBuffer: buf }))
+      .then(result => {
+        const out = document.getElementById("dv-docx-out");
+        if (!out) return;
+        out.innerHTML = result.value || "<p><em>Documento vazio ou sem conteúdo visível.</em></p>";
+        out.style.display = "block";
+        hideStatus();
+      })
+      .catch(err => {
+        const st = document.getElementById("dvStatus");
+        if (st) st.innerHTML = `<span style="font-size:28px">⚠️</span><span style="color:#f87171">${esc(err.message)}</span><a href="${esc(fileUrl)}" download="${esc(fileName)}" class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
+      });
+  } else if (isOffice) {
+    // PPT / XLS: usa Office Online Viewer
+    const frame = document.getElementById("dv-frame");
+    if (!frame) return;
+    frame.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(fileUrl);
+    frame.style.display = "block";
+    frame.onload = hideStatus;
+    frame.onerror = () => {
+      const st = document.getElementById("dvStatus");
+      if (st) st.innerHTML = `<span style="font-size:28px">⚠️</span><span>Não foi possível pré-visualizar este arquivo.</span><a href="${esc(fileUrl)}" download class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar</a>`;
+    };
+  } else {
+    // PDF: tenta nativo, fallback Google Docs Viewer
+    const frame = document.getElementById("dv-frame");
+    if (!frame) return;
+    frame.style.display = "block";
+
+    let triedFallback = false;
+    frame.onerror = () => {
+      if (!triedFallback) {
+        triedFallback = true;
+        frame.src = "https://docs.google.com/viewer?url=" + encodeURIComponent(fileUrl) + "&embedded=true";
+      }
+    };
+    frame.onload = hideStatus;
+    // Tenta nativo primeiro; se após 3s não carregou, usa Google Docs
+    frame.src = fileUrl;
+    setTimeout(() => {
+      if (document.getElementById("dvStatus")?.style.display !== "none") {
+        if (!triedFallback) {
+          triedFallback = true;
+          frame.src = "https://docs.google.com/viewer?url=" + encodeURIComponent(fileUrl) + "&embedded=true";
+        }
+      }
+    }, 3000);
+  }
 }
 
 // ════════════════════════════════════════════════════
