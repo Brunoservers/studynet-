@@ -164,44 +164,49 @@ async function sha256(text) {
 
 // ── Cloudinary upload ─────────────────────────────
 function uploadToCloudinary(file, onProgress) {
-  return new Promise((resolve, reject) => {
-    // Valida tamanho (max 100MB)
-    if (file.size > 100 * 1024 * 1024) {
-      reject(new Error("Arquivo muito grande. Máximo: 100MB"));
+  return new Promise(function(resolve, reject) {
+
+    var allowedExts = [".pdf",".doc",".docx",".ppt",".pptx",".xls",".xlsx",".zip",".rar",".txt"];
+    var ext = "." + file.name.split(".").pop().toLowerCase();
+
+    if (!allowedExts.includes(ext)) {
+      reject(new Error("Tipo nao permitido: " + ext));
       return;
     }
 
-    const fd = new FormData();
+    if (file.size > 50 * 1024 * 1024) {
+      reject(new Error("Arquivo muito grande. Maximo: 50MB"));
+      return;
+    }
+
+    var fd = new FormData();
     fd.append("file", file);
     fd.append("upload_preset", UPLOAD_PRESET);
-    fd.append("folder", "studynet");
 
-    const xhr = new XMLHttpRequest();
+    var xhr = new XMLHttpRequest();
 
-    xhr.upload.onprogress = e => {
-      if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100));
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable && onProgress) {
+        onProgress(Math.round(e.loaded / e.total * 100));
+      }
     };
 
-    xhr.onload = () => {
+    xhr.onload = function() {
       if (xhr.status === 200) {
-        try {
-          const d = JSON.parse(xhr.responseText);
-          resolve({ url: d.secure_url, publicId: d.public_id, bytes: d.bytes });
-        } catch(e) {
-          reject(new Error("Resposta inválida do Cloudinary"));
-        }
+        var d = JSON.parse(xhr.responseText);
+        resolve({ url: d.secure_url, publicId: d.public_id, bytes: d.bytes });
       } else {
-        let msg = "Erro no upload (status " + xhr.status + ")";
-        try { msg = JSON.parse(xhr.responseText).error?.message || msg; } catch {}
+        var msg = "Erro no upload (status " + xhr.status + ")";
+        try { msg = JSON.parse(xhr.responseText).error.message || msg; } catch(e) {}
         reject(new Error(msg));
       }
     };
 
-    xhr.onerror = () => reject(new Error("Falha de conexão com Cloudinary"));
-    xhr.ontimeout = () => reject(new Error("Timeout no upload"));
-    xhr.timeout = 120000; // 2 minutos
+    xhr.onerror = function() {
+      reject(new Error("Falha de conexao com Cloudinary"));
+    };
 
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`);
+    xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload");
     xhr.send(fd);
   });
 }
