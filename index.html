@@ -128,35 +128,78 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 "use strict";
 
 // ═══════════════════════════════════════════════════
-// CLOUDINARY (único serviço externo necessário)
+// CONFIGURAÇÕES
 // ═══════════════════════════════════════════════════
-const CLOUD_NAME   = "dzaogzywr";
+const CLOUD_NAME    = "dzaogzywr";
 const UPLOAD_PRESET = "studynet";
-// ═══════════════════════════════════════════════════
 
-// ── Banco de dados local (localStorage) ─────────────
-// Simples, sem depender de serviço externo
-const DB_KEY = "studynet_db";
+const SUPA_URL = "https://fihoawkedcgwmvfnrntz.supabase.co";
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpaG9hd2tlZGNnd212Zm5ybnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTk5NTksImV4cCI6MjA4ODg5NTk1OX0.-5M_SzvuluMo60-mOhnKYmJGH0B5IzypxB-5q8WCJmg";
 
-function dbLoad() {
-  try {
-    const raw = localStorage.getItem(DB_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return { subjects: [], files: {}, admHash: null };
-}
-
-function dbSave(data) {
-  try {
-    localStorage.setItem(DB_KEY, JSON.stringify(data));
-    return true;
-  } catch(e) {
-    alert("Erro ao salvar dados: " + e.message);
-    return false;
+// ── Supabase REST helpers ─────────────────────────
+async function sbFetch(path, opts = {}) {
+  const res = await fetch(SUPA_URL + "/rest/v1/" + path, {
+    headers: {
+      "apikey":        SUPA_KEY,
+      "Authorization": "Bearer " + SUPA_KEY,
+      "Content-Type":  "application/json",
+      "Prefer":        opts.prefer || "return=representation",
+      ...opts.headers,
+    },
+    method: opts.method || "GET",
+    body:   opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Erro Supabase " + res.status);
   }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
 }
 
-// ── Hash SHA-256 para senha ──────────────────────────
+// ── CRUD Subjects ─────────────────────────────────
+async function sbGetSubjects() {
+  return sbFetch("subjects?select=*&order=created_at.asc");
+}
+async function sbAddSubject(s) {
+  return sbFetch("subjects", { method: "POST", body: s });
+}
+async function sbEditSubject(id, p) {
+  return sbFetch("subjects?id=eq." + id, { method: "PATCH", body: p });
+}
+async function sbDelSubject(id) {
+  return sbFetch("subjects?id=eq." + id, { method: "DELETE", prefer: "return=minimal", headers: { "Prefer": "return=minimal" } });
+}
+
+// ── CRUD Files ────────────────────────────────────
+async function sbGetFiles(subjectId) {
+  return sbFetch("files?subject_id=eq." + subjectId + "&select=*&order=uploaded_at.asc");
+}
+async function sbAddFile(f) {
+  return sbFetch("files", { method: "POST", body: f });
+}
+async function sbEditFile(id, p) {
+  return sbFetch("files?id=eq." + id, { method: "PATCH", body: p });
+}
+async function sbDelFile(id) {
+  return sbFetch("files?id=eq." + id, { method: "DELETE", headers: { "Prefer": "return=minimal" } });
+}
+
+// ── Config (senha ADM) ────────────────────────────
+async function sbGetConfig(key) {
+  const rows = await sbFetch("config?key=eq." + key + "&select=value");
+  return rows[0]?.value || null;
+}
+async function sbSetConfig(key, value) {
+  return sbFetch("config", {
+    method: "POST",
+    body: { key, value },
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
+    prefer: "resolution=merge-duplicates",
+  });
+}
+
+// ── Hash SHA-256 ──────────────────────────────────
 async function sha256(text) {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
@@ -165,56 +208,36 @@ async function sha256(text) {
 // ── Cloudinary upload ─────────────────────────────
 function uploadToCloudinary(file, onProgress) {
   return new Promise(function(resolve, reject) {
+    const allowedExts = [".pdf",".doc",".docx",".ppt",".pptx",".xls",".xlsx",".zip",".rar",".txt"];
+    const ext = "." + file.name.split(".").pop().toLowerCase();
+    if (!allowedExts.includes(ext)) { reject(new Error("Tipo não permitido: " + ext)); return; }
+    if (file.size > 50 * 1024 * 1024) { reject(new Error("Arquivo muito grande. Máximo: 50MB")); return; }
 
-    var allowedExts = [".pdf",".doc",".docx",".ppt",".pptx",".xls",".xlsx",".zip",".rar",".txt"];
-    var ext = "." + file.name.split(".").pop().toLowerCase();
-
-    if (!allowedExts.includes(ext)) {
-      reject(new Error("Tipo nao permitido: " + ext));
-      return;
-    }
-
-    if (file.size > 50 * 1024 * 1024) {
-      reject(new Error("Arquivo muito grande. Maximo: 50MB"));
-      return;
-    }
-
-    var fd = new FormData();
+    const fd = new FormData();
     fd.append("upload_preset", UPLOAD_PRESET);
     fd.append("file", file);
-    console.log("Enviando para Cloudinary. Preset:", UPLOAD_PRESET, "Cloud:", CLOUD_NAME);
 
-    var xhr = new XMLHttpRequest();
-
-    xhr.upload.onprogress = function(e) {
-      if (e.lengthComputable && onProgress) {
-        onProgress(Math.round(e.loaded / e.total * 100));
-      }
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100));
     };
-
-    xhr.onload = function() {
+    xhr.onload = () => {
       if (xhr.status === 200) {
-        var d = JSON.parse(xhr.responseText);
+        const d = JSON.parse(xhr.responseText);
         resolve({ url: d.secure_url, publicId: d.public_id, bytes: d.bytes });
       } else {
-        var msg = "Erro no upload (status " + xhr.status + ")";
+        let msg = "Erro no upload (status " + xhr.status + ")";
         try { msg = JSON.parse(xhr.responseText).error.message || msg; } catch(e) {}
         reject(new Error(msg));
       }
     };
-
-    xhr.onerror = function() {
-      reject(new Error("Falha de conexao com Cloudinary"));
-    };
-
-            fd.append("resource_type", "auto");
+    xhr.onerror = () => reject(new Error("Falha de conexão com Cloudinary"));
     xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload");
     xhr.send(fd);
-
   });
 }
 
-// ── Helpers ──────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────
 function gid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 function esc(s) { return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function fmtDate(iso) { try { return new Date(iso).toLocaleDateString("pt-BR"); } catch { return ""; } }
@@ -235,39 +258,23 @@ function fileIcon(name) {
   return "📎";
 }
 
-// ── Estado global ────────────────────────────────────
+// ── Estado global ─────────────────────────────────
 const S = {
   role:   sessionStorage.getItem("sn_role") || null,
-  db:     dbLoad(),
   subjId: null,
 };
 
-// ── Atalhos DB ────────────────────────────────────────
-function subjects()     { return S.db.subjects || []; }
-function subject(id)    { return subjects().find(s => s.id === id); }
-function files(sid)     { return (S.db.files || {})[sid] || []; }
-function save()         { dbSave(S.db); }
-
-function addSubject(s)       { S.db.subjects = [...subjects(), s]; save(); }
-function editSubject(id, p)  { S.db.subjects = subjects().map(s => s.id===id ? {...s,...p} : s); save(); }
-function delSubject(id)      { S.db.subjects = subjects().filter(s => s.id!==id); delete (S.db.files||{})[id]; save(); }
-function addFile(sid, f)     { if(!S.db.files) S.db.files={}; S.db.files[sid]=[...files(sid), f]; save(); }
-function editFile(sid,fid,p) { S.db.files[sid]=files(sid).map(f=>f.id===fid?{...f,...p}:f); save(); }
-function delFile(sid, fid)   { S.db.files[sid]=files(sid).filter(f=>f.id!==fid); save(); }
-
-// ── Render engine ─────────────────────────────────────
+// ── Render engine ─────────────────────────────────
 const ROOT = document.getElementById("app");
-let _view = null;
 
 function go(view, patch = {}) {
   Object.assign(S, patch);
   ROOT.innerHTML = "";
   window.scrollTo(0, 0);
-  _view = view;
   ({ gate, home, subjectView, uploadView, settingsView })[view]?.();
 }
 
-// ── Modal ─────────────────────────────────────────────
+// ── Modal ─────────────────────────────────────────
 function openModal(html, onMount) {
   document.getElementById("_ov")?.remove();
   const ov = document.createElement("div");
@@ -279,7 +286,7 @@ function openModal(html, onMount) {
 }
 function closeModal() { document.getElementById("_ov")?.remove(); }
 
-// ── Header ─────────────────────────────────────────────
+// ── Header ────────────────────────────────────────
 function mkHdr() {
   const h = document.createElement("header"); h.className = "hdr";
   h.innerHTML = `
@@ -328,14 +335,24 @@ function gate() {
     const p   = document.getElementById("gPass").value;
     if (!p) return;
     btn.disabled = true; btn.textContent = "…";
-    const h = await sha256(p);
-    const stored = S.db.admHash || await sha256("adm2024");
-    if (h === stored) {
-      sessionStorage.setItem("sn_role","adm"); S.role="adm"; go("home");
-    } else {
-      const e = document.getElementById("gErr");
-      e.style.display = "block";
-      setTimeout(() => { if(e) e.style.display="none"; }, 2500);
+
+    try {
+      const h = await sha256(p);
+      let stored = await sbGetConfig("adm_hash");
+      if (!stored) {
+        // primeira vez: cria hash padrão
+        stored = await sha256("adm2024");
+        await sbSetConfig("adm_hash", stored);
+      }
+      if (h === stored) {
+        sessionStorage.setItem("sn_role","adm"); S.role="adm"; go("home");
+      } else {
+        const e = document.getElementById("gErr");
+        if (e) { e.style.display = "block"; setTimeout(() => { if(e) e.style.display="none"; }, 2500); }
+        btn.disabled = false; btn.textContent = "→";
+      }
+    } catch(err) {
+      alert("Erro ao verificar senha: " + err.message);
       btn.disabled = false; btn.textContent = "→";
     }
   };
@@ -350,12 +367,23 @@ function gate() {
 const EMOJIS = ["🧠","📊","📈","📉","🗂","🏛","🔬","🔗","📚","📐","🎯","💡","🧮","🌍","⚗️","🏗","📝","🎓","🔭","💰","📜","🧬","📡","🎲","🖊","🖥","📱","🏆"];
 const COLORS  = ["#a78bfa","#34d399","#60a5fa","#f472b6","#fb923c","#facc15","#2dd4bf","#f87171","#818cf8","#4ade80","#38bdf8","#e879f9","#f97316","#a3e635","#fb7185","#fcd34d"];
 
-function home() {
+async function home() {
   const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
   const wrap = document.createElement("main"); wrap.className = "wrap";
 
-  const subjs = subjects();
+  // Loading state
+  wrap.innerHTML = `<div class="ctr" style="min-height:60vh"><div class="spin"></div><p style="color:var(--mu);font-size:13px;margin-top:8px">Carregando matérias…</p></div>`;
+  page.appendChild(wrap); ROOT.appendChild(page);
+
+  let subjs = [];
+  try {
+    subjs = await sbGetSubjects();
+  } catch(e) {
+    wrap.innerHTML = `<div class="empty"><div style="font-size:48px">⚠️</div><p class="empty-title">Erro ao carregar</p><p class="empty-sub">${esc(e.message)}</p></div>`;
+    return;
+  }
+
   wrap.innerHTML = `
     <div class="hero">
       <div>
@@ -371,11 +399,10 @@ function home() {
       <p class="empty-sub">${S.role==="adm" ? "Clique em + Nova Matéria para começar!" : "O ADM ainda não criou nenhuma matéria."}</p>
     </div>` : ""}`;
 
-  page.appendChild(wrap); ROOT.appendChild(page);
+  document.getElementById("btnNew")?.addEventListener("click", () => openSubjModal());
 
   const grid = document.getElementById("grid");
   subjs.forEach((s, i) => {
-    const cnt  = files(s.id).length;
     const card = document.createElement("div");
     card.className = "subj-card";
     card.style.animationDelay = `${i*40}ms`;
@@ -387,7 +414,7 @@ function home() {
         <div class="subj-sub">${esc(s.sub||"")}</div>
         <div class="subj-ft">
           <span class="subj-chip" style="background:${s.color}22;color:${s.color}" data-go="${s.id}">
-            ${cnt} arquivo(s) →
+            Ver arquivos →
           </span>
           ${S.role==="adm" ? `<div class="subj-adm">
             <button class="btn btn-g btn-sm" data-edit="${s.id}">✏️</button>
@@ -398,20 +425,25 @@ function home() {
     grid.appendChild(card);
   });
 
-  document.getElementById("btnNew")?.addEventListener("click", () => openSubjModal());
   document.querySelectorAll("[data-go]").forEach(el =>
     el.onclick = () => go("subjectView", { subjId: el.dataset.go })
   );
   document.querySelectorAll("[data-edit]").forEach(el =>
-    el.onclick = e => { e.stopPropagation(); openSubjModal(subject(el.dataset.edit)); }
-  );
-  document.querySelectorAll("[data-del]").forEach(el =>
     el.onclick = e => {
       e.stopPropagation();
-      const s = subject(el.dataset.del);
+      const s = subjs.find(x => x.id === el.dataset.edit);
+      openSubjModal(s);
+    }
+  );
+  document.querySelectorAll("[data-del]").forEach(el =>
+    el.onclick = async e => {
+      e.stopPropagation();
+      const s = subjs.find(x => x.id === el.dataset.del);
       if (!confirm(`Excluir a matéria "${s?.name}"?`)) return;
-      delSubject(el.dataset.del);
-      go("home");
+      try {
+        await sbDelSubject(el.dataset.del);
+        go("home");
+      } catch(err) { alert("Erro ao excluir: " + err.message); }
     }
   );
 }
@@ -445,13 +477,23 @@ function openSubjModal(existing = null) {
       b.onclick = () => { selColor=b.dataset.c; m.querySelectorAll(".clr").forEach(x=>x.className="clr"+(x.dataset.c===selColor?" clr-on":"")); };
     });
     m.querySelector("#mCan").onclick = closeModal;
-    m.querySelector("#mOk").onclick = () => {
+    m.querySelector("#mOk").onclick = async () => {
       const name = m.querySelector("#mName").value.trim();
       if (!name) { m.querySelector("#mName").focus(); return; }
       const sub = m.querySelector("#mSub").value.trim();
-      if (isEdit) editSubject(existing.id, {name, sub, emoji:selEmoji, color:selColor});
-      else        addSubject({id:gid(), name, sub, emoji:selEmoji, color:selColor, createdAt:new Date().toISOString()});
-      closeModal(); go("home");
+      const okBtn = m.querySelector("#mOk");
+      okBtn.disabled = true; okBtn.textContent = "Salvando…";
+      try {
+        if (isEdit) {
+          await sbEditSubject(existing.id, { name, sub, emoji: selEmoji, color: selColor });
+        } else {
+          await sbAddSubject({ id: gid(), name, sub, emoji: selEmoji, color: selColor });
+        }
+        closeModal(); go("home");
+      } catch(err) {
+        alert("Erro ao salvar: " + err.message);
+        okBtn.disabled = false; okBtn.textContent = isEdit ? "Salvar" : "Criar";
+      }
     };
   });
 }
@@ -459,15 +501,25 @@ function openSubjModal(existing = null) {
 // ════════════════════════════════════════════════════
 // SUBJECT VIEW
 // ════════════════════════════════════════════════════
-function subjectView() {
-  const subj = subject(S.subjId);
-  if (!subj) { go("home"); return; }
-
+async function subjectView() {
   const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
   const wrap = document.createElement("main"); wrap.className = "wrap";
 
-  const fs = files(S.subjId);
+  wrap.innerHTML = `<div class="ctr" style="min-height:60vh"><div class="spin"></div><p style="color:var(--mu);font-size:13px;margin-top:8px">Carregando…</p></div>`;
+  page.appendChild(wrap); ROOT.appendChild(page);
+
+  let subj, fs;
+  try {
+    const subjs = await sbGetSubjects();
+    subj = subjs.find(s => s.id === S.subjId);
+    if (!subj) { go("home"); return; }
+    fs = await sbGetFiles(S.subjId);
+  } catch(e) {
+    wrap.innerHTML = `<div class="empty"><p class="empty-title">Erro ao carregar</p><p class="empty-sub">${esc(e.message)}</p></div>`;
+    return;
+  }
+
   wrap.innerHTML = `
     <div class="subj-hdr">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
@@ -487,8 +539,6 @@ function subjectView() {
       <p class="empty-sub">${S.role==="adm" ? "Clique em ⬆ Upload para adicionar arquivos." : "O ADM ainda não publicou arquivos nesta matéria."}</p>
     </div>` : ""}`;
 
-  page.appendChild(wrap); ROOT.appendChild(page);
-
   document.getElementById("sBack").onclick = () => go("home");
   document.getElementById("sUp")?.addEventListener("click", () => go("uploadView"));
 
@@ -503,7 +553,7 @@ function subjectView() {
           <div class="file-ico">${fileIcon(f.name)}</div>
           <div style="min-width:0">
             <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
-            <div class="file-date">${fmtDate(f.uploadedAt)}${f.size?" · "+fmtSize(f.size):""}</div>
+            <div class="file-date">${fmtDate(f.uploaded_at)}${f.size?" · "+fmtSize(f.size):""}</div>
           </div>
         </div>
         <div class="file-acts">
@@ -519,10 +569,12 @@ function subjectView() {
 
     renderLinkZone(f);
 
-    card.querySelector(`[data-del="${f.id}"]`)?.addEventListener("click", () => {
+    card.querySelector(`[data-del="${f.id}"]`)?.addEventListener("click", async () => {
       if (!confirm(`Excluir "${f.name}"?`)) return;
-      delFile(S.subjId, f.id);
-      go("subjectView");
+      try {
+        await sbDelFile(f.id);
+        go("subjectView");
+      } catch(err) { alert("Erro ao excluir: " + err.message); }
     });
   });
 }
@@ -530,9 +582,9 @@ function subjectView() {
 function renderLinkZone(f) {
   const lz = document.getElementById(`lz_${f.id}`);
   if (!lz) return;
-  if (f.resumeLink) {
+  if (f.resume_link) {
     lz.innerHTML = `<div class="link-box">
-      <a href="${esc(f.resumeLink)}" target="_blank" rel="noopener">📄 Abrir resumo</a>
+      <a href="${esc(f.resume_link)}" target="_blank" rel="noopener">📄 Abrir resumo</a>
       ${S.role==="adm" ? `<button class="btn btn-g btn-sm" id="le_${f.id}">✏️</button>` : ""}
     </div>`;
     document.getElementById(`le_${f.id}`)?.addEventListener("click", () => editLinkZone(f));
@@ -548,15 +600,17 @@ function editLinkZone(f) {
   const lz = document.getElementById(`lz_${f.id}`);
   if (!lz) return;
   lz.innerHTML = `<div class="link-edit-row">
-    <input class="inp" id="li_${f.id}" placeholder="Cole o link do resumo aqui…" value="${esc(f.resumeLink||"")}"/>
+    <input class="inp" id="li_${f.id}" placeholder="Cole o link do resumo aqui…" value="${esc(f.resume_link||"")}"/>
     <button class="btn btn-p btn-sm" id="ls_${f.id}">Salvar</button>
     <button class="btn btn-g btn-sm" id="lc_${f.id}">✕</button>
   </div>`;
-  document.getElementById(`ls_${f.id}`).onclick = () => {
+  document.getElementById(`ls_${f.id}`).onclick = async () => {
     const v = document.getElementById(`li_${f.id}`).value.trim();
-    editFile(S.subjId, f.id, { resumeLink: v });
-    f.resumeLink = v;
-    renderLinkZone(f);
+    try {
+      await sbEditFile(f.id, { resume_link: v });
+      f.resume_link = v;
+      renderLinkZone(f);
+    } catch(err) { alert("Erro ao salvar link: " + err.message); }
   };
   document.getElementById(`lc_${f.id}`).onclick = () => renderLinkZone(f);
 }
@@ -564,13 +618,19 @@ function editLinkZone(f) {
 // ════════════════════════════════════════════════════
 // UPLOAD VIEW
 // ════════════════════════════════════════════════════
-function uploadView() {
+async function uploadView() {
   if (S.role !== "adm") { go("home"); return; }
-  const subj = subject(S.subjId);
 
   const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
   const wrap = document.createElement("main"); wrap.className = "wrap wrap-sm";
+
+  // busca dados do subject
+  let subj = null;
+  try {
+    const subjs = await sbGetSubjects();
+    subj = subjs.find(s => s.id === S.subjId);
+  } catch(e) {}
 
   wrap.innerHTML = `
     <div style="margin-bottom:24px">
@@ -586,7 +646,7 @@ function uploadView() {
       <input type="file" id="fi" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt" style="display:none"/>
       <div class="drop-ico" id="dIco">☁️</div>
       <p class="drop-lbl" id="dLbl">Toque aqui para escolher o arquivo</p>
-      <p class="drop-hint">PDF, Word, PowerPoint, Excel, ZIP… (máx. 100MB)</p>
+      <p class="drop-hint">PDF, Word, PowerPoint, Excel, ZIP… (máx. 50MB)</p>
     </div>
 
     <div id="progArea" style="display:none;margin-bottom:16px">
@@ -602,7 +662,6 @@ function uploadView() {
   document.getElementById("uBack").onclick = () => go("subjectView");
 
   let selectedFile = null;
-
   const dz  = document.getElementById("dz");
   const fi  = document.getElementById("fi");
   const btn = document.getElementById("btnUp");
@@ -626,7 +685,6 @@ function uploadView() {
 
   btn.onclick = async () => {
     if (!selectedFile) return;
-
     btn.disabled = true;
     errEl.style.display = "none";
 
@@ -644,17 +702,17 @@ function uploadView() {
         progMsg.textContent = `Enviando… ${pct}%`;
       });
 
-      progBar.style.width = "95%";
-      progMsg.textContent = "Salvando…";
+      progBar.style.width = "90%";
+      progMsg.textContent = "Salvando no banco de dados…";
 
-      addFile(S.subjId, {
-        id:         gid(),
-        name:       selectedFile.name,
-        url:        result.url,
-        publicId:   result.publicId,
-        size:       result.bytes || selectedFile.size,
-        uploadedAt: new Date().toISOString(),
-        resumeLink: "",
+      await sbAddFile({
+        id:          gid(),
+        subject_id:  S.subjId,
+        name:        selectedFile.name,
+        url:         result.url,
+        public_id:   result.publicId,
+        size:        result.bytes || selectedFile.size,
+        resume_link: "",
       });
 
       progBar.style.width = "100%";
@@ -686,10 +744,11 @@ function settingsView() {
     </div>
     <div class="set-card">
       <h3>Alterar senha do ADM</h3>
-      <p>Senha atual padrão: <strong>adm2024</strong></p>
+      <p>Senha padrão: <strong>adm2024</strong></p>
       <input class="inp" id="nPass" type="password" placeholder="Nova senha (mín. 4 caracteres)"/>
       <button class="btn btn-p" id="sSave">Salvar nova senha</button>
       <p id="sOk" class="ok-msg" style="display:none">✅ Senha atualizada!</p>
+      <p id="sErr" style="color:#ff4d6d;font-size:13px;display:none"></p>
     </div>`;
   page.appendChild(wrap); ROOT.appendChild(page);
 
@@ -697,28 +756,28 @@ function settingsView() {
   document.getElementById("sSave").onclick = async () => {
     const p = document.getElementById("nPass").value.trim();
     if (p.length < 4) { alert("Senha muito curta (mín. 4 caracteres)."); return; }
-    const btn = document.getElementById("sSave");
-    btn.disabled = true; btn.textContent = "Salvando…";
-    S.db.admHash = await sha256(p);
-    save();
-    document.getElementById("nPass").value = "";
-    const ok = document.getElementById("sOk");
-    ok.style.display = "block";
-    btn.disabled = false; btn.textContent = "Salvar nova senha";
-    setTimeout(() => { if(ok) ok.style.display="none"; }, 3500);
+    const saveBtn = document.getElementById("sSave");
+    saveBtn.disabled = true; saveBtn.textContent = "Salvando…";
+    try {
+      const h = await sha256(p);
+      await sbSetConfig("adm_hash", h);
+      document.getElementById("nPass").value = "";
+      const ok = document.getElementById("sOk");
+      ok.style.display = "block";
+      setTimeout(() => { if(ok) ok.style.display="none"; }, 3500);
+    } catch(err) {
+      const eEl = document.getElementById("sErr");
+      eEl.textContent = "Erro: " + err.message;
+      eEl.style.display = "block";
+    }
+    saveBtn.disabled = false; saveBtn.textContent = "Salvar nova senha";
   };
 }
 
 // ════════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════════
-async function boot() {
-  // Inicializa admHash se não existir
-  if (!S.db.admHash) {
-    S.db.admHash = await sha256("adm2024");
-    save();
-  }
-  // Vai direto para a view correta
+function boot() {
   if (!S.role) go("gate");
   else go("home");
 }
