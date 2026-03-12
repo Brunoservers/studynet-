@@ -133,9 +133,9 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .opt-correct{background:rgba(56,182,155,.1)!important;border-color:var(--accent2)!important;color:var(--accent2)!important}
 .opt-wrong{background:rgba(255,77,109,.1)!important;border-color:#ff4d6d!important;color:#ff4d6d!important}
 .opt-faded{opacity:.3}
-.opt-letter{background:var(--border);border-radius:7px;width:27px;height:27px;min-width:27px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--muted)}
-.quiz-fb{margin-top:14px;padding:12px 15px;border-radius:var(--r);font-weight:600;font-size:14px;border:1px solid}
-.quiz-fb-ok{background:rgba(56,182,155,.1);color:var(--accent2);border-color:var(--accent2)}
+.opt-letter{background:var(--border);border-radius:7px;width:27px;height:27px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.quiz-fb{border-radius:var(--r);padding:12px 14px;margin-top:14px;font-size:13px;font-weight:600}
+.quiz-fb-ok{background:rgba(56,182,155,.1);color:var(--accent2);border:1px solid var(--accent2)}
 .quiz-fb-err{background:rgba(255,77,109,.1);color:#ff4d6d;border-color:#ff4d6d}
 /* Result */
 .result{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:46px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:13px;max-width:420px;margin:28px auto;animation:up .3s ease}
@@ -175,6 +175,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .settings-card h3{font-family:var(--fh);font-weight:700;font-size:17px}
 .settings-card p{color:var(--muted);font-size:13px}
 .ok-msg{color:var(--accent2);font-size:14px;animation:up .2s ease}
+.error-msg{color:#ff4d6d;font-size:13px;animation:up .2s ease;padding:12px;background:rgba(255,77,109,.1);border-radius:var(--r);margin-bottom:12px}
 /* Responsive */
 @media(max-width:640px){
   .main{padding:24px 14px}.header{padding:0 14px}
@@ -220,11 +221,13 @@ const BIN_HDR = {"Content-Type":"application/json","X-Access-Key":JSONBIN.access
 
 async function dbRead() {
   const r = await fetch(BIN_URL, {headers:BIN_HDR});
+  if(!r.ok) throw new Error(`Erro ao ler banco de dados: ${r.status}`);
   const d = await r.json();
   return d.record || {};
 }
 async function dbWrite(data) {
-  await fetch(BIN_URL, {method:"PUT", headers:BIN_HDR, body:JSON.stringify(data)});
+  const r = await fetch(BIN_URL, {method:"PUT", headers:BIN_HDR, body:JSON.stringify(data)});
+  if(!r.ok) throw new Error(`Erro ao salvar banco de dados: ${r.status}`);
 }
 async function dbUpdate(patch) {
   const cur = await dbRead();
@@ -242,25 +245,16 @@ async function uploadCloud(file, onPct) {
     xhr.open("POST",`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloudName}/auto/upload`);
     xhr.upload.onprogress = e=>{if(e.lengthComputable)onPct(Math.round(e.loaded/e.total*100))};
     xhr.onload=()=>{
-      const d=JSON.parse(xhr.responseText);
-      if(xhr.status===200)res({url:d.secure_url,publicId:d.public_id});
-      else rej(new Error(d.error?.message||"Erro Cloudinary"));
+      try{
+        const d=JSON.parse(xhr.responseText);
+        if(xhr.status===200)res({url:d.secure_url,publicId:d.public_id});
+        else rej(new Error(d.error?.message||`Erro Cloudinary: ${xhr.status}`));
+      }catch(e){rej(new Error("Resposta inválida do Cloudinary"))}
     };
-    xhr.onerror=()=>rej(new Error("Falha de rede"));
+    xhr.onerror=()=>rej(new Error("Falha de rede ao enviar arquivo"));
     xhr.send(fd);
   });
 }
-
-// ── Claude API ────────────────────────────────────────────────────
-async function callAI(sys, usr) {
-  const r = await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST", headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:sys,messages:[{role:"user",content:usr}]})
-  });
-  const d = await r.json();
-  return d.content?.map(b=>b.text||"").join("")||"";
-}
-function pj(raw){try{return JSON.parse(raw.replace(/```json|```/g,"").trim())}catch{return null}}
 
 // ── Text extraction ───────────────────────────────────────────────
 async function extractText(file){
@@ -276,11 +270,13 @@ async function extractText(file){
     const script=document.createElement("script");
     script.src="https://cdn.jsdelivr.net/npm/mammoth@1.7.0/mammoth.browser.min.js";
     script.onload=async()=>{
-      const ab=await file.arrayBuffer();
-      const r=await mammoth.extractRawText({arrayBuffer:ab});
-      res(r.value);
+      try{
+        const ab=await file.arrayBuffer();
+        const r=await mammoth.extractRawText({arrayBuffer:ab});
+        res(r.value);
+      }catch(e){rej(new Error("Erro ao extrair texto do Word"))}
     };
-    script.onerror=()=>rej(new Error("Falha ao carregar mammoth"));
+    script.onerror=()=>rej(new Error("Falha ao carregar biblioteca de leitura de Word"));
     document.head.appendChild(script);
   });
 }
@@ -299,6 +295,7 @@ function md2html(md){
   }).join("");
 }
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function pj(raw){try{return JSON.parse(raw.replace(/```json|```/g,"").trim())}catch{return null}}
 
 // ── State ─────────────────────────────────────────────────────────
 const S = {
@@ -380,139 +377,126 @@ function mkTabs(active, tc){
   d.querySelectorAll(".tab").forEach(b=>{
     b.onclick=()=>{
       S.tab=b.dataset.k;
-      d.querySelectorAll(".tab").forEach(x=>x.className="tab"+(x.dataset.k===b.dataset.k?" tab-active":""));
-      const sess=getSessions(S.subjId);
-      renderTab(tc, sess[S.sessIdx]);
+      d.querySelectorAll(".tab").forEach(x=>x.className="tab"+(x.dataset.k===S.tab?" tab-active":""));
+      renderTab(tc, getSessions(S.subjId)[S.sessIdx]);
     };
   });
   return d;
 }
 
-// ── Modal ─────────────────────────────────────────────────────────
-function showModal(html, onMount){
-  const ov=document.createElement("div"); ov.className="modal-overlay"; ov.id="modalOv";
-  ov.innerHTML=`<div class="modal">${html}</div>`;
-  ov.onclick=e=>{if(e.target===ov)closeModal()};
-  document.body.appendChild(ov);
-  onMount?.(ov.querySelector(".modal"));
-}
-function closeModal(){ document.getElementById("modalOv")?.remove(); }
-
-// ── GATE ──────────────────────────────────────────────────────────
+// ── GATE (Login) ───────────────────────────────────────────────────
 function gate(){
-  ROOT.innerHTML=`<div class="gate-page"><div class="gate-card">
-    <div class="gate-logo">📚</div>
-    <h1 class="gate-title">StudyNet</h1>
-    <p class="gate-sub">Rede de estudos colaborativa</p>
-    <button class="btn btn-primary btn-full" id="gS" style="margin-top:8px">Entrar como Aluno</button>
-    <div class="divider">acesso ADM</div>
-    <div class="gate-row">
-      <input class="inp" id="gP" type="password" placeholder="Senha do ADM" style="flex:1"/>
-      <button class="btn btn-ghost" id="gA">→</button>
-    </div>
-    <p id="gE" class="gate-err" style="display:none">Senha incorreta</p>
-  </div></div>`;
-  document.getElementById("gS").onclick=()=>{sessionStorage.setItem("sn_role","student");S.role="student";go("home")};
-  const tryAdm=()=>{
+  const page=document.createElement("div"); page.className="gate-page";
+  page.innerHTML=`
+    <div class="gate-card">
+      <div class="gate-logo">📚</div>
+      <h1 class="gate-title">StudyNet</h1>
+      <p class="gate-sub">Plataforma de estudos colaborativa</p>
+      <div class="divider">Escolha seu acesso</div>
+      <div class="gate-row">
+        <button class="btn btn-primary btn-full" id="gS">👤 Estudante</button>
+      </div>
+      <div class="gate-row">
+        <input class="inp" id="gP" type="password" placeholder="Senha do ADM"/>
+        <button class="btn btn-primary" id="gA">🔐 ADM</button>
+      </div>
+      <div id="gE"></div>
+    </div>`;
+  page.appendChild(page.firstChild);
+  ROOT.appendChild(page);
+  
+  document.getElementById("gS").onclick=()=>{sessionStorage.setItem("sn_role","student");go("home")};
+  document.getElementById("gA").onclick=()=>{
     const p=document.getElementById("gP").value;
-    if(btoa(p)===S.admHash){sessionStorage.setItem("sn_role","adm");S.role="adm";go("home")}
-    else{const e=document.getElementById("gE");e.style.display="block";setTimeout(()=>{if(e)e.style.display="none"},2200)}
+    if(!p){document.getElementById("gE").innerHTML=`<p class="gate-err">Digite a senha</p>`;return}
+    if(btoa(p)===S.admHash){sessionStorage.setItem("sn_role","adm");go("home")}
+    else{document.getElementById("gE").innerHTML=`<p class="gate-err">Senha incorreta</p>`}
   };
-  document.getElementById("gA").onclick=tryAdm;
-  document.getElementById("gP").onkeydown=e=>{if(e.key==="Enter")tryAdm()};
+  document.getElementById("gP").onkeypress=e=>{if(e.key==="Enter")document.getElementById("gA").click()};
 }
 
-// ── HOME ──────────────────────────────────────────────────────────
-const EMOJIS=["🧠","📊","📈","📉","🗂","🏛","🔬","🔗","📚","📐","🎯","💡","🧮","🌍","⚗️","🏗","📝","🎓","🔭","💰","📜","🧬","📡","🎲"];
-const COLORS=["#a78bfa","#34d399","#60a5fa","#f472b6","#fb923c","#facc15","#2dd4bf","#f87171","#818cf8","#4ade80","#38bdf8","#e879f9","#f97316","#a3e635"];
+// ── HOME (Dashboard) ───────────────────────────────────────────────
+const COLORS = ["#634cdc","#38b69b","#f472b6","#fbbf24","#f97316"];
+const EMOJIS = ["📚","🧪","🔬","💻","🎨","🎭","🎵","⚽","🍕","✈️"];
 
 function home(){
   const page=document.createElement("div"); page.className="page";
   page.appendChild(mkHdr());
   const main=document.createElement("main"); main.className="main";
-
-  const subjects = getSubjects();
-
+  
   main.innerHTML=`
-    <div class="hero" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
-      <div>
-        <h1 class="hero-title">Matérias</h1>
-        <p class="hero-sub">${subjects.length} matéria(s) disponível(is)</p>
-      </div>
-      ${S.role==="adm"?`<button class="btn btn-primary" id="btnAddSubj">+ Nova Matéria</button>`:""}
+    <div class="hero">
+      <h1 class="hero-title">Bem-vindo ao StudyNet</h1>
+      <p class="hero-sub">${S.role==="adm"?"Gerencie matérias e materiais de estudo":"Estude com resumos, flashcards e quizzes"}</p>
     </div>
-    <div class="subj-grid" id="subjGrid"></div>
-    ${subjects.length===0?`<div class="empty"><div style="font-size:56px">🎓</div>
-      <p class="empty-title">Nenhuma matéria ainda</p>
-      <p class="empty-sub">${S.role==="adm"?"Clique em + Nova Matéria para começar!":"O ADM ainda não criou nenhuma matéria."}</p>
-    </div>`:""}`;
-
-  page.appendChild(main); ROOT.appendChild(page);
-
-  // Render subject cards
-  const grid = document.getElementById("subjGrid");
-  subjects.forEach((s,i)=>{
-    const card=document.createElement("div");
-    card.className="subj-card";
-    card.style.animationDelay=`${i*45}ms`;
-    const sessCount=(S.db.sessions?.[s.id]||[]).length;
-    card.innerHTML=`
+    ${S.role==="adm"?`<button class="btn btn-primary" id="hN" style="margin-bottom:24px">+ Nova matéria</button>`:""}
+    <div class="subj-grid" id="hG"></div>`;
+  page.appendChild(main);
+  ROOT.appendChild(page);
+  
+  if(S.role==="adm") document.getElementById("hN").onclick=()=>editSubject();
+  
+  const grid=document.getElementById("hG");
+  const subjs=getSubjects();
+  if(!subjs.length){
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><div style="font-size:56px">📂</div>
+      <p class="empty-title">${S.role==="adm"?"Nenhuma matéria criada":"Nenhuma matéria disponível"}</p>
+      <p class="empty-sub">${S.role==="adm"?"Clique em + Nova matéria para começar":"O ADM ainda não criou matérias"}</p>
+    </div>`;
+    return;
+  }
+  
+  subjs.forEach(s=>{
+    const c=document.createElement("div"); c.className="subj-card";
+    const sess=getSessions(s.id);
+    c.innerHTML=`
       <div class="subj-bar" style="background:${s.color}"></div>
       <div class="subj-body">
-        <div class="subj-icon" style="background:${s.color}22;color:${s.color}">${s.emoji}</div>
+        <div class="subj-icon" style="background:${s.color}40">${s.emoji}</div>
         <div class="subj-name">${esc(s.name)}</div>
         <div class="subj-sub">${esc(s.sub||"")}</div>
         <div class="subj-footer">
-          <span class="subj-chip" style="background:${s.color}22;color:${s.color}" data-go="${s.id}">
-            ${sessCount} arquivo(s) →
-          </span>
-          ${S.role==="adm"?`<div class="subj-adm-btns">
-            <button class="btn btn-yellow btn-sm" data-edit="${s.id}" title="Editar">✏️</button>
-            <button class="btn btn-danger btn-sm" data-del="${s.id}" title="Excluir">🗑</button>
-          </div>`:""}
+          <span class="subj-chip" style="background:${s.color}20;color:${s.color}">${sess.length} arquivo(s)</span>
+          ${S.role==="adm"?`<div class="subj-adm-btns"><button class="btn btn-yellow btn-sm" id="sE">✏️</button><button class="btn btn-danger btn-sm" id="sD">🗑</button></div>`:""}
         </div>
       </div>`;
-    grid.appendChild(card);
-  });
-
-  // Events
-  document.getElementById("btnAddSubj")?.addEventListener("click", ()=>openSubjModal());
-  document.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>go("subject",{subjId:el.dataset.go,tab:"summary",sessIdx:0}));
-  document.querySelectorAll("[data-edit]").forEach(el=>el.onclick=e=>{e.stopPropagation();openSubjModal(getSubject(el.dataset.edit))});
-  document.querySelectorAll("[data-del]").forEach(el=>el.onclick=async e=>{
-    e.stopPropagation();
-    const s=getSubject(el.dataset.del);
-    if(!confirm(`Excluir a matéria "${s?.name}" e todos os arquivos?`))return;
-    await deleteSubject(el.dataset.del);
-    go("home");
+    c.onclick=()=>go("subject",{subjId:s.id,tab:"summary",sessIdx:0});
+    if(S.role==="adm"){
+      c.querySelector("#sE").onclick=e=>{e.stopPropagation();editSubject(s)};
+      c.querySelector("#sD").onclick=e=>{e.stopPropagation();if(confirm("Deletar matéria e todos os arquivos?"))deleteSubject(s.id).then(()=>go("home"))};
+    }
+    grid.appendChild(c);
   });
 }
 
-// ── Subject Modal (create / edit) ─────────────────────────────────
-function openSubjModal(existing=null){
+// ── EDIT SUBJECT (Modal) ───────────────────────────────────────────
+let selEmoji="📚",selColor="#634cdc";
+function editSubject(existing=null){
+  if(existing){selEmoji=existing.emoji;selColor=existing.color}
   const isEdit=!!existing;
-  let selEmoji=existing?.emoji||"📚";
-  let selColor=existing?.color||"#a78bfa";
-  showModal(`
-    <p class="modal-title">${isEdit?"Editar Matéria":"Nova Matéria"}</p>
-    <div>
-      <label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Ícone</label>
-      <div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-btn${e===selEmoji?" emoji-btn-sel":""}" data-e="${e}">${e}</button>`).join("")}</div>
-    </div>
-    <div>
-      <label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Cor</label>
-      <div class="color-grid">${COLORS.map(c=>`<div class="color-btn${c===selColor?" color-btn-sel":""}" data-c="${c}" style="background:${c}"></div>`).join("")}</div>
-    </div>
-    <div><label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Nome da matéria</label>
-      <input class="inp" id="mName" placeholder="ex: Cálculo I" value="${esc(existing?.name||"")}"/>
-    </div>
-    <div><label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Subtítulo (opcional)</label>
-      <input class="inp" id="mSub" placeholder="ex: Derivadas e Integrais" value="${esc(existing?.sub||"")}"/>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" id="mCancel">Cancelar</button>
-      <button class="btn btn-primary" id="mSave">${isEdit?"Salvar":"Criar"}</button>
-    </div>`,
+  function closeModal(){ROOT.querySelector(".modal-overlay")?.remove()}
+  const overlay=document.createElement("div"); overlay.className="modal-overlay";
+  overlay.innerHTML=`
+    <div class="modal">
+      <h2 class="modal-title">${isEdit?"Editar":"Criar"} matéria</h2>
+      <div>
+        <label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Emoji</label>
+        <div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-btn${e===selEmoji?" emoji-btn-sel":""}" data-e="${e}" type="button">${e}</button>`).join("")}</div>
+      </div>
+      <div>
+        <label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Cor</label>
+        <div class="color-grid">${COLORS.map(c=>`<div class="color-btn${c===selColor?" color-btn-sel":""}" data-c="${c}" style="background:${c}"></div>`).join("")}</div>
+      </div>
+      <div><label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Nome da matéria</label>
+        <input class="inp" id="mName" placeholder="ex: Cálculo I" value="${esc(existing?.name||"")}"/>
+      </div>
+      <div><label class="lbl" style="font-size:13px;color:var(--muted2);font-weight:600;display:block;margin-bottom:6px">Subtítulo (opcional)</label>
+        <input class="inp" id="mSub" placeholder="ex: Derivadas e Integrais" value="${esc(existing?.sub||"")}"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="mCancel">Cancelar</button>
+        <button class="btn btn-primary" id="mSave">${isEdit?"Salvar":"Criar"}</button>
+      </div>`,
   (modal)=>{
     modal.querySelectorAll(".emoji-btn").forEach(b=>{
       b.onclick=()=>{selEmoji=b.dataset.e;modal.querySelectorAll(".emoji-btn").forEach(x=>x.className="emoji-btn"+(x.dataset.e===selEmoji?" emoji-btn-sel":""))};
@@ -533,10 +517,23 @@ function openSubjModal(existing=null){
       closeModal();
       go("home");
     };
-  });
+  };
+  ROOT.appendChild(overlay);
+  overlay.onclick=e=>{if(e.target===overlay)closeModal()};
+  const modal=overlay.querySelector(".modal");
+  if(modal){
+    const cb=modal.querySelector(".modal-actions");
+    if(cb){
+      const f=document.createDocumentFragment();
+      const children=[...modal.children];
+      children.forEach(c=>f.appendChild(c));
+      modal.innerHTML="";
+      modal.appendChild(f);
+    }
+  }
 }
 
-// ── UPLOAD ────────────────────────────────────────────────────────
+// ── UPLOAD (Simplified) ────────────────────────────────────────────
 function upload(){
   const subj=getSubject(S.subjId);
   const page=document.createElement("div"); page.className="page";
@@ -551,6 +548,7 @@ function upload(){
         ${subj?.sub?`<span style="color:var(--muted)"> — ${esc(subj.sub)}</span>`:""}
       </p>
     </div>
+    <div id="errMsg"></div>
     <div class="drop" id="dz">
       <input type="file" id="fi" accept=".pdf,.doc,.docx" style="display:none"/>
       <div class="drop-icon" id="dI">☁️</div>
@@ -571,29 +569,38 @@ function upload(){
   dz.ondragleave=()=>dz.classList.remove("drop-on");
   dz.ondrop=e=>{e.preventDefault();dz.classList.remove("drop-on");pick(e.dataTransfer.files[0])};
   fi.onchange=e=>pick(e.target.files[0]);
-  function pick(f){sf=f;document.getElementById("dI").textContent="📄";document.getElementById("dL").textContent=f.name;document.getElementById("bP").disabled=false}
+  function pick(f){
+    if(!f)return;
+    if(!f.name.match(/\.(pdf|docx?|doc)$/i)){
+      document.getElementById("errMsg").innerHTML=`<div class="error-msg">❌ Formato inválido! Use PDF ou DOCX</div>`;
+      return;
+    }
+    sf=f;
+    document.getElementById("errMsg").innerHTML="";
+    document.getElementById("dI").textContent="📄";
+    document.getElementById("dL").textContent=f.name;
+    document.getElementById("bP").disabled=false;
+  }
   document.getElementById("bP").onclick=async()=>{
     if(!sf)return;
     document.getElementById("bP").disabled=true;
-    const ps=document.getElementById("pS"),pb=document.getElementById("pB"),pm=document.getElementById("pM");
+    const ps=document.getElementById("pS"),pb=document.getElementById("pB"),pm=document.getElementById("pM"),em=document.getElementById("errMsg");
     ps.style.display="block";
+    em.innerHTML="";
     try{
       pm.textContent="Enviando para o Cloudinary…";
       const{url}=await uploadCloud(sf,pct=>{pb.style.width=Math.max(5,Math.round(pct*.5))+"%"});
       pb.style.width="55%"; pm.textContent="Extraindo texto…";
       const text=await extractText(sf);
-      pb.style.width="65%"; pm.textContent="Gerando resumo, flashcards e quiz com IA…";
-      const ex=text.slice(0,6000);
-      const[sR,fR,qR]=await Promise.all([
-        callAI("Você é um tutor. Responda em português BR. Use ## títulos, ### subtítulos, - listas.",`Gere um resumo didático organizado em Markdown:\n\n${ex}`),
-        callAI("Responda SOMENTE JSON válido, sem markdown.",`Crie 8 flashcards. Array JSON [{front,back}].\n\n${ex}`),
-        callAI("Responda SOMENTE JSON válido, sem markdown.",`Crie 6 questões múltipla escolha. Array JSON [{question,options:[4 strings],answer:index_0a3}].\n\n${ex}`),
-      ]);
-      pb.style.width="95%"; pm.textContent="Salvando…";
-      await addSession(S.subjId,{id:genId(),fileName:sf.name,fileUrl:url,summary:sR,flashcards:pj(fR)||[],quiz:pj(qR)||[],uploadedAt:new Date().toISOString(),resumeLink:""});
+      pb.style.width="75%"; pm.textContent="Salvando…";
+      await addSession(S.subjId,{id:genId(),fileName:sf.name,fileUrl:url,summary:"",flashcards:[],quiz:[],uploadedAt:new Date().toISOString(),resumeLink:""});
       pb.style.width="100%";
-      go("subject",{tab:"summary"});
-    }catch(err){alert("Erro: "+err.message);document.getElementById("bP").disabled=false;ps.style.display="none"}
+      setTimeout(()=>go("subject",{tab:"summary"}),500);
+    }catch(err){
+      em.innerHTML=`<div class="error-msg">❌ Erro: ${esc(err.message)}</div>`;
+      document.getElementById("bP").disabled=false;
+      ps.style.display="none";
+    }
   };
 }
 
@@ -720,34 +727,38 @@ function tabSummary(tc, session, sess){
 
   // Delete session
   document.getElementById("bDel")?.addEventListener("click",async()=>{
-    if(!confirm("Excluir este arquivo?"))return;
-    await deleteSessionDB(S.subjId, session.id);
-    const newSess=getSessions(S.subjId);
-    S.sessIdx=Math.max(0,newSess.length-1);
-    renderTab(tc, newSess[S.sessIdx]);
+    if(confirm("Deletar este arquivo?")){
+      S.sessIdx=0;
+      await deleteSessionDB(S.subjId,session.id);
+      go("subject",{tab:"summary"});
+    }
   });
 
-  // Markdown summary
-  const box=document.createElement("div"); box.className="md-box";
-  box.innerHTML=md2html(session.summary||"_Resumo não disponível._");
-  tc.appendChild(box);
+  // Summary display
+  if(session.summary){
+    const md=document.createElement("div"); md.className="md-box"; md.innerHTML=md2html(session.summary);
+    tc.appendChild(md);
+  }
 }
 
-// ── FLASHCARDS TAB ────────────────────────────────────────────────
+// ── FLASHCARD TAB ─────────────────────────────────────────────────
 function tabFlashcards(tc,session){
   const cards=session?.flashcards||[];
   if(!cards.length){tc.innerHTML=`<p style="color:var(--muted);margin-top:16px">Nenhum flashcard disponível. Faça upload de um arquivo primeiro.</p>`;return}
-  let idx=0,knew=0,flipped=false;
+  let idx=0,flipped=false,knew=0;
   function draw(){
-    const c=cards[idx],pct=Math.round(idx/cards.length*100);
+    const c=cards[idx];
     tc.innerHTML=`<div class="fc-wrap">
-      <div class="fc-meta"><span class="fc-count">${idx+1}/${cards.length}</span><div class="prog-wrap" style="flex:1"><div class="prog-bar" style="width:${pct}%"></div></div></div>
-      <div class="fc-card" id="fcc">
-        <div class="fc-side">${flipped?"✨ Resposta":"🤔 Pergunta"}</div>
-        <p class="fc-text">${esc(flipped?c.back:c.front)}</p>
-        ${!flipped?`<p class="fc-hint">Toque para revelar</p>`:""}
+      <div class="fc-meta">
+        <span class="fc-count">${idx+1}/${cards.length} · 💡 ${knew}</span>
+        <div class="prog-wrap" style="flex:1"><div class="prog-bar" style="width:${(idx+1)/cards.length*100}%"></div></div>
       </div>
-      ${flipped?`<div class="fc-btns">
+      <div class="fc-card" id="fcc">
+        <div class="fc-side">${flipped?"Resposta":"Pergunta"}</div>
+        <div class="fc-text">${esc(flipped?c.back:c.front)}</div>
+        <div class="fc-hint">${flipped?"Clique para virar":"Clique para virar"}</div>
+      </div>
+      ${idx<cards.length-1||flipped?`<div class="fc-btns">
         <button class="btn btn-full" id="fcN" style="background:rgba(255,77,109,.12);color:#ff4d6d;border:1.5px solid #ff4d6d">✗ Não sabia</button>
         <button class="btn btn-full" id="fcY" style="background:rgba(56,182,155,.12);color:var(--accent2);border:1.5px solid var(--accent2)">✓ Sabia!</button>
       </div>`:""}
