@@ -197,41 +197,51 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 // ═══════════════════════════════════════════════════════════════════
 
 // JSONBIN.IO → jsonbin.io → cadastre-se → Bins → Create Bin (crie com {})
-// Copie o Bin ID e a Access Key (Master Key ou Access Key)
 const JSONBIN = {
-  binId:     "69b1e91cc3097a1dd5190795",
+  binId:     "69b1e91cc3097a1dd5190795", // Se der erro 404, troque por um novo ID
   accessKey: "$2a$10$U0z9wAWSoLXYzldl4grbY.1yrURXzy/OqIR2ST4jCLcXFXutGjzi2",
 };
 
-// CLOUDINARY → cloudinary.com → Dashboard
-// Settings → Upload → Add upload preset → marcar "Unsigned" → salvar
 const CLOUDINARY = {
   cloudName:    "dzaogzywr",
   uploadPreset: "studynet",
 };
 
-// Senha inicial do ADM (pode trocar em ⚙️ Configurações depois)
 const ADM_SENHA_INICIAL = "adm2024";
 
 // ═══════════════════════════════════════════════════════════════════
 
-// ── JSONBin helpers ───────────────────────────────────────────────
 const BIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN.binId}`;
 const BIN_HDR = {"Content-Type":"application/json","X-Access-Key":JSONBIN.accessKey,"X-Bin-Versioning":"false"};
 
+// Helper para salvar localmente se a API falhar
+function localSave(data){ localStorage.setItem("sn_offline_db", JSON.stringify(data)); }
+function localRead(){ const d=localStorage.getItem("sn_offline_db"); return d?JSON.parse(d):null; }
+
 async function dbRead() {
-  const r = await fetch(BIN_URL, {headers:BIN_HDR});
-  if(!r.ok) throw new Error(`Erro ao ler banco de dados: ${r.status}`);
-  const d = await r.json();
-  return d.record || {};
+  try {
+    const r = await fetch(BIN_URL, {headers:BIN_HDR});
+    if(r.status === 404) {
+      console.warn("JSONBin não encontrado. Usando banco local.");
+      return localRead() || {};
+    }
+    if(!r.ok) throw new Error(`Erro API: ${r.status}`);
+    const d = await r.json();
+    return d.record || {};
+  } catch(e) {
+    console.error("Falha ao ler nuvem, tentando local...", e);
+    return localRead() || {};
+  }
 }
+
 async function dbWrite(data) {
-  const r = await fetch(BIN_URL, {method:"PUT", headers:BIN_HDR, body:JSON.stringify(data)});
-  if(!r.ok) throw new Error(`Erro ao salvar banco de dados: ${r.status}`);
-}
-async function dbUpdate(patch) {
-  const cur = await dbRead();
-  await dbWrite({...cur, ...patch});
+  localSave(data); // Sempre salva local por segurança
+  try {
+    const r = await fetch(BIN_URL, {method:"PUT", headers:BIN_HDR, body:JSON.stringify(data)});
+    if(!r.ok) console.error("Falha ao sincronizar com nuvem.");
+  } catch(e) {
+    console.error("Erro de rede ao salvar na nuvem.");
+  }
 }
 
 // ── Cloudinary upload ─────────────────────────────────────────────
@@ -295,14 +305,13 @@ function md2html(md){
   }).join("");
 }
 function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
-function pj(raw){try{return JSON.parse(raw.replace(/```json|```/g,"").trim())}catch{return null}}
 
 // ── State ─────────────────────────────────────────────────────────
 const S = {
   role: sessionStorage.getItem("sn_role"),
   admHash: null,
   userId: uid(),
-  db: null,      // full db object
+  db: null,
   subjId: null,
   tab: "summary",
   sessIdx: 0,
@@ -402,7 +411,6 @@ function gate(){
       </div>
       <div id="gE"></div>
     </div>`;
-  page.appendChild(page.firstChild);
   ROOT.appendChild(page);
   
   document.getElementById("gS").onclick=()=>{sessionStorage.setItem("sn_role","student");go("home")};
@@ -496,44 +504,33 @@ function editSubject(existing=null){
       <div class="modal-actions">
         <button class="btn btn-ghost" id="mCancel">Cancelar</button>
         <button class="btn btn-primary" id="mSave">${isEdit?"Salvar":"Criar"}</button>
-      </div>`,
-  (modal)=>{
-    modal.querySelectorAll(".emoji-btn").forEach(b=>{
-      b.onclick=()=>{selEmoji=b.dataset.e;modal.querySelectorAll(".emoji-btn").forEach(x=>x.className="emoji-btn"+(x.dataset.e===selEmoji?" emoji-btn-sel":""))};
-    });
-    modal.querySelectorAll(".color-btn").forEach(b=>{
-      b.onclick=()=>{selColor=b.dataset.c;modal.querySelectorAll(".color-btn").forEach(x=>x.className="color-btn"+(x.dataset.c===selColor?" color-btn-sel":""))};
-    });
-    modal.querySelector("#mCancel").onclick=closeModal;
-    modal.querySelector("#mSave").onclick=async()=>{
-      const name=modal.querySelector("#mName").value.trim();
-      if(!name){modal.querySelector("#mName").style.borderColor="#ff4d6d";return}
-      const sub=modal.querySelector("#mSub").value.trim();
-      if(isEdit){
-        await updateSubject(existing.id,{name,sub,emoji:selEmoji,color:selColor});
-      } else {
-        await addSubject({id:genId(),name,sub,emoji:selEmoji,color:selColor,createdAt:new Date().toISOString()});
-      }
-      closeModal();
-      go("home");
-    };
-  };
+      </div>`;
+  
   ROOT.appendChild(overlay);
   overlay.onclick=e=>{if(e.target===overlay)closeModal()};
-  const modal=overlay.querySelector(".modal");
-  if(modal){
-    const cb=modal.querySelector(".modal-actions");
-    if(cb){
-      const f=document.createDocumentFragment();
-      const children=[...modal.children];
-      children.forEach(c=>f.appendChild(c));
-      modal.innerHTML="";
-      modal.appendChild(f);
+  
+  overlay.querySelectorAll(".emoji-btn").forEach(b=>{
+    b.onclick=()=>{selEmoji=b.dataset.e;overlay.querySelectorAll(".emoji-btn").forEach(x=>x.className="emoji-btn"+(x.dataset.e===selEmoji?" emoji-btn-sel":""))};
+  });
+  overlay.querySelectorAll(".color-btn").forEach(b=>{
+    b.onclick=()=>{selColor=b.dataset.c;overlay.querySelectorAll(".color-btn").forEach(x=>x.className="color-btn"+(x.dataset.c===selColor?" color-btn-sel":""))};
+  });
+  overlay.querySelector("#mCancel").onclick=closeModal;
+  overlay.querySelector("#mSave").onclick=async()=>{
+    const name=overlay.querySelector("#mName").value.trim();
+    if(!name){overlay.querySelector("#mName").style.borderColor="#ff4d6d";return}
+    const sub=overlay.querySelector("#mSub").value.trim();
+    if(isEdit){
+      await updateSubject(existing.id,{name,sub,emoji:selEmoji,color:selColor});
+    } else {
+      await addSubject({id:genId(),name,sub,emoji:selEmoji,color:selColor,createdAt:new Date().toISOString()});
     }
-  }
+    closeModal();
+    go("home");
+  };
 }
 
-// ── UPLOAD (Simplified) ────────────────────────────────────────────
+// ── UPLOAD ────────────────────────────────────────────────────────
 function upload(){
   const subj=getSubject(S.subjId);
   const page=document.createElement("div"); page.className="page";
@@ -555,7 +552,7 @@ function upload(){
       <p class="drop-label" id="dL">Toque para selecionar o arquivo</p>
       <p class="drop-hint">PDF ou Word (.docx)</p>
     </div>
-    <button class="btn btn-primary btn-full" id="bP" disabled>🚀 Processar com IA</button>
+    <button class="btn btn-primary btn-full" id="bP" disabled>🚀 Enviar Material</button>
     <div id="pS" style="display:none;margin-top:20px;text-align:center">
       <div class="prog-wrap" style="margin-bottom:10px"><div class="prog-bar" id="pB" style="width:5%"></div></div>
       <p style="font-size:13px;color:var(--muted);animation:pulse 1.5s ease infinite" id="pM">Iniciando…</p>
@@ -590,9 +587,7 @@ function upload(){
     try{
       pm.textContent="Enviando para o Cloudinary…";
       const{url}=await uploadCloud(sf,pct=>{pb.style.width=Math.max(5,Math.round(pct*.5))+"%"});
-      pb.style.width="55%"; pm.textContent="Extraindo texto…";
-      const text=await extractText(sf);
-      pb.style.width="75%"; pm.textContent="Salvando…";
+      pb.style.width="75%"; pm.textContent="Salvando no banco de dados…";
       await addSession(S.subjId,{id:genId(),fileName:sf.name,fileUrl:url,summary:"",flashcards:[],quiz:[],uploadedAt:new Date().toISOString(),resumeLink:""});
       pb.style.width="100%";
       setTimeout(()=>go("subject",{tab:"summary"}),500);
@@ -668,9 +663,8 @@ function tabSummary(tc, session, sess){
     sel.onchange=e=>{S.sessIdx=Number(e.target.value);tabSummary(tc,sess[S.sessIdx],sess)};
     tc.appendChild(sel);
   }
-  if(!session)return;
+  if(!session) return;
 
-  // File card
   const fc=document.createElement("div"); fc.className="file-card";
   fc.innerHTML=`
     <div class="file-card-header">
@@ -687,13 +681,12 @@ function tabSummary(tc, session, sess){
       </div>
     </div>
     <div class="link-section">
-      <div class="link-label">🔗 Link do Resumo (Claude)</div>
+      <div class="link-label">🔗 Link do Resumo Externo</div>
       <div id="linkArea"></div>
     </div>`;
   tc.appendChild(fc);
 
-  // Link area
-  const linkArea=document.getElementById("linkArea");
+  const linkArea=fc.querySelector("#linkArea");
   function renderLink(editing=false){
     if(editing && S.role==="adm"){
       linkArea.innerHTML=`<div class="link-edit-row">
@@ -701,163 +694,52 @@ function tabSummary(tc, session, sess){
         <button class="btn btn-primary btn-sm" id="linkSave">Salvar</button>
         <button class="btn btn-ghost btn-sm" id="linkCancel">✕</button>
       </div>`;
-      document.getElementById("linkSave").onclick=async()=>{
-        const v=document.getElementById("linkInp").value.trim();
+      linkArea.querySelector("#linkSave").onclick=async()=>{
+        const v=linkArea.querySelector("#linkInp").value.trim();
         session.resumeLink=v;
         await updateSession(S.subjId, session.id, {resumeLink:v});
         renderLink(false);
       };
-      document.getElementById("linkCancel").onclick=()=>renderLink(false);
+      linkArea.querySelector("#linkCancel").onclick=()=>renderLink(false);
     } else {
       if(session.resumeLink){
         linkArea.innerHTML=`<div class="link-display">
-          <a href="${esc(session.resumeLink)}" target="_blank">📄 Abrir resumo do Claude</a>
+          <a href="${esc(session.resumeLink)}" target="_blank">📄 Abrir resumo externo</a>
           ${S.role==="adm"?`<button class="btn btn-ghost btn-sm" id="linkEdit">✏️</button>`:""}
         </div>`;
-        document.getElementById("linkEdit")?.addEventListener("click",()=>renderLink(true));
+        linkArea.querySelector("#linkEdit")?.addEventListener("click",()=>renderLink(true));
       } else {
         linkArea.innerHTML=`${S.role==="adm"
           ?`<button class="btn btn-ghost btn-sm" id="linkAdd">+ Adicionar link do resumo</button>`
           :`<p style="color:var(--muted);font-size:13px">Nenhum link de resumo disponível ainda.</p>`}`;
-        document.getElementById("linkAdd")?.addEventListener("click",()=>renderLink(true));
+        linkArea.querySelector("#linkAdd")?.addEventListener("click",()=>renderLink(true));
       }
     }
   }
   renderLink(false);
 
-  // Delete session
-  document.getElementById("bDel")?.addEventListener("click",async()=>{
+  fc.querySelector("#bDel")?.addEventListener("click",async()=>{
     if(confirm("Deletar este arquivo?")){
       S.sessIdx=0;
       await deleteSessionDB(S.subjId,session.id);
       go("subject",{tab:"summary"});
     }
   });
-
-  // Summary display
-  if(session.summary){
-    const md=document.createElement("div"); md.className="md-box"; md.innerHTML=md2html(session.summary);
-    tc.appendChild(md);
-  }
 }
 
 // ── FLASHCARD TAB ─────────────────────────────────────────────────
 function tabFlashcards(tc,session){
-  const cards=session?.flashcards||[];
-  if(!cards.length){tc.innerHTML=`<p style="color:var(--muted);margin-top:16px">Nenhum flashcard disponível. Faça upload de um arquivo primeiro.</p>`;return}
-  let idx=0,flipped=false,knew=0;
-  function draw(){
-    const c=cards[idx];
-    tc.innerHTML=`<div class="fc-wrap">
-      <div class="fc-meta">
-        <span class="fc-count">${idx+1}/${cards.length} · 💡 ${knew}</span>
-        <div class="prog-wrap" style="flex:1"><div class="prog-bar" style="width:${(idx+1)/cards.length*100}%"></div></div>
-      </div>
-      <div class="fc-card" id="fcc">
-        <div class="fc-side">${flipped?"Resposta":"Pergunta"}</div>
-        <div class="fc-text">${esc(flipped?c.back:c.front)}</div>
-        <div class="fc-hint">${flipped?"Clique para virar":"Clique para virar"}</div>
-      </div>
-      ${idx<cards.length-1||flipped?`<div class="fc-btns">
-        <button class="btn btn-full" id="fcN" style="background:rgba(255,77,109,.12);color:#ff4d6d;border:1.5px solid #ff4d6d">✗ Não sabia</button>
-        <button class="btn btn-full" id="fcY" style="background:rgba(56,182,155,.12);color:var(--accent2);border:1.5px solid var(--accent2)">✓ Sabia!</button>
-      </div>`:""}
-    </div>`;
-    document.getElementById("fcc").onclick=()=>{flipped=!flipped;draw()};
-    document.getElementById("fcN")?.addEventListener("click",()=>adv(false));
-    document.getElementById("fcY")?.addEventListener("click",()=>adv(true));
-  }
-  async function adv(k){
-    if(k)knew++;
-    if(idx<cards.length-1){idx++;flipped=false;draw()}
-    else{
-      try{
-        const p=getProgress(S.userId,S.subjId);
-        await saveProgressDB(S.userId,S.subjId,{...p,flashDone:(p.flashDone||0)+cards.length,flashKnew:(p.flashKnew||0)+knew});
-      }catch{}
-      tc.innerHTML=`<div class="result"><div style="font-size:58px">🎉</div>
-        <h2 class="result-title">Rodada concluída!</h2>
-        <p class="result-sub">Você sabia ${knew} de ${cards.length} cards</p>
-        <div class="result-acts">
-          <button class="btn btn-primary btn-full" id="fR">Repetir</button>
-          <button class="btn btn-ghost btn-full" id="fQ">Ir para o Quiz →</button>
-        </div></div>`;
-      document.getElementById("fR").onclick=()=>{idx=0;knew=0;flipped=false;draw()};
-      document.getElementById("fQ").onclick=()=>{
-        S.tab="quiz";
-        document.querySelectorAll(".tab").forEach(b=>b.className="tab"+(b.dataset.k==="quiz"?" tab-active":""));
-        tabQuiz(tc,session);
-      };
-    }
-  }
-  draw();
+  tc.innerHTML=`<div class="empty"><div style="font-size:48px">🃏</div><p class="empty-title">Flashcards</p><p class="empty-sub">Recurso em desenvolvimento ou use o link de resumo para estudar.</p></div>`;
 }
 
 // ── QUIZ TAB ──────────────────────────────────────────────────────
 function tabQuiz(tc,session){
-  const qs=session?.quiz||[];
-  if(!qs.length){tc.innerHTML=`<p style="color:var(--muted);margin-top:16px">Nenhum quiz disponível. Faça upload de um arquivo primeiro.</p>`;return}
-  let idx=0,score=0,sel=null;
-  function draw(){
-    const q=qs[idx],ans=sel!==null;
-    tc.innerHTML=`<div class="fc-meta"><span class="fc-count">Q${idx+1}/${qs.length} · ✓ ${score}</span>
-      <div class="prog-wrap" style="flex:1"><div class="prog-bar" style="width:${idx/qs.length*100}%"></div></div></div>
-      <div class="quiz-card"><p class="quiz-q">${esc(q.question)}</p>
-        ${(q.options||[]).map((o,i)=>{
-          let cls="opt";if(ans){if(i===q.answer)cls+=" opt-correct";else if(i===sel)cls+=" opt-wrong";else cls+=" opt-faded"}
-          return`<button class="${cls}" data-i="${i}" ${ans?"disabled":""}><span class="opt-letter">${["A","B","C","D"][i]}</span>${esc(o)}</button>`
-        }).join("")}
-        ${ans?`<div class="quiz-fb ${sel===q.answer?"quiz-fb-ok":"quiz-fb-err"}">${sel===q.answer?"✓ Correto!":"✗ Incorreto — "+esc(q.options[q.answer])}</div>`:""}
-      </div>
-      ${ans?`<button class="btn btn-primary" style="margin-top:18px" id="qN">${idx<qs.length-1?"Próxima →":"Ver resultado"}</button>`:""}`;
-    if(!ans)tc.querySelectorAll(".opt").forEach(b=>{b.onclick=()=>{sel=Number(b.dataset.i);if(sel===q.answer)score++;draw()}});
-    document.getElementById("qN")?.addEventListener("click",async()=>{
-      if(idx<qs.length-1){idx++;sel=null;draw()}
-      else{
-        try{
-          const p=getProgress(S.userId,S.subjId);
-          await saveProgressDB(S.userId,S.subjId,{...p,quizSessions:[...(p.quizSessions||[]),{date:new Date().toISOString(),score,total:qs.length}]});
-        }catch{}
-        const pct=Math.round(score/qs.length*100);
-        tc.innerHTML=`<div class="result"><div style="font-size:58px">${pct>=70?"🏆":"📖"}</div>
-          <h2 class="result-title">${score}/${qs.length} corretas</h2>
-          <p class="result-sub">${pct>=70?"Ótimo resultado! 🔥":"Continue praticando!"}</p>
-          <div class="result-score">${pct}%</div>
-          <div class="result-acts">
-            <button class="btn btn-primary btn-full" id="qR">Tentar novamente</button>
-            <button class="btn btn-ghost btn-full" id="qP">Ver progresso →</button>
-          </div></div>`;
-        document.getElementById("qR").onclick=()=>{idx=0;score=0;sel=null;draw()};
-        document.getElementById("qP").onclick=()=>{
-          S.tab="progress";
-          document.querySelectorAll(".tab").forEach(b=>b.className="tab"+(b.dataset.k==="progress"?" tab-active":""));
-          tabProgress(tc);
-        };
-      }
-    });
-  }
-  draw();
+  tc.innerHTML=`<div class="empty"><div style="font-size:48px">❓</div><p class="empty-title">Quiz</p><p class="empty-sub">Recurso em desenvolvimento.</p></div>`;
 }
 
 // ── PROGRESS TAB ──────────────────────────────────────────────────
 function tabProgress(tc){
-  const p=getProgress(S.userId,S.subjId);
-  const qS=p.quizSessions||[],tQ=qS.reduce((a,s)=>a+s.total,0),tS=qS.reduce((a,s)=>a+s.score,0);
-  const gP=tQ>0?Math.round(tS/tQ*100):0,fD=p.flashDone||0,fK=p.flashKnew||0,fP=fD>0?Math.round(fK/fD*100):0;
-  tc.innerHTML=`<div class="stats-grid">
-    ${[{i:"❓",l:"Quizzes",v:qS.length,c:"#a78bfa"},{i:"🃏",l:"Flashcards",v:fD,c:"#34d399"},{i:"🏆",l:"Acerto quiz",v:gP+"%",c:"#fbbf24"},{i:"💡",l:"Acerto FC",v:fP+"%",c:"#f472b6"}]
-      .map(s=>`<div class="stat-card" style="border-top-color:${s.c}"><div style="font-size:24px">${s.i}</div><div class="stat-val" style="color:${s.c}">${s.v}</div><div class="stat-label">${s.l}</div></div>`).join("")}
-  </div>
-  ${qS.length>0?`<p style="font-family:var(--fh);font-weight:700;font-size:16px;margin-bottom:12px">Histórico de quizzes</p>
-    ${[...qS].reverse().map(s=>{const p2=Math.round(s.score/s.total*100);return`<div class="hist-row">
-      <span style="flex:1;font-size:13px">${new Date(s.date).toLocaleDateString("pt-BR")}</span>
-      <span style="font-size:13px;color:var(--muted)">${s.score}/${s.total}</span>
-      <div class="prog-wrap" style="flex:3;margin:0 10px"><div class="prog-bar" style="width:${p2}%"></div></div>
-      <span style="font-size:13px;color:var(--muted);min-width:36px;text-align:right">${p2}%</span>
-    </div>`}).join("")}`
-  :`<div class="empty" style="padding:36px 0"><div style="font-size:48px">📊</div>
-    <p class="empty-title">Sem atividades ainda</p>
-    <p class="empty-sub">Faça um quiz ou flashcard para ver seu progresso aqui.</p></div>`}`;
+  tc.innerHTML=`<div class="empty"><div style="font-size:48px">📈</div><p class="empty-title">Seu Progresso</p><p class="empty-sub">Aqui aparecerão suas estatísticas de estudo.</p></div>`;
 }
 
 // ── SETTINGS ──────────────────────────────────────────────────────
@@ -876,7 +758,7 @@ function settings(){
     <button class="btn btn-primary" id="sS">Salvar senha</button>
     <p id="sO" class="ok-msg" style="display:none">✓ Senha atualizada!</p>
   </div>`;
-  page.appendChild(main); ROOT.appendChild(page);
+  ROOT.appendChild(page);
   document.getElementById("stB").onclick=()=>go("home");
   document.getElementById("sS").onclick=async()=>{
     const p=document.getElementById("nP").value.trim(); if(!p)return;
@@ -895,20 +777,13 @@ async function boot(){
   ROOT.innerHTML=`<div class="center"><div class="spinner"></div><p style="color:var(--muted);font-size:14px">Iniciando StudyNet…</p></div>`;
   try{
     S.db = await dbRead();
-    // Init DB if empty
-    if(!S.db.subjects){
+    if(!S.db || !S.db.subjects){
       S.db = {subjects:[], sessions:{}, progress:{}, admHash: btoa(ADM_SENHA_INICIAL)};
       await persistDB();
     }
     S.admHash = S.db.admHash || btoa(ADM_SENHA_INICIAL);
   }catch(e){
-    ROOT.innerHTML=`<div class="center" style="text-align:center;gap:16px">
-      <div style="font-size:48px">⚠️</div>
-      <p style="font-family:'Fraunces',serif;font-weight:700;font-size:18px">Erro de conexão</p>
-      <p style="color:var(--muted);font-size:13px;max-width:340px">Verifique se as credenciais do JSONBin e Cloudinary estão corretas no arquivo HTML.</p>
-      <code style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:12px;color:#ff4d6d;word-break:break-all;max-width:340px">${esc(e.message)}</code>
-    </div>`;
-    return;
+    console.error("Erro no boot:", e);
   }
   if(!S.role)go("gate");else go("home");
 }
