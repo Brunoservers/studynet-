@@ -274,7 +274,7 @@ function uploadToCloudinary(file, onProgress) {
     xhr.onload = () => {
       if (xhr.status === 200) {
         const d = JSON.parse(xhr.responseText);
-        resolve({ url: d.secure_url, publicId: d.public_id, bytes: d.bytes });
+        resolve({ url: normalizeCloudinaryUrl(d.secure_url), publicId: d.public_id, bytes: d.bytes });
       } else {
         let msg = "Erro no upload (status " + xhr.status + ")";
         try { msg = JSON.parse(xhr.responseText).error.message || msg; } catch(e) {}
@@ -282,9 +282,17 @@ function uploadToCloudinary(file, onProgress) {
       }
     };
     xhr.onerror = () => reject(new Error("Falha de conexão com Cloudinary"));
-    xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/auto/upload");
+    xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/raw/upload");
     xhr.send(fd);
   });
+}
+
+// ── Normaliza URL do Cloudinary para raw/upload ──────
+function normalizeCloudinaryUrl(url) {
+  if (!url) return url;
+  return url.replace(/\/image\/upload\//g, "/raw/upload/")
+            .replace(/\/video\/upload\//g, "/raw/upload/")
+            .replace(/\/auto\/upload\//g,  "/raw/upload/");
 }
 
 // ── Helpers ───────────────────────────────────────
@@ -594,6 +602,7 @@ async function subjectView() {
 
   const list = document.getElementById("fileList");
   fs.forEach((f, i) => {
+    const fUrl = normalizeCloudinaryUrl(f.url);
     const card = document.createElement("div");
     card.className = "file-card";
     card.style.animationDelay = `${i*35}ms`;
@@ -608,7 +617,7 @@ async function subjectView() {
         </div>
         <div class="file-acts">
           ${canPreview(f.name) ? `<button class="btn btn-eye btn-sm" data-view="${f.id}">👁 Visualizar</button>` : ""}
-          <a href="${esc(f.url)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>
+          <a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>
           ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-del="${f.id}">🗑</button>` : ""}
         </div>
       </div>
@@ -621,7 +630,7 @@ async function subjectView() {
     renderLinkZone(f);
 
     card.querySelector(`[data-view="${f.id}"]`)?.addEventListener("click", () => {
-      openDocViewer(f.name, f.url);
+      openDocViewer(f.name, fUrl);
     });
 
     card.querySelector(`[data-del="${f.id}"]`)?.addEventListener("click", async () => {
@@ -850,6 +859,8 @@ function canPreview(name) {
 
 function openDocViewer(fileName, fileUrl) {
   document.getElementById("_dv")?.remove();
+
+  fileUrl = normalizeCloudinaryUrl(fileUrl);
 
   const [badgeText, badgeClass] = docViewerBadge(fileName);
   const n = fileName.toLowerCase();
