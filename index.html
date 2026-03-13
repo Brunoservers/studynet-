@@ -266,6 +266,7 @@ function uploadToCloudinary(file, onProgress) {
     const fd = new FormData();
     fd.append("upload_preset", UPLOAD_PRESET);
     fd.append("file", file);
+    fd.append("resource_type", "raw");
 
     const xhr = new XMLHttpRequest();
     xhr.upload.onprogress = e => {
@@ -274,7 +275,9 @@ function uploadToCloudinary(file, onProgress) {
     xhr.onload = () => {
       if (xhr.status === 200) {
         const d = JSON.parse(xhr.responseText);
-        resolve({ url: normalizeCloudinaryUrl(d.secure_url), publicId: d.public_id, bytes: d.bytes });
+        // Garante que a URL sempre usa /raw/upload/
+        const rawUrl = normalizeCloudinaryUrl(d.secure_url);
+        resolve({ url: rawUrl, publicId: d.public_id, bytes: d.bytes });
       } else {
         let msg = "Erro no upload (status " + xhr.status + ")";
         try { msg = JSON.parse(xhr.responseText).error.message || msg; } catch(e) {}
@@ -773,7 +776,7 @@ async function uploadView() {
         id:          gid(),
         subject_id:  S.subjId,
         name:        selectedFile.name,
-        url:         result.url,
+        url:         normalizeCloudinaryUrl(result.url),
         public_id:   result.publicId,
         size:        result.bytes || selectedFile.size,
         resume_link: "",
@@ -952,7 +955,12 @@ function openPdfViewer(container, url, fileName) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-    window.pdfjsLib.getDocument({ url: pdfUrl, withCredentials: false })
+    // Tenta carregar diretamente; se falhar por CORS/401, usa Google Docs viewer
+    window.pdfjsLib.getDocument({
+      url: pdfUrl,
+      withCredentials: false,
+      httpHeaders: {},
+    })
       .promise
       .then(pdf => {
         pdfDoc = pdf;
@@ -962,7 +970,34 @@ function openPdfViewer(container, url, fileName) {
         setupInteractions();
       })
       .catch(err => {
-        showPdfError(container, url, fileName, err.message || "Não foi possível abrir o PDF");
+        // Fallback: Google Docs Viewer em iframe
+        const body = document.getElementById("dvBody");
+        if (!body) return;
+        // Remove canvas e footer se existirem
+        document.getElementById("dv-pdf-wrap")?.remove();
+        document.getElementById("dv-pdf-footer")?.remove();
+
+        const st = document.getElementById("dvStatus");
+        if (st) {
+          st.innerHTML = `
+            <div class="spin"></div>
+            <span style="color:var(--mu2);font-size:12px">Abrindo via Google Docs…</span>`;
+        }
+
+        const iframe = document.createElement("iframe");
+        iframe.style.cssText = "flex:1;width:100%;height:100%;border:none;display:block;";
+        iframe.title = "Visualizador PDF";
+        iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(pdfUrl) + "&embedded=true";
+        iframe.onload = () => { if (st) st.style.display = "none"; };
+
+        // Se Google Docs também falhar, mostra erro com botão de download
+        let gdocsLoaded = false;
+        iframe.onload = () => { gdocsLoaded = true; if (st) st.style.display = "none"; };
+        setTimeout(() => {
+          if (!gdocsLoaded) showPdfError(body, pdfUrl, fileName, "Não foi possível visualizar. Faça o download.");
+        }, 8000);
+
+        body.appendChild(iframe);
       });
   }
 
