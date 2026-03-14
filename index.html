@@ -955,7 +955,15 @@ function openPdfViewer(container, url, fileName) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-    // Tenta carregar diretamente; se falhar por CORS/401, usa Google Docs viewer
+    // Timeout de segurança: se o PDF.js travar por mais de 12s, cai no fallback
+    let pdfJsSettled = false;
+    const pdfJsTimeout = setTimeout(() => {
+      if (!pdfJsSettled) {
+        pdfJsSettled = true;
+        fallbackGoogleDocs(pdfUrl);
+      }
+    }, 12000);
+
     window.pdfjsLib.getDocument({
       url: pdfUrl,
       withCredentials: false,
@@ -963,6 +971,9 @@ function openPdfViewer(container, url, fileName) {
     })
       .promise
       .then(pdf => {
+        if (pdfJsSettled) return; // já caiu no fallback, ignora
+        pdfJsSettled = true;
+        clearTimeout(pdfJsTimeout);
         pdfDoc = pdf;
         hideStatus();
         updateNav();
@@ -970,35 +981,51 @@ function openPdfViewer(container, url, fileName) {
         setupInteractions();
       })
       .catch(err => {
-        // Fallback: Google Docs Viewer em iframe
-        const body = document.getElementById("dvBody");
-        if (!body) return;
-        // Remove canvas e footer se existirem
-        document.getElementById("dv-pdf-wrap")?.remove();
-        document.getElementById("dv-pdf-footer")?.remove();
-
-        const st = document.getElementById("dvStatus");
-        if (st) {
-          st.innerHTML = `
-            <div class="spin"></div>
-            <span style="color:var(--mu2);font-size:12px">Abrindo via Google Docs…</span>`;
-        }
-
-        const iframe = document.createElement("iframe");
-        iframe.style.cssText = "flex:1;width:100%;height:100%;border:none;display:block;";
-        iframe.title = "Visualizador PDF";
-        iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(pdfUrl) + "&embedded=true";
-        iframe.onload = () => { if (st) st.style.display = "none"; };
-
-        // Se Google Docs também falhar, mostra erro com botão de download
-        let gdocsLoaded = false;
-        iframe.onload = () => { gdocsLoaded = true; if (st) st.style.display = "none"; };
-        setTimeout(() => {
-          if (!gdocsLoaded) showPdfError(body, pdfUrl, fileName, "Não foi possível visualizar. Faça o download.");
-        }, 8000);
-
-        body.appendChild(iframe);
+        if (pdfJsSettled) return;
+        pdfJsSettled = true;
+        clearTimeout(pdfJsTimeout);
+        fallbackGoogleDocs(pdfUrl);
       });
+  }
+
+  function fallbackGoogleDocs(pdfUrl) {
+    const body = document.getElementById("dvBody");
+    if (!body) return;
+
+    // Remove canvas e footer se existirem
+    document.getElementById("dv-pdf-wrap")?.remove();
+    document.getElementById("dv-pdf-footer")?.remove();
+
+    const st = document.getElementById("dvStatus");
+    if (st) {
+      st.style.display = "flex";
+      st.innerHTML = `
+        <div class="spin"></div>
+        <span style="color:var(--mu2);font-size:12px">Abrindo via Google Docs…</span>`;
+    }
+
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "flex:1;width:100%;height:100%;border:none;display:block;";
+    iframe.title = "Visualizador PDF";
+    iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(pdfUrl) + "&embedded=true";
+
+    // onload definido UMA única vez (bug anterior: era sobrescrito)
+    let gdocsLoaded = false;
+    iframe.onload = () => {
+      gdocsLoaded = true;
+      if (st) st.style.display = "none";
+    };
+
+    // Timeout: Google Docs às vezes dispara onload em branco ou não dispara
+    setTimeout(() => {
+      if (!gdocsLoaded) {
+        showPdfError(body, pdfUrl, fileName, "Não foi possível visualizar online. Faça o download.");
+      }
+    }, 10000);
+
+    body.appendChild(iframe);
+    // Esconde o status assim que o iframe for inserido (caso onload já tenha disparado)
+    requestAnimationFrame(() => { if (gdocsLoaded && st) st.style.display = "none"; });
   }
 
   function hideStatus() {
@@ -1212,8 +1239,17 @@ function showPdfError(container, url, fileName, msg) {
 // ── DOCX Viewer ─────────────────────────────────────
 function openDocxViewer(container, url) {
   container.insertAdjacentHTML("beforeend", `<div id="dv-docx-out"></div>`);
-  fetch(url)
-    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " — arquivo não acessível"); return r.arrayBuffer(); })
+
+  // Timeout de segurança para o fetch do DOCX
+  const controller = new AbortController();
+  const docxTimeout = setTimeout(() => controller.abort(), 20000);
+
+  fetch(url, { signal: controller.signal })
+    .then(r => {
+      clearTimeout(docxTimeout);
+      if (!r.ok) throw new Error("HTTP " + r.status + " — arquivo não acessível");
+      return r.arrayBuffer();
+    })
     .then(buf => mammoth.convertToHtml({ arrayBuffer: buf }))
     .then(result => {
       const out = document.getElementById("dv-docx-out");
@@ -1223,8 +1259,14 @@ function openDocxViewer(container, url) {
       if (st) st.style.display = "none";
     })
     .catch(err => {
+      clearTimeout(docxTimeout);
       const st = document.getElementById("dvStatus");
-      if (st) st.innerHTML = `<span style="font-size:32px">⚠️</span><span style="color:#f87171">${esc(err.message)}</span>`;
+      const isAbort = err.name === "AbortError";
+      const msg = isAbort ? "Tempo esgotado ao carregar o documento." : err.message;
+      if (st) st.innerHTML = `
+        <span style="font-size:32px">⚠️</span>
+        <span style="color:#f87171;max-width:260px;text-align:center">${esc(msg)}</span>
+        <a href="${esc(url)}" download class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
     });
 }
 
