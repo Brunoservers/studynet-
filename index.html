@@ -1493,7 +1493,7 @@ function progressView() {
     const d = document.createElement("div"); d.className = "prog-subject";
     d.innerHTML = `
       <div class="prog-subject-name">
-        <span>${esc(e.fileName)}</span>
+        <span class="file-name">${esc(e.fileName)}</span>
         <span style="color:var(--ac2);font-size:13px">${e.total > 0 ? pct + "% quiz" : ""}</span>
       </div>
       <div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${Math.min(pct,100)}%"></div></div>
