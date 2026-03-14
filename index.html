@@ -951,57 +951,70 @@ function openPdfViewer(container, url, fileName) {
   // Estado de pinch
   let lastPinchDist = 0;
 
+  // Lista de proxies CORS para tentar em sequência
+  const CORS_PROXIES = [
+    u => u,
+    u => "https://corsproxy.io/?" + encodeURIComponent(u),
+    u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+  ];
+  let proxyIdx = 0;
+
   function initPdf(pdfUrl) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    tryLoadPdf(pdfUrl);
+  }
 
-    // Timeout de segurança: se o PDF.js travar por mais de 12s, cai no fallback
-    let pdfJsSettled = false;
-    const pdfJsTimeout = setTimeout(() => {
-      if (!pdfJsSettled) {
-        pdfJsSettled = true;
-        fallbackGoogleDocs(pdfUrl);
-      }
+  function tryLoadPdf(pdfUrl) {
+    if (proxyIdx >= CORS_PROXIES.length) {
+      fallbackIframe(pdfUrl);
+      return;
+    }
+
+    const proxiedUrl = CORS_PROXIES[proxyIdx](pdfUrl);
+    proxyIdx++;
+
+    const st = document.getElementById("dvStatus");
+    const msg = document.getElementById("dvStatusMsg");
+    if (st) st.style.display = "flex";
+    if (msg) msg.textContent = proxyIdx === 1 ? "Carregando PDF…" : "Tentando método alternativo…";
+
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (!settled) { settled = true; tryLoadPdf(pdfUrl); }
     }, 12000);
 
-    window.pdfjsLib.getDocument({
-      url: pdfUrl,
-      withCredentials: false,
-      httpHeaders: {},
-    })
+    window.pdfjsLib.getDocument({ url: proxiedUrl, withCredentials: false, httpHeaders: {} })
       .promise
       .then(pdf => {
-        if (pdfJsSettled) return; // já caiu no fallback, ignora
-        pdfJsSettled = true;
-        clearTimeout(pdfJsTimeout);
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
         pdfDoc = pdf;
         hideStatus();
         updateNav();
         renderPage(curPage, true);
         setupInteractions();
       })
-      .catch(err => {
-        if (pdfJsSettled) return;
-        pdfJsSettled = true;
-        clearTimeout(pdfJsTimeout);
-        fallbackGoogleDocs(pdfUrl);
+      .catch(() => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        tryLoadPdf(pdfUrl);
       });
   }
 
-  function fallbackGoogleDocs(pdfUrl) {
+  function fallbackIframe(pdfUrl) {
     const body = document.getElementById("dvBody");
     if (!body) return;
 
-    // Remove canvas e footer se existirem
     document.getElementById("dv-pdf-wrap")?.remove();
     document.getElementById("dv-pdf-footer")?.remove();
 
     const st = document.getElementById("dvStatus");
     if (st) {
       st.style.display = "flex";
-      st.innerHTML = `
-        <div class="spin"></div>
-        <span style="color:var(--mu2);font-size:12px">Abrindo via Google Docs…</span>`;
+      st.innerHTML = `<div class="spin"></div><span style="color:var(--mu2);font-size:12px">Abrindo visualizador externo…</span>`;
     }
 
     const iframe = document.createElement("iframe");
@@ -1009,23 +1022,20 @@ function openPdfViewer(container, url, fileName) {
     iframe.title = "Visualizador PDF";
     iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(pdfUrl) + "&embedded=true";
 
-    // onload definido UMA única vez (bug anterior: era sobrescrito)
-    let gdocsLoaded = false;
+    let loaded = false;
     iframe.onload = () => {
-      gdocsLoaded = true;
+      loaded = true;
       if (st) st.style.display = "none";
     };
 
-    // Timeout: Google Docs às vezes dispara onload em branco ou não dispara
     setTimeout(() => {
-      if (!gdocsLoaded) {
-        showPdfError(body, pdfUrl, fileName, "Não foi possível visualizar online. Faça o download.");
+      if (!loaded) {
+        showPdfError(body, pdfUrl, fileName,
+          "Não foi possível visualizar este PDF no navegador. Use o botão Baixar para abrir no seu leitor de PDF.");
       }
-    }, 10000);
+    }, 12000);
 
     body.appendChild(iframe);
-    // Esconde o status assim que o iframe for inserido (caso onload já tenha disparado)
-    requestAnimationFrame(() => { if (gdocsLoaded && st) st.style.display = "none"; });
   }
 
   function hideStatus() {
