@@ -247,6 +247,27 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .api-key-prompt{background:rgba(99,76,220,.07);border:1px solid rgba(99,76,220,.25);border-radius:var(--rl);padding:24px;display:flex;flex-direction:column;gap:12px;text-align:center;align-items:center}
 .api-key-prompt p{font-size:13px;color:var(--mu2);max-width:320px;line-height:1.6}
 
+/* Resumo */
+.summary-short{background:linear-gradient(135deg,rgba(99,76,220,.1),rgba(56,182,155,.08));border:1px solid rgba(99,76,220,.25);border-radius:var(--rl);padding:18px}
+.summary-short p{font-size:14px;line-height:1.75;color:var(--tx)}
+.summary-points{display:flex;flex-direction:column;gap:8px}
+.summary-point{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--tx);line-height:1.5}
+.summary-point-dot{width:6px;height:6px;border-radius:50%;background:var(--ac2);flex-shrink:0;margin-top:6px}
+
+/* Chat */
+.chat-msgs{display:flex;flex-direction:column;gap:10px;min-height:80px}
+.chat-msg{display:flex;flex-direction:column;gap:3px;max-width:90%}
+.chat-msg.user{align-self:flex-end;align-items:flex-end}
+.chat-msg.ai{align-self:flex-start;align-items:flex-start}
+.chat-bubble{padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.6}
+.chat-msg.user .chat-bubble{background:rgba(99,76,220,.25);color:var(--tx);border-bottom-right-radius:4px}
+.chat-msg.ai .chat-bubble{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx);border-bottom-left-radius:4px}
+.chat-msg.ai.thinking .chat-bubble{color:var(--mu)}
+.chat-input-row{display:flex;gap:8px;margin-top:4px;flex-shrink:0}
+.chat-input-row .inp{flex:1;padding:9px 13px;font-size:13px}
+.chat-send{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.chat-send:disabled{opacity:.4;cursor:not-allowed}
+
 @media(max-width:600px){
   .fc-grid{grid-template-columns:1fr}
   .prog-stats{grid-template-columns:repeat(3,1fr)}
@@ -969,7 +990,7 @@ function settingsView() {
     btn.disabled = true; btn.textContent = "Salvando…";
     try {
       await sbSetConfig("gemini_api_key", k);
-      window._sn_api_key = k;
+      _apiKeyStore.set(k);
       document.getElementById("nApiKey").value = "";
       const ok = document.getElementById("sApiOk");
       ok.style.display = "block";
@@ -1510,48 +1531,18 @@ function progressView() {
 // ════════════════════════════════════════════════════
 // AI PANEL
 // ════════════════════════════════════════════════════
-// Cache de sessão: evita re-gerar para o mesmo arquivo
 const AI_CACHE = {};
 
-// ════════════════════════════════════════════════════
-// FUNÇÃO DE HASH PARA CACHE INTELIGENTE
-// ════════════════════════════════════════════════════
-
-function simpleHash(str) {
-  /**
-   * Gera um hash simples para cache baseado em conteúdo.
-   * @param {string} str - String a ser hashida
-   * @returns {string} Hash hexadecimal
-   */
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Converte para inteiro 32-bit
-  }
-  return Math.abs(hash).toString(16);
-}
-
-function getCacheKey(fileName, text) {
-  /**
-   * Gera chave de cache baseada em fileName + hash do conteúdo.
-   * @param {string} fileName - Nome do arquivo
-   * @param {string} text - Conteúdo do texto
-   * @returns {string} Chave de cache única
-   */
-  const textHash = simpleHash(text);
-  return `${fileName}_${textHash}`;
-}
-
-
-function getApiKey() {
-  return window._sn_api_key || "";
-}
-
+// ── Chave da API de IA (closure privado) ─────────────────────────────────
+const _apiKeyStore = (() => {
+  let _k = "";
+  return { get: () => _k, set: v => { _k = String(v || ""); } };
+})();
+function getApiKey() { return _apiKeyStore.get(); }
 async function loadApiKey() {
   try {
     const key = await sbGetConfig("gemini_api_key");
-    if (key) window._sn_api_key = key;
+    if (key) _apiKeyStore.set(key);
   } catch(e) {}
 }
 
@@ -1581,7 +1572,6 @@ async function extractTextFromUrl(url, fileName) {
     let result = text.trim();
     if (result.length > 120000) {
       result = result.slice(0, 120000).trim();
-      console.warn("Texto do PDF truncado em 120.000 caracteres");
     }
     return result; // limita tokens
   }
@@ -1668,284 +1658,41 @@ REQUISITOS OBRIGATÓRIOS:
 }
 
 // ════════════════════════════════════════════════════
-// FUNÇÕES PREMIUM DE IA EDUCACIONAL
-// ════════════════════════════════════════════════════
-
-async function detectTopics(text) {
-  /**
-   * Detecta os tópicos principais do documento.
-   * @param {string} text - Texto do documento
-   * @returns {Promise<Object>} Objeto com lista de tópicos
-   */
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
-
-  const limitedText = limitText(text, 12000);
-  if (!limitedText) {
-    throw new Error("Não foi possível extrair conteúdo do documento");
-  }
-
-  const prompt = `Analise o seguinte texto educacional e identifique os 5-8 tópicos principais.
-
-TEXTO:
-${limitedText}
-
-Responda APENAS com um JSON válido neste formato (sem markdown):
-{
-  "topics": ["Tópico 1", "Tópico 2", "Tópico 3", "Tópico 4", "Tópico 5"]
-}`;
-
-  try {
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 500,
-            topP: 0.9,
-            topK: 40
-          }
-        })
-      }
-    );
-
-    if (!res.ok) throw new Error("Erro ao detectar tópicos");
-
-    const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!raw) throw new Error("Resposta vazia");
-
-    let clean = raw
-      .replace(/^```json\s*/gm, "")
-      .replace(/^```\s*/gm, "")
-      .replace(/```\s*$/gm, "")
-      .trim();
-
-    const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (jsonMatch) clean = jsonMatch[0];
-
-    return JSON.parse(clean);
-  } catch (err) {
-    console.error("Erro ao detectar tópicos:", err);
-    throw err;
-  }
-}
-
-async function generateMindMap(text) {
-  /**
-   * Gera um mapa mental estruturado do documento.
-   * @param {string} text - Texto do documento
-   * @returns {Promise<Object>} Estrutura de mapa mental
-   */
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
-
-  const limitedText = limitText(text, 12000);
-  if (!limitedText) {
-    throw new Error("Não foi possível extrair conteúdo do documento");
-  }
-
-  const prompt = `Crie um mapa mental estruturado do seguinte documento educacional.
-
-DOCUMENTO:
-${limitedText}
-
-Identifique:
-1. O conceito principal (topic)
-2. 3-5 ramos principais (branches)
-3. 3-4 itens em cada ramo
-
-Responda APENAS com um JSON válido neste formato (sem markdown):
-{
-  "topic": "Conceito Principal",
-  "branches": [
-    {
-      "title": "Ramo 1",
-      "items": ["Item 1", "Item 2", "Item 3"]
-    },
-    {
-      "title": "Ramo 2",
-      "items": ["Item 1", "Item 2", "Item 3"]
-    }
-  ]
-}`;
-
-  try {
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 2000,
-            topP: 0.95,
-            topK: 40
-          }
-        })
-      }
-    );
-
-    if (!res.ok) throw new Error("Erro ao gerar mapa mental");
-
-    const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!raw) throw new Error("Resposta vazia");
-
-    let clean = raw
-      .replace(/^```json\s*/gm, "")
-      .replace(/^```\s*/gm, "")
-      .replace(/```\s*$/gm, "")
-      .trim();
-
-    const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (jsonMatch) clean = jsonMatch[0];
-
-    return JSON.parse(clean);
-  } catch (err) {
-    console.error("Erro ao gerar mapa mental:", err);
-    throw err;
-  }
-}
-
-// Sistema de Quiz Adaptativo
+// INTEGRAÇÃO COM GOOGLE GEMINI 1.5 FLASH
 const ADAPTIVE_QUIZ_STATE = {};
 
 function initializeAdaptiveQuiz(fileName) {
-  /**
-   * Inicializa o estado do quiz adaptativo para um documento.
-   */
   if (!ADAPTIVE_QUIZ_STATE[fileName]) {
-    ADAPTIVE_QUIZ_STATE[fileName] = {
-      currentDifficulty: "medium",
-      correctStreak: 0,
-      wrongStreak: 0,
-      questionIndex: 0
-    };
+    ADAPTIVE_QUIZ_STATE[fileName] = { currentDifficulty: "medium", correctStreak: 0, wrongStreak: 0 };
   }
 }
 
 function updateQuizDifficulty(fileName, isCorrect) {
-  /**
-   * Atualiza a dificuldade do quiz baseado na resposta do usuário.
-   * - 2 respostas corretas seguidas → aumenta dificuldade
-   * - 1 resposta incorreta → diminui dificuldade
-   */
   const state = ADAPTIVE_QUIZ_STATE[fileName];
   if (!state) return;
-
   if (isCorrect) {
     state.correctStreak++;
     state.wrongStreak = 0;
-    
     if (state.correctStreak >= 2) {
-      if (state.currentDifficulty === "easy") {
-        state.currentDifficulty = "medium";
-        console.log("📈 Dificuldade aumentada para MEDIUM");
-      } else if (state.currentDifficulty === "medium") {
-        state.currentDifficulty = "hard";
-        console.log("📈 Dificuldade aumentada para HARD");
-      }
+      if (state.currentDifficulty === "easy") state.currentDifficulty = "medium";
+      else if (state.currentDifficulty === "medium") state.currentDifficulty = "hard";
       state.correctStreak = 0;
     }
   } else {
     state.wrongStreak++;
     state.correctStreak = 0;
-    
-    if (state.wrongStreak >= 1) {
-      if (state.currentDifficulty === "hard") {
-        state.currentDifficulty = "medium";
-        console.log("📉 Dificuldade diminuída para MEDIUM");
-      } else if (state.currentDifficulty === "medium") {
-        state.currentDifficulty = "easy";
-        console.log("📉 Dificuldade diminuída para EASY");
-      }
-      state.wrongStreak = 0;
-    }
+    if (state.currentDifficulty === "hard") state.currentDifficulty = "medium";
+    else if (state.currentDifficulty === "medium") state.currentDifficulty = "easy";
+    state.wrongStreak = 0;
   }
 }
 
 function getCurrentQuizDifficulty(fileName) {
-  /**
-   * Retorna a dificuldade atual do quiz.
-   */
-  const state = ADAPTIVE_QUIZ_STATE[fileName];
-  return state ? state.currentDifficulty : "medium";
+  return ADAPTIVE_QUIZ_STATE[fileName]?.currentDifficulty || "medium";
 }
 
-// (detectTopics e generateMindMap já definidos acima)
-
-async function _detectTopics_REMOVED(text) {
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
-  const limitedText = limitText(text, 12000);
-  if (!limitedText) throw new Error("Não foi possível extrair conteúdo");
-  const prompt = `Identifique os 5-8 tópicos principais deste texto educacional.
-TEXTO: ${limitedText}
-Responda APENAS com JSON (sem markdown):
-{"topics": ["Tópico 1", "Tópico 2", "Tópico 3"]}`;
-  try {
-    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 500, topP: 0.9, topK: 40 }
-      })
-    });
-    if (!res.ok) throw new Error("Erro ao detectar tópicos");
-    const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!raw) throw new Error("Resposta vazia");
-    let clean = raw.replace(/^```json\s*/gm, "").replace(/^```\s*/gm, "").replace(/```\s*$/gm, "").trim();
-    const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (jsonMatch) clean = jsonMatch[0];
-    return JSON.parse(clean);
-  } catch (err) {
-    console.error("Erro ao detectar tópicos:", err);
-    throw err;
-  }
-}
-
-async function _generateMindMap_REMOVED(text) {
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
-  const limitedText = limitText(text, 12000);
-  if (!limitedText) throw new Error("Não foi possível extrair conteúdo");
-  const prompt = `Crie um mapa mental estruturado com: 1 conceito principal e 3-5 ramos com 3-4 itens cada.
-TEXTO: ${limitedText}
-Responda APENAS com JSON (sem markdown):
-{"topic": "Conceito Principal", "branches": [{"title": "Ramo 1", "items": ["Item 1", "Item 2"]}]}`;
-  try {
-    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 2000, topP: 0.95, topK: 40 }
-      })
-    });
-    if (!res.ok) throw new Error("Erro ao gerar mapa mental");
-    const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!raw) throw new Error("Resposta vazia");
-    let clean = raw.replace(/^```json\s*/gm, "").replace(/^```\s*/gm, "").replace(/```\s*$/gm, "").trim();
-    const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (jsonMatch) clean = jsonMatch[0];
-    return JSON.parse(clean);
-  } catch (err) {
-    console.error("Erro ao gerar mapa mental:", err);
-    throw err;
-  }
-}
-
-// FUNÇÕES DE RESUMO AUTOMÁTICO E CHAT COM DOCUMENTO
+// ════════════════════════════════════════════════════
+// RESUMO E CHAT COM DOCUMENTO (Gemini)
 // ════════════════════════════════════════════════════
 
 async function generateSummary(text, fileName) {
@@ -2091,66 +1838,7 @@ INSTRUÇÕES:
 // INTEGRAÇÃO COM GOOGLE GEMINI 1.5 FLASH
 // ════════════════════════════════════════════════════
 
-
-function mergeChunkResults(chunkResults) {
-  /**
-   * Mescla resultados de múltiplos chunks em um único objeto JSON.
-   * @param {Array<Object>} chunkResults - Array de resultados de cada chunk
-   * @returns {Object} Objeto mesclado com limites corretos
-   */
-  const merged = {
-    concepts: [],
-    flashcards: [],
-    exercises: [],
-    quiz: []
-  };
-
-  // Mesclar cada tipo de resultado
-  chunkResults.forEach(result => {
-    if (result && typeof result === 'object') {
-      if (Array.isArray(result.concepts)) {
-        merged.concepts.push(...result.concepts);
-      }
-      if (Array.isArray(result.flashcards)) {
-        merged.flashcards.push(...result.flashcards);
-      }
-      if (Array.isArray(result.exercises)) {
-        merged.exercises.push(...result.exercises);
-      }
-      if (Array.isArray(result.quiz)) {
-        merged.quiz.push(...result.quiz);
-      }
-    }
-  });
-
-  // Remover duplicatas usando Set (baseado em conteúdo)
-  merged.concepts = Array.from(new Map(
-    merged.concepts.map(c => [c.name, c])
-  ).values()).slice(0, 5);
-
-  merged.flashcards = Array.from(new Map(
-    merged.flashcards.map(f => [f.question, f])
-  ).values()).slice(0, 8);
-
-  merged.exercises = Array.from(new Map(
-    merged.exercises.map(e => [e.problem, e])
-  ).values()).slice(0, 4);
-
-  merged.quiz = Array.from(new Map(
-    merged.quiz.map(q => [q.question, q])
-  ).values()).slice(0, 6);
-
-  return merged;
-}
-
 async function callGemini(text, fileName) {
-  /**
-   * Chama a API do Google Gemini 1.5 Flash para gerar material de estudo.
-   * Implementa chunking para PDFs grandes e tratamento robusto de resposta JSON.
-   * @param {string} text - Texto extraído do documento
-   * @param {string} fileName - Nome do arquivo
-   * @returns {Promise<Object>} Dados estruturados de estudo
-   */
   const key = getApiKey();
   if (!key) throw new Error("NO_KEY");
 
@@ -2171,7 +1859,6 @@ async function callGemini(text, fileName) {
 
   // Se houver múltiplos chunks, processar cada um
   if (chunks.length > 1) {
-    console.log(`Processando ${chunks.length} blocos de texto...`);
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       const prompt = buildPrompt(chunk, `${fileName} (Parte ${i + 1}/${chunks.length})`);
@@ -2184,7 +1871,6 @@ async function callGemini(text, fileName) {
         allResults.exercises.push(...(result.exercises || []));
         allResults.quiz.push(...(result.quiz || []));
       } catch (err) {
-        console.error(`Erro ao processar chunk ${i + 1}:`, err);
       }
     }
     
@@ -2250,8 +1936,6 @@ async function callGemini(text, fileName) {
     try {
       result = JSON.parse(clean);
     } catch (parseErr) {
-      console.error("Erro ao converter resposta da IA para JSON", parseErr);
-      console.error("Resposta bruta:", raw);
       throw new Error("Resposta da IA não é um JSON válido");
     }
 
@@ -2325,10 +2009,12 @@ function openAIPanel(fileName, fileUrl) {
         <button class="btn btn-g btn-sm" id="aiClose">✕</button>
       </div>
       <div class="ai-tabs" id="aiTabs" style="display:none">
-        <button class="ai-tab on" data-tab="concepts">💡 Conceitos</button>
+        <button class="ai-tab on" data-tab="summary">📄 Resumo</button>
+        <button class="ai-tab" data-tab="concepts">💡 Conceitos</button>
         <button class="ai-tab" data-tab="flashcards">🃏 Flashcards</button>
         <button class="ai-tab" data-tab="exercises">📝 Exercícios</button>
         <button class="ai-tab" data-tab="quiz">❓ Quiz</button>
+        <button class="ai-tab" data-tab="chat">💬 Chat</button>
       </div>
       <div class="ai-panel-body" id="aiBody">
         <div class="ai-loading" id="aiLoading">
@@ -2374,7 +2060,7 @@ function openAIPanel(fileName, fileUrl) {
 
 async function generateAIMaterial(fileName, fileUrl) {
   const step = id => {
-    ["step1","step2","step3","step4"].forEach((s,i) => {
+    ["step1","step2","step3","step4"].forEach(s => {
       const el = document.getElementById(s);
       if (!el) return;
       const num = parseInt(id.replace("step",""));
@@ -2389,19 +2075,19 @@ async function generateAIMaterial(fileName, fileUrl) {
     const text = await extractTextFromUrl(fileUrl, fileName);
 
     step("step2");
-    const data = await callGemini(text, fileName);
+    const [data, summary] = await Promise.all([
+      callGemini(text, fileName),
+      generateSummary(text, fileName).catch(() => null),
+    ]);
 
     step("step3");
-    await new Promise(r => setTimeout(r, 400)); // animação
-
-    step("step4");
     await new Promise(r => setTimeout(r, 300));
 
-    const cacheKey = getCacheKey(fileName, text);
-    AI_CACHE[cacheKey] = data;
-    // Manter compatibilidade com cache antigo
-    AI_CACHE[fileName] = data;
-    renderAIContent(data, fileName);
+    step("step4");
+    await new Promise(r => setTimeout(r, 200));
+
+    AI_CACHE[fileName] = { ...data, summary, docText: text };
+    renderAIContent(AI_CACHE[fileName], fileName);
 
   } catch(err) {
     const loading = document.getElementById("aiLoading");
@@ -2420,9 +2106,34 @@ function renderAIContent(data, fileName) {
   if (!body || !tabs) return;
   tabs.style.display = "flex";
 
+  const sum = data.summary;
+
   body.innerHTML = `
+    <!-- RESUMO -->
+    <div class="ai-section on" id="tab-summary">
+      <div class="ai-card">
+        <div class="ai-card-title">📄 Resumo Rápido</div>
+        <p>${esc(sum?.short_summary || "Resumo não disponível.")}</p>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-title">📋 Resumo Detalhado</div>
+        <p>${esc(sum?.detailed_summary || "Resumo detalhado não disponível.")}</p>
+      </div>
+      ${sum?.key_points?.length ? `
+      <div class="ai-card">
+        <div class="ai-card-title">🎯 Pontos-Chave</div>
+        <div class="summary-points">
+          ${sum.key_points.map(p => `
+            <div class="summary-point">
+              <div class="summary-point-dot"></div>
+              <span>${esc(p)}</span>
+            </div>`).join("")}
+        </div>
+      </div>` : ""}
+    </div>
+
     <!-- CONCEITOS -->
-    <div class="ai-section on" id="tab-concepts">
+    <div class="ai-section" id="tab-concepts">
       <div class="ai-card"><div class="ai-card-title">💡 Conceitos-Chave</div></div>
       ${(data.concepts||[]).map(c => `
         <div class="concept-item">
@@ -2435,7 +2146,7 @@ function renderAIContent(data, fileName) {
     <div class="ai-section" id="tab-flashcards">
       <div class="ai-card"><div class="ai-card-title">🃏 Flashcards — toque para revelar</div></div>
       <div class="fc-grid">
-        ${(data.flashcards||[]).map((fc,i) => `
+        ${(data.flashcards||[]).map(fc => `
           <div class="fc" onclick="this.classList.toggle('open')">
             <div class="fc-q">${esc(fc.question)}</div>
             <div class="fc-a">${esc(fc.answer)}</div>
@@ -2458,81 +2169,132 @@ function renderAIContent(data, fileName) {
 
     <!-- QUIZ -->
     <div class="ai-section" id="tab-quiz">
-      <div class="ai-card"><div class="ai-card-title" id="quizTitle">❓ Quiz — ${(data.quiz||[]).length} questões</div></div>
+      <div class="ai-card"><div class="ai-card-title">❓ Quiz — ${(data.quiz||[]).length} questões</div></div>
       <div id="quizContainer"></div>
       <div id="quizScore" class="quiz-score" style="display:none"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="ai-section" id="tab-chat" style="height:100%;display:none;flex-direction:column;gap:10px">
+      <div class="ai-card"><div class="ai-card-title">💬 Pergunte sobre o documento</div></div>
+      <div class="ai-card" style="flex:1;display:flex;flex-direction:column;gap:12px;min-height:260px">
+        <div class="chat-msgs" id="chatMsgs"></div>
+        <div class="chat-input-row">
+          <input class="inp" id="chatInput" placeholder="Digite sua pergunta…" autocomplete="off"/>
+          <button class="chat-send" id="chatSend">Enviar</button>
+        </div>
+      </div>
     </div>`;
 
-  // Tabs
+  // ── Tabs ──
   tabs.querySelectorAll(".ai-tab").forEach(t => {
-    t.onclick = () => {
+    t.addEventListener("click", () => {
       tabs.querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
-      body.querySelectorAll(".ai-section").forEach(x => x.classList.remove("on"));
+      body.querySelectorAll(".ai-section").forEach(x => { x.classList.remove("on"); x.style.display = "none"; });
       t.classList.add("on");
-      document.getElementById("tab-" + t.dataset.tab)?.classList.add("on");
-      // Registra progresso
+      const sec = document.getElementById("tab-" + t.dataset.tab);
+      if (sec) { sec.classList.add("on"); sec.style.display = "flex"; }
       if (t.dataset.tab === "flashcards") recordStudy(fileName, "flashcards");
-      if (t.dataset.tab === "exercises") recordStudy(fileName, "exercises");
-      if (t.dataset.tab === "quiz") renderQuiz(data.quiz||[], fileName);
-    };
+      if (t.dataset.tab === "exercises")  recordStudy(fileName, "exercises");
+      if (t.dataset.tab === "quiz")       renderQuiz(data.quiz||[], fileName);
+    });
   });
+
+  // ── Chat wiring ──
+  const docText = data.docText || "";
+  const chatMsgs = document.getElementById("chatMsgs");
+  const chatInput = document.getElementById("chatInput");
+  const chatSend  = document.getElementById("chatSend");
+
+  const appendMsg = (text, role) => {
+    const d = document.createElement("div");
+    d.className = `chat-msg ${role}`;
+    d.innerHTML = `<div class="chat-bubble">${esc(text)}</div>`;
+    chatMsgs.appendChild(d);
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    return d;
+  };
+
+  const sendChat = async () => {
+    const q = chatInput.value.trim();
+    if (!q) return;
+    chatInput.value = "";
+    chatSend.disabled = true;
+    appendMsg(q, "user");
+    const thinking = appendMsg("Pensando…", "ai thinking");
+    try {
+      const ans = await askDocument(q, docText);
+      thinking.querySelector(".chat-bubble").textContent = ans;
+      thinking.classList.remove("thinking");
+    } catch(e) {
+      thinking.querySelector(".chat-bubble").textContent = "❌ " + e.message;
+    }
+    chatSend.disabled = false;
+    chatInput.focus();
+  };
+
+  chatSend.addEventListener("click", sendChat);
+  chatInput.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } });
 }
 
 function renderQuiz(questions, fileName) {
-  // Inicializar quiz adaptativo
   initializeAdaptiveQuiz(fileName);
-  
-  // Adicionar dificuldade a cada questão se não tiver
   questions = questions.map(q => ({
     ...q,
-    difficulty: q.difficulty || getCurrentQuizDifficulty(fileName)
+    difficulty: q.difficulty || getCurrentQuizDifficulty(fileName),
   }));
   const container = document.getElementById("quizContainer");
-  const scoreEl = document.getElementById("quizScore");
+  const scoreEl   = document.getElementById("quizScore");
   if (!container || container.children.length > 0) return;
 
-  let answered = 0;
-  let correct = 0;
+  let answered = 0, correct = 0;
 
   questions.forEach((q, qi) => {
-    const div = document.createElement("div"); div.className = "quiz-q";
+    const div = document.createElement("div");
+    div.className = "quiz-q";
     div.innerHTML = `
       <div class="quiz-q-txt">${qi+1}. ${esc(q.question)}</div>
       <div class="quiz-opts">
-        ${(q.options||[]).map((opt,oi) => `<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${esc(opt)}</button>`).join("")}
+        ${(q.options||[]).map((opt,oi) => `<button class="quiz-opt" data-oi="${oi}">${esc(opt)}</button>`).join("")}
       </div>
       <div class="quiz-exp" id="qexp-${qi}">${esc(q.explanation||"")}</div>`;
     container.appendChild(div);
 
     div.querySelectorAll(".quiz-opt").forEach(btn => {
-      btn.onclick = () => {
+      btn.addEventListener("click", () => {
         if (div.dataset.answered) return;
         div.dataset.answered = "1";
         answered++;
-        const chosen = parseInt(btn.dataset.oi);
+        const chosen    = parseInt(btn.dataset.oi);
         const isCorrect = chosen === q.correct;
         if (isCorrect) correct++;
+
+        // ── Atualiza dificuldade adaptativa aqui, onde a resposta é conhecida ──
+        updateQuizDifficulty(fileName, isCorrect);
+
         div.querySelectorAll(".quiz-opt").forEach((b, bi) => {
           b.disabled = true;
           if (bi === q.correct) b.classList.add("correct");
           else if (bi === chosen) b.classList.add("wrong");
         });
         document.getElementById(`qexp-${qi}`)?.classList.add("on");
+
         if (answered === questions.length) {
           recordQuizResult(fileName, correct, questions.length);
           setTimeout(() => {
-            const pct = Math.round(correct / questions.length * 100);
+            const pct   = Math.round(correct / questions.length * 100);
             const emoji = pct >= 80 ? "🏆" : pct >= 60 ? "👍" : "📚";
             scoreEl.style.display = "block";
             scoreEl.innerHTML = `
               <div style="font-size:32px">${emoji}</div>
               <div class="quiz-score-num">${pct}%</div>
               <div style="font-size:14px;color:var(--mu2);margin-top:4px">${correct} de ${questions.length} corretas</div>
+              <div style="font-size:12px;color:var(--mu);margin-top:4px">Dificuldade adaptativa: ${getCurrentQuizDifficulty(fileName)}</div>
               <button class="btn btn-g btn-sm" style="margin-top:12px" onclick="document.getElementById('quizContainer').innerHTML='';document.getElementById('quizScore').style.display='none';renderQuiz(${JSON.stringify(questions).replace(/</g,'\\u003c')},'${esc(fileName)}')">🔄 Refazer</button>`;
-            scoreEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            scoreEl.scrollIntoView({ behavior:"smooth", block:"nearest" });
           }, 400);
         }
-      };
+      });
     });
   });
 }
@@ -2545,24 +2307,14 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 async function boot() {
-  console.log("Iniciando boot...");
   try {
-    // Tenta carregar a chave de API antes de decidir para onde ir
-    // Usamos um timeout ou catch para garantir que o boot não trave aqui
     await Promise.race([
       loadApiKey(),
-      new Promise(res => setTimeout(res, 3000)) // timeout de 3s para carregar a chave
-    ]).catch(e => console.error("Erro ao carregar API Key:", e));
-    
-    console.log("Role atual:", S.role);
-    if (S.role) {
-      go("home");
-    } else {
-      go("gate");
-    }
+      new Promise(res => setTimeout(res, 3000))
+    ]).catch(() => {});
+    S.role ? go("home") : go("gate");
   } catch (e) {
-    console.error("Erro crítico no boot:", e);
-    go("gate"); // fallback final
+    go("gate");
   }
 }
 </script>
