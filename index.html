@@ -619,7 +619,7 @@ async function subjectView() {
           </div>
         </div>
         <div class="file-acts">
-          ${canPreview(f.name) ? `<button class="btn btn-eye btn-sm" data-view="${f.id}">👁 Visualizar</button>` : ""}
+          ${f.name.toLowerCase().endsWith(".pdf") ? `<a href="https://drive.google.com/viewerng/viewer?url=${encodeURIComponent(fUrl)}" target="_blank" rel="noopener" class="btn btn-eye btn-sm">📂 Abrir PDF</a>` : canPreview(f.name) ? `<button class="btn btn-eye btn-sm" data-view="${f.id}">👁 Visualizar</button>` : ""}
           <a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>
           ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-del="${f.id}">🗑</button>` : ""}
         </div>
@@ -877,7 +877,7 @@ function openDocViewer(fileName, fileUrl) {
     <div class="doc-viewer-bar">
       <span class="doc-viewer-badge ${badgeClass}">${badgeText}</span>
       <span class="doc-viewer-title">${esc(fileName)}</span>
-      <a href="${esc(fileUrl)}" download="${esc(fileName)}" class="btn btn-gr btn-sm" style="flex-shrink:0;font-size:12px;padding:5px 11px">⬇ Baixar</a>
+      <a href="${esc(fileUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm" style="flex-shrink:0;font-size:12px;padding:5px 11px">⬇ Baixar</a>
       <button class="btn btn-g btn-sm" id="dvClose" style="flex-shrink:0;font-size:12px;padding:5px 11px">✕</button>
     </div>
     <div class="doc-viewer-body" id="dvBody">
@@ -1243,7 +1243,7 @@ function showPdfError(container, url, fileName, msg) {
   if (st) st.innerHTML = `
     <span style="font-size:32px">⚠️</span>
     <span style="color:#f87171;max-width:260px;text-align:center">${esc(msg)}</span>
-    <a href="${esc(url)}" download="${esc(fileName)}" class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
+    <a href="${esc(url)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
 }
 
 // ── DOCX Viewer ─────────────────────────────────────
