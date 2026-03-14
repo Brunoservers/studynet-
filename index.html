@@ -913,9 +913,9 @@ function settingsView() {
       <p id="sErr" style="color:#ff4d6d;font-size:13px;display:none"></p>
     </div>
     <div class="set-card">
-      <h3>🤖 Chave da API Claude (IA)</h3>
-      <p>Necessária para gerar resumos, flashcards e quiz. Obtenha em <strong>console.anthropic.com</strong>. A chave fica salva apenas no seu navegador.</p>
-      <input class="inp" id="nApiKey" type="password" placeholder="sk-ant-..."/>
+      <h3>🤖 Chave da API Gemini (IA)</h3>
+      <p>Necessária para gerar resumos, flashcards e quiz. Obtenha <strong>gratuitamente</strong> em <strong>aistudio.google.com</strong> → Get API Key. A chave fica salva no banco de dados.</p>
+      <input class="inp" id="nApiKey" type="password" placeholder="AIza..."/>
       <button class="btn btn-p" id="sApiSave">Salvar chave</button>
       <p id="sApiOk" class="ok-msg" style="display:none">✅ Chave salva!</p>
     </div>`;
@@ -944,7 +944,7 @@ function settingsView() {
 
   document.getElementById("sApiSave").onclick = async () => {
     const k = document.getElementById("nApiKey").value.trim();
-    if (!k.startsWith("sk-")) { alert("Chave inválida. Deve começar com sk-"); return; }
+    if (!k || k.length < 10) { alert("Chave inválida."); return; }
     const btn = document.getElementById("sApiSave");
     btn.disabled = true; btn.textContent = "Salvando…";
     try {
@@ -1574,25 +1574,26 @@ Regras:
 - correct é o índice (0-3) da opção correta no array options
 - Seja didático e claro`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4000,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
+  const res = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + key,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: 4000 }
+      })
+    }
+  );
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || "Erro na API: " + res.status);
+    throw new Error(err.error?.message || "Erro na API Gemini: " + res.status);
   }
 
   const data = await res.json();
-  const raw = data.content[0].text.trim();
-  // Remove possíveis marcadores de código
-  const clean = raw.replace(/^```json\s*/,"").replace(/```\s*$/,"").trim();
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+  const clean = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/```\s*$/,"").trim();
   return JSON.parse(clean);
 }
 
@@ -1646,8 +1647,8 @@ function openAIPanel(fileName, fileUrl) {
       <div class="api-key-prompt">
         <div style="font-size:40px">🔑</div>
         <p class="modal-title" style="font-family:var(--fh);font-weight:900;font-size:18px">Chave da API necessária</p>
-        <p>Para gerar material de estudo com IA, o ADM precisa configurar a chave da API Claude nas configurações.</p>
-        <p style="font-size:12px;color:var(--mu)">Obtenha gratuitamente em <strong>console.anthropic.com</strong></p>
+        <p>Para gerar material de estudo com IA, o ADM precisa configurar a chave da API Gemini nas configurações.</p>
+        <p style="font-size:12px;color:var(--mu)">Obtenha gratuitamente em <strong>aistudio.google.com</strong></p>
       </div>`;
     return;
   }
@@ -1688,7 +1689,7 @@ async function generateAIMaterial(fileName, fileUrl) {
     const loading = document.getElementById("aiLoading");
     if (!loading) return;
     if (err.message === "NO_KEY") {
-      loading.innerHTML = `<div class="api-key-prompt"><div style="font-size:40px">🔑</div><p style="font-family:var(--fh);font-weight:900;font-size:18px">Chave não configurada</p><p>O ADM precisa adicionar a chave da API nas ⚙️ Configurações.</p></div>`;
+      loading.innerHTML = `<div class="api-key-prompt"><div style="font-size:40px">🔑</div><p style="font-family:var(--fh);font-weight:900;font-size:18px">Chave não configurada</p><p>O ADM precisa adicionar a chave da API Gemini nas ⚙️ Configurações.</p></div>`;
     } else {
       loading.innerHTML = `<div style="text-align:center;padding:32px"><div style="font-size:40px">⚠️</div><p style="color:#f87171;margin-top:12px;font-size:14px">${esc(err.message)}</p><button class="btn btn-p" style="margin-top:16px" onclick="generateAIMaterial('${esc(fileName)}','${esc(fileUrl)}')">Tentar novamente</button></div>`;
     }
