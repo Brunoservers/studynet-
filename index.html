@@ -1493,6 +1493,37 @@ function progressView() {
 // Cache de sessão: evita re-gerar para o mesmo arquivo
 const AI_CACHE = {};
 
+// ════════════════════════════════════════════════════
+// FUNÇÃO DE HASH PARA CACHE INTELIGENTE
+// ════════════════════════════════════════════════════
+
+function simpleHash(str) {
+  /**
+   * Gera um hash simples para cache baseado em conteúdo.
+   * @param {string} str - String a ser hashida
+   * @returns {string} Hash hexadecimal
+   */
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Converte para inteiro 32-bit
+  }
+  return Math.abs(hash).toString(16);
+}
+
+function getCacheKey(fileName, text) {
+  /**
+   * Gera chave de cache baseada em fileName + hash do conteúdo.
+   * @param {string} fileName - Nome do arquivo
+   * @param {string} text - Conteúdo do texto
+   * @returns {string} Chave de cache única
+   */
+  const textHash = simpleHash(text);
+  return `${fileName}_${textHash}`;
+}
+
+
 function getApiKey() {
   return window._sn_api_key || "";
 }
@@ -1521,13 +1552,18 @@ async function extractTextFromUrl(url, fileName) {
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     const pdf = await window.pdfjsLib.getDocument({ url, withCredentials: false }).promise;
     let text = "";
-    const maxPages = Math.min(pdf.numPages, 30); // limita a 30 páginas
+    const maxPages = Math.min(pdf.numPages, 50); // limita a 30 páginas
     for (let i = 1; i <= maxPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
       text += content.items.map(it => it.str).join(" ") + "\n";
     }
-    return text.trim().slice(0, 12000); // limita tokens
+    let result = text.trim();
+    if (result.length > 120000) {
+      result = result.slice(0, 120000).trim();
+      console.warn("Texto do PDF truncado em 120.000 caracteres");
+    }
+    return result; // limita tokens
   }
 
   if (n.endsWith(".docx") || n.endsWith(".doc")) {
@@ -1540,62 +1576,777 @@ async function extractTextFromUrl(url, fileName) {
   return `Arquivo: ${fileName}\n(Conteúdo não extraível automaticamente — baseie o material no título do arquivo)`;
 }
 
-async function callClaude(text, fileName) {
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
+// ════════════════════════════════════════════════════
+// FUNÇÕES AUXILIARES DE PROCESSAMENTO DE TEXTO
+// ════════════════════════════════════════════════════
 
-  const prompt = `Você é um assistente educacional especialista em criar materiais de estudo em português brasileiro.
+function limitText(text, max = 12000) {
+  /**
+   * Limita o tamanho do texto para evitar estouro de tokens.
+   * @param {string} text - Texto a ser limitado
+   * @param {number} max - Tamanho máximo em caracteres
+   * @returns {string} Texto limitado
+   */
+  if (!text || typeof text !== 'string') return '';
+  if (text.length <= max) return text;
+  return text.substring(0, max).trim();
+}
 
-Analise o seguinte conteúdo de um documento chamado "${fileName}" e gere material de estudo completo.
+function chunkText(text, size = 6000) {
+  /**
+   * Divide um texto grande em pedaços menores para processamento.
+   * @param {string} text - Texto a ser dividido
+   * @param {number} size - Tamanho máximo de cada pedaço
+   * @returns {string[]} Array de pedaços de texto
+   */
+  if (!text || typeof text !== 'string') return [];
+  const chunks = [];
+  for (let i = 0; i < text.length; i += size) {
+    chunks.push(text.substring(i, i + size));
+  }
+  return chunks;
+}
+
+function buildPrompt(text, fileName) {
+  /**
+   * Constrói um prompt educacional estruturado para a IA.
+   * @param {string} text - Conteúdo do documento
+   * @param {string} fileName - Nome do arquivo
+   * @returns {string} Prompt formatado
+   */
+  return `Você é um assistente educacional especialista em criar materiais de estudo em português brasileiro.
+
+Analise o seguinte conteúdo de um documento chamado "${fileName}" e gere material de estudo completo e estruturado.
 
 CONTEÚDO DO DOCUMENTO:
 ${text}
 
-Responda APENAS com um JSON válido neste formato exato (sem markdown, sem texto fora do JSON):
+Responda APENAS com um JSON válido neste formato exato (sem markdown, sem blocos de código, sem texto fora do JSON):
 {
   "concepts": [
-    {"name": "Nome do conceito", "definition": "Definição clara e objetiva"}
+    {"name": "Nome do conceito", "definition": "Definição clara e objetiva em 1-2 linhas"}
   ],
   "flashcards": [
-    {"question": "Pergunta", "answer": "Resposta"}
+    {"question": "Pergunta concisa", "answer": "Resposta completa e didática"}
   ],
   "exercises": [
-    {"problem": "Enunciado do exercício", "answer": "Resposta/solução completa"}
+    {"problem": "Enunciado claro do exercício", "answer": "Solução passo a passo"}
   ],
   "quiz": [
-    {"question": "Pergunta", "options": ["A) opção", "B) opção", "C) opção", "D) opção"], "correct": 0, "explanation": "Por que esta é a resposta correta"}
+    {"question": "Pergunta de múltipla escolha", "options": ["A) opção", "B) opção", "C) opção", "D) opção"], "correct": 0, "explanation": "Explicação clara da resposta correta"}
   ]
 }
 
-Regras:
-- Gere exatamente: 5 conceitos-chave, 8 flashcards, 4 exercícios, 6 questões de quiz
-- Tudo em português brasileiro
+REQUISITOS OBRIGATÓRIOS:
+- Gere EXATAMENTE: 5 conceitos-chave, 8 flashcards, 4 exercícios, 6 questões de quiz
+- Tudo em português brasileiro correto
 - Baseie-se APENAS no conteúdo fornecido
 - correct é o índice (0-3) da opção correta no array options
-- Seja didático e claro`;
+- Seja didático, claro e educativo
+- Nível: ensino médio / universitário inicial
+- Não inclua blocos markdown (\`\`\`json, \`\`\`) na resposta`;
+}
 
+// ════════════════════════════════════════════════════
+// FUNÇÕES PREMIUM DE IA EDUCACIONAL
+// ════════════════════════════════════════════════════
+
+async function detectTopics(text) {
+  /**
+   * Detecta os tópicos principais do documento.
+   * @param {string} text - Texto do documento
+   * @returns {Promise<Object>} Objeto com lista de tópicos
+   */
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+
+  const limitedText = limitText(text, 12000);
+  if (!limitedText) {
+    throw new Error("Não foi possível extrair conteúdo do documento");
+  }
+
+  const prompt = `Analise o seguinte texto educacional e identifique os 5-8 tópicos principais.
+
+TEXTO:
+${limitedText}
+
+Responda APENAS com um JSON válido neste formato (sem markdown):
+{
+  "topics": ["Tópico 1", "Tópico 2", "Tópico 3", "Tópico 4", "Tópico 5"]
+}`;
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 500,
+            topP: 0.9,
+            topK: 40
+          }
+        })
+      }
+    );
+
+    if (!res.ok) throw new Error("Erro ao detectar tópicos");
+
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!raw) throw new Error("Resposta vazia");
+
+    let clean = raw
+      .replace(/^```json\s*/gm, "")
+      .replace(/^```\s*/gm, "")
+      .replace(/```\s*$/gm, "")
+      .trim();
+
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) clean = jsonMatch[0];
+
+    return JSON.parse(clean);
+  } catch (err) {
+    console.error("Erro ao detectar tópicos:", err);
+    throw err;
+  }
+}
+
+async function generateMindMap(text) {
+  /**
+   * Gera um mapa mental estruturado do documento.
+   * @param {string} text - Texto do documento
+   * @returns {Promise<Object>} Estrutura de mapa mental
+   */
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+
+  const limitedText = limitText(text, 12000);
+  if (!limitedText) {
+    throw new Error("Não foi possível extrair conteúdo do documento");
+  }
+
+  const prompt = `Crie um mapa mental estruturado do seguinte documento educacional.
+
+DOCUMENTO:
+${limitedText}
+
+Identifique:
+1. O conceito principal (topic)
+2. 3-5 ramos principais (branches)
+3. 3-4 itens em cada ramo
+
+Responda APENAS com um JSON válido neste formato (sem markdown):
+{
+  "topic": "Conceito Principal",
+  "branches": [
+    {
+      "title": "Ramo 1",
+      "items": ["Item 1", "Item 2", "Item 3"]
+    },
+    {
+      "title": "Ramo 2",
+      "items": ["Item 1", "Item 2", "Item 3"]
+    }
+  ]
+}`;
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 2000,
+            topP: 0.95,
+            topK: 40
+          }
+        })
+      }
+    );
+
+    if (!res.ok) throw new Error("Erro ao gerar mapa mental");
+
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!raw) throw new Error("Resposta vazia");
+
+    let clean = raw
+      .replace(/^```json\s*/gm, "")
+      .replace(/^```\s*/gm, "")
+      .replace(/```\s*$/gm, "")
+      .trim();
+
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) clean = jsonMatch[0];
+
+    return JSON.parse(clean);
+  } catch (err) {
+    console.error("Erro ao gerar mapa mental:", err);
+    throw err;
+  }
+}
+
+// Sistema de Quiz Adaptativo
+const ADAPTIVE_QUIZ_STATE = {};
+
+function initializeAdaptiveQuiz(fileName) {
+  /**
+   * Inicializa o estado do quiz adaptativo para um documento.
+   */
+  if (!ADAPTIVE_QUIZ_STATE[fileName]) {
+    ADAPTIVE_QUIZ_STATE[fileName] = {
+      currentDifficulty: "medium",
+      correctStreak: 0,
+      wrongStreak: 0,
+      questionIndex: 0
+    };
+  }
+}
+
+function updateQuizDifficulty(fileName, isCorrect) {
+  /**
+   * Atualiza a dificuldade do quiz baseado na resposta do usuário.
+   * - 2 respostas corretas seguidas → aumenta dificuldade
+   * - 1 resposta incorreta → diminui dificuldade
+   */
+  const state = ADAPTIVE_QUIZ_STATE[fileName];
+  if (!state) return;
+
+  if (isCorrect) {
+    state.correctStreak++;
+    state.wrongStreak = 0;
+    
+    if (state.correctStreak >= 2) {
+      if (state.currentDifficulty === "easy") {
+        state.currentDifficulty = "medium";
+        console.log("📈 Dificuldade aumentada para MEDIUM");
+      } else if (state.currentDifficulty === "medium") {
+        state.currentDifficulty = "hard";
+        console.log("📈 Dificuldade aumentada para HARD");
+      }
+      state.correctStreak = 0;
+    }
+  } else {
+    state.wrongStreak++;
+    state.correctStreak = 0;
+    
+    if (state.wrongStreak >= 1) {
+      if (state.currentDifficulty === "hard") {
+        state.currentDifficulty = "medium";
+        console.log("📉 Dificuldade diminuída para MEDIUM");
+      } else if (state.currentDifficulty === "medium") {
+        state.currentDifficulty = "easy";
+        console.log("📉 Dificuldade diminuída para EASY");
+      }
+      state.wrongStreak = 0;
+    }
+  }
+}
+
+function getCurrentQuizDifficulty(fileName) {
+  /**
+   * Retorna a dificuldade atual do quiz.
+   */
+  const state = ADAPTIVE_QUIZ_STATE[fileName];
+  return state ? state.currentDifficulty : "medium";
+}
+
+// ════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// FUNÇÕES PREMIUM DE IA EDUCACIONAL
+// ════════════════════════════════════════════════════
+
+async function detectTopics(text) {
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+  const limitedText = limitText(text, 12000);
+  if (!limitedText) throw new Error("Não foi possível extrair conteúdo");
+  const prompt = `Identifique os 5-8 tópicos principais deste texto educacional.
+TEXTO: ${limitedText}
+Responda APENAS com JSON (sem markdown):
+{"topics": ["Tópico 1", "Tópico 2", "Tópico 3"]}`;
+  try {
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 500, topP: 0.9, topK: 40 }
+      })
+    });
+    if (!res.ok) throw new Error("Erro ao detectar tópicos");
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!raw) throw new Error("Resposta vazia");
+    let clean = raw.replace(/^```json\s*/gm, "").replace(/^```\s*/gm, "").replace(/```\s*$/gm, "").trim();
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) clean = jsonMatch[0];
+    return JSON.parse(clean);
+  } catch (err) {
+    console.error("Erro ao detectar tópicos:", err);
+    throw err;
+  }
+}
+
+async function generateMindMap(text) {
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+  const limitedText = limitText(text, 12000);
+  if (!limitedText) throw new Error("Não foi possível extrair conteúdo");
+  const prompt = `Crie um mapa mental estruturado com: 1 conceito principal e 3-5 ramos com 3-4 itens cada.
+TEXTO: ${limitedText}
+Responda APENAS com JSON (sem markdown):
+{"topic": "Conceito Principal", "branches": [{"title": "Ramo 1", "items": ["Item 1", "Item 2"]}]}`;
+  try {
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: 2000, topP: 0.95, topK: 40 }
+      })
+    });
+    if (!res.ok) throw new Error("Erro ao gerar mapa mental");
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!raw) throw new Error("Resposta vazia");
+    let clean = raw.replace(/^```json\s*/gm, "").replace(/^```\s*/gm, "").replace(/```\s*$/gm, "").trim();
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) clean = jsonMatch[0];
+    return JSON.parse(clean);
+  } catch (err) {
+    console.error("Erro ao gerar mapa mental:", err);
+    throw err;
+  }
+}
+
+// ════════════════════════════════════════════════════
+// SISTEMA DE QUIZ ADAPTATIVO
+// ════════════════════════════════════════════════════
+const ADAPTIVE_QUIZ_STATE = {};
+
+function initializeAdaptiveQuiz(fileName) {
+  if (!ADAPTIVE_QUIZ_STATE[fileName]) {
+    ADAPTIVE_QUIZ_STATE[fileName] = {
+      currentDifficulty: "medium",
+      correctStreak: 0,
+      wrongStreak: 0
+    };
+  }
+}
+
+function updateQuizDifficulty(fileName, isCorrect) {
+  const state = ADAPTIVE_QUIZ_STATE[fileName];
+  if (!state) return;
+  if (isCorrect) {
+    state.correctStreak++;
+    state.wrongStreak = 0;
+    if (state.correctStreak >= 2) {
+      if (state.currentDifficulty === "easy") {
+        state.currentDifficulty = "medium";
+        console.log("📈 Dificuldade: EASY → MEDIUM");
+      } else if (state.currentDifficulty === "medium") {
+        state.currentDifficulty = "hard";
+        console.log("📈 Dificuldade: MEDIUM → HARD");
+      }
+      state.correctStreak = 0;
+    }
+  } else {
+    state.wrongStreak++;
+    state.correctStreak = 0;
+    if (state.wrongStreak >= 1) {
+      if (state.currentDifficulty === "hard") {
+        state.currentDifficulty = "medium";
+        console.log("📉 Dificuldade: HARD → MEDIUM");
+      } else if (state.currentDifficulty === "medium") {
+        state.currentDifficulty = "easy";
+        console.log("📉 Dificuldade: MEDIUM → EASY");
+      }
+      state.wrongStreak = 0;
+    }
+  }
+}
+
+function getCurrentQuizDifficulty(fileName) {
+  const state = ADAPTIVE_QUIZ_STATE[fileName];
+  return state ? state.currentDifficulty : "medium";
+}
+
+
+// FUNÇÕES DE RESUMO AUTOMÁTICO E CHAT COM DOCUMENTO
+// ════════════════════════════════════════════════════
+
+async function generateSummary(text, fileName) {
+  /**
+   * Gera resumo curto, detalhado e tópicos principais do documento.
+   * @param {string} text - Texto extraído do documento
+   * @param {string} fileName - Nome do arquivo
+   * @returns {Promise<Object>} Objeto com resumos e tópicos
+   */
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+
+  const limitedText = limitText(text, 12000);
+  if (!limitedText) {
+    throw new Error("Não foi possível extrair conteúdo do documento");
+  }
+
+  const prompt = `Você é um especialista em análise de documentos educacionais.
+
+Analise o seguinte documento "${fileName}" e gere:
+1. Um resumo CURTO (máximo 3 linhas)
+2. Um resumo DETALHADO (máximo 10 linhas)
+3. Uma lista de 5-7 tópicos principais
+
+CONTEÚDO DO DOCUMENTO:
+${limitedText}
+
+Responda APENAS com um JSON válido neste formato (sem markdown, sem blocos de código):
+{
+  "short_summary": "Resumo muito breve do documento",
+  "detailed_summary": "Resumo mais completo e detalhado",
+  "key_points": ["Tópico 1", "Tópico 2", "Tópico 3", "Tópico 4", "Tópico 5"]
+}`;
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 1500,
+            topP: 0.9,
+            topK: 40
+          }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || "Erro ao gerar resumo");
+    }
+
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!raw) throw new Error("Resposta vazia do resumo");
+
+    let clean = raw
+      .replace(/^```json\s*/gm, "")
+      .replace(/^```\s*/gm, "")
+      .replace(/```\s*$/gm, "")
+      .trim();
+
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) clean = jsonMatch[0];
+
+    const result = JSON.parse(clean);
+    return result;
+  } catch (err) {
+    console.error("Erro ao gerar resumo:", err);
+    throw err;
+  }
+}
+
+async function askDocument(question, documentText) {
+  /**
+   * Responde perguntas sobre o documento usando o Gemini.
+   * @param {string} question - Pergunta do usuário
+   * @param {string} documentText - Texto do documento
+   * @returns {Promise<string>} Resposta da IA
+   */
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+
+  const limitedText = limitText(documentText, 12000);
+  if (!limitedText) {
+    throw new Error("Documento vazio ou inválido");
+  }
+
+  const prompt = `Você é um assistente educacional que responde perguntas baseado APENAS no conteúdo fornecido.
+
+CONTEÚDO DO DOCUMENTO:
+${limitedText}
+
+PERGUNTA DO USUÁRIO:
+${question}
+
+INSTRUÇÕES:
+- Responda APENAS usando informações do documento
+- Se a resposta não estiver no documento, diga: "Esta informação não está disponível no documento fornecido"
+- Seja claro, conciso e educativo
+- Cite a parte relevante do documento quando possível`;
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 1000,
+            topP: 0.9,
+            topK: 40
+          }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || "Erro ao responder pergunta");
+    }
+
+    const data = await res.json();
+    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!answer) throw new Error("Resposta vazia");
+
+    return answer;
+  } catch (err) {
+    console.error("Erro ao responder pergunta:", err);
+    throw err;
+  }
+}
+
+// ════════════════════════════════════════════════════
+// INTEGRAÇÃO COM GOOGLE GEMINI 1.5 FLASH
+// ════════════════════════════════════════════════════
+
+
+function mergeChunkResults(chunkResults) {
+  /**
+   * Mescla resultados de múltiplos chunks em um único objeto JSON.
+   * @param {Array<Object>} chunkResults - Array de resultados de cada chunk
+   * @returns {Object} Objeto mesclado com limites corretos
+   */
+  const merged = {
+    concepts: [],
+    flashcards: [],
+    exercises: [],
+    quiz: []
+  };
+
+  // Mesclar cada tipo de resultado
+  chunkResults.forEach(result => {
+    if (result && typeof result === 'object') {
+      if (Array.isArray(result.concepts)) {
+        merged.concepts.push(...result.concepts);
+      }
+      if (Array.isArray(result.flashcards)) {
+        merged.flashcards.push(...result.flashcards);
+      }
+      if (Array.isArray(result.exercises)) {
+        merged.exercises.push(...result.exercises);
+      }
+      if (Array.isArray(result.quiz)) {
+        merged.quiz.push(...result.quiz);
+      }
+    }
+  });
+
+  // Remover duplicatas usando Set (baseado em conteúdo)
+  merged.concepts = Array.from(new Map(
+    merged.concepts.map(c => [c.name, c])
+  ).values()).slice(0, 5);
+
+  merged.flashcards = Array.from(new Map(
+    merged.flashcards.map(f => [f.question, f])
+  ).values()).slice(0, 8);
+
+  merged.exercises = Array.from(new Map(
+    merged.exercises.map(e => [e.problem, e])
+  ).values()).slice(0, 4);
+
+  merged.quiz = Array.from(new Map(
+    merged.quiz.map(q => [q.question, q])
+  ).values()).slice(0, 6);
+
+  return merged;
+}
+
+async function callGemini(text, fileName) {
+  /**
+   * Chama a API do Google Gemini 1.5 Flash para gerar material de estudo.
+   * Implementa chunking para PDFs grandes e tratamento robusto de resposta JSON.
+   * @param {string} text - Texto extraído do documento
+   * @param {string} fileName - Nome do arquivo
+   * @returns {Promise<Object>} Dados estruturados de estudo
+   */
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+
+  // Limita o texto para evitar estouro de tokens
+  const limitedText = limitText(text, 12000);
+  if (!limitedText) {
+    throw new Error("Não foi possível extrair conteúdo do documento");
+  }
+
+  // Se o texto for muito grande, usar chunking
+  const chunks = chunkText(limitedText, 6000);
+  let allResults = {
+    concepts: [],
+    flashcards: [],
+    exercises: [],
+    quiz: []
+  };
+
+  // Se houver múltiplos chunks, processar cada um
+  if (chunks.length > 1) {
+    console.log(`Processando ${chunks.length} blocos de texto...`);
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      const prompt = buildPrompt(chunk, `${fileName} (Parte ${i + 1}/${chunks.length})`);
+      
+      try {
+        const result = await processSingleChunk(prompt, key);
+        // Combinar resultados
+        allResults.concepts.push(...(result.concepts || []));
+        allResults.flashcards.push(...(result.flashcards || []));
+        allResults.exercises.push(...(result.exercises || []));
+        allResults.quiz.push(...(result.quiz || []));
+      } catch (err) {
+        console.error(`Erro ao processar chunk ${i + 1}:`, err);
+      }
+    }
+    
+    // Limitar aos números corretos
+    allResults.concepts = allResults.concepts.slice(0, 5);
+    allResults.flashcards = allResults.flashcards.slice(0, 8);
+    allResults.exercises = allResults.exercises.slice(0, 4);
+    allResults.quiz = allResults.quiz.slice(0, 6);
+    
+    return allResults;
+  }
+
+  // Se for um único chunk, processar normalmente
+  const prompt = buildPrompt(limitedText, fileName);
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 4000,
+            topP: 0.95,
+            topK: 40
+          }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      const errorMsg = err.error?.message || err.message || "Erro desconhecido";
+      throw new Error(`Erro na API Gemini (${res.status}): ${errorMsg}`);
+    }
+
+    const data = await res.json();
+
+    // Extrai o texto da resposta do Gemini
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!raw) {
+      throw new Error("Resposta vazia da API Gemini");
+    }
+
+    // Remove blocos markdown se presentes
+    let clean = raw
+      .replace(/^```json\s*/gm, "")
+      .replace(/^```\s*/gm, "")
+      .replace(/```\s*$/gm, "")
+      .trim();
+
+    // Tenta extrair JSON se estiver dentro de texto
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      clean = jsonMatch[0];
+    }
+
+    // Converte para JSON
+    let result;
+    try {
+      result = JSON.parse(clean);
+    } catch (parseErr) {
+      console.error("Erro ao converter resposta da IA para JSON", parseErr);
+      console.error("Resposta bruta:", raw);
+      throw new Error("Resposta da IA não é um JSON válido");
+    }
+
+    // Valida a estrutura da resposta
+    if (!result.concepts || !result.flashcards || !result.exercises || !result.quiz) {
+      throw new Error("Resposta da IA com estrutura incompleta");
+    }
+
+    return result;
+
+  } catch (err) {
+    if (err.message === "NO_KEY") throw err;
+    throw new Error(err.message || "Erro ao chamar API Gemini");
+  }
+}
+
+async function processSingleChunk(prompt, key) {
+  /**
+   * Processa um único chunk de texto com a API Gemini.
+   * Função auxiliar para callGemini.
+   */
   const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + key,
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + encodeURIComponent(key),
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 4000 }
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 2000,
+          topP: 0.95,
+          topK: 40
+        }
       })
     }
   );
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || "Erro na API Gemini: " + res.status);
+    throw new Error(err.error?.message || "Erro ao processar chunk");
   }
 
   const data = await res.json();
-  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-  const clean = raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/```\s*$/,"").trim();
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  if (!raw) throw new Error("Resposta vazia do chunk");
+
+  let clean = raw
+    .replace(/^```json\s*/gm, "")
+    .replace(/^```\s*/gm, "")
+    .replace(/```\s*$/gm, "")
+    .trim();
+
+  const jsonMatch = clean.match(/\{[\s\S]*\}/);
+  if (jsonMatch) clean = jsonMatch[0];
+
   return JSON.parse(clean);
 }
+
 
 function openAIPanel(fileName, fileUrl) {
   document.getElementById("_ai")?.remove();
@@ -1620,7 +2371,7 @@ function openAIPanel(fileName, fileUrl) {
           <div class="spin" style="width:40px;height:40px"></div>
           <div class="ai-gen-steps">
             <div class="ai-step active" id="step1"><div class="ai-step-ico">1</div><span>Extraindo texto do documento…</span></div>
-            <div class="ai-step" id="step2"><div class="ai-step-ico">2</div><span>Enviando para o Claude…</span></div>
+            <div class="ai-step" id="step2"><div class="ai-step-ico">2</div><span>Enviando para o Gemini…</span></div>
             <div class="ai-step" id="step3"><div class="ai-step-ico">3</div><span>Gerando material de estudo…</span></div>
             <div class="ai-step" id="step4"><div class="ai-step-ico">4</div><span>Montando conteúdo…</span></div>
           </div>
@@ -1636,6 +2387,13 @@ function openAIPanel(fileName, fileUrl) {
   });
 
   // Verifica cache
+  const cacheKey = getCacheKey(fileName, text);
+  if (AI_CACHE[cacheKey]) {
+    renderAIContent(AI_CACHE[cacheKey], fileName);
+    return;
+  }
+  
+  // Fallback para compatibilidade com cache antigo
   if (AI_CACHE[fileName]) {
     renderAIContent(AI_CACHE[fileName], fileName);
     return;
@@ -1674,7 +2432,7 @@ async function generateAIMaterial(fileName, fileUrl) {
     const text = await extractTextFromUrl(fileUrl, fileName);
 
     step("step2");
-    const data = await callClaude(text, fileName);
+    const data = await callGemini(text, fileName);
 
     step("step3");
     await new Promise(r => setTimeout(r, 400)); // animação
@@ -1682,6 +2440,9 @@ async function generateAIMaterial(fileName, fileUrl) {
     step("step4");
     await new Promise(r => setTimeout(r, 300));
 
+    const cacheKey = getCacheKey(fileName, text);
+    AI_CACHE[cacheKey] = data;
+    // Manter compatibilidade com cache antigo
     AI_CACHE[fileName] = data;
     renderAIContent(data, fileName);
 
@@ -1761,6 +2522,14 @@ function renderAIContent(data, fileName) {
 }
 
 function renderQuiz(questions, fileName) {
+  // Inicializar quiz adaptativo
+  initializeAdaptiveQuiz(fileName);
+  
+  // Adicionar dificuldade a cada questão se não tiver
+  questions = questions.map(q => ({
+    ...q,
+    difficulty: q.difficulty || getCurrentQuizDifficulty(fileName)
+  }));
   const container = document.getElementById("quizContainer");
   const scoreEl = document.getElementById("quizScore");
   if (!container || container.children.length > 0) return;
