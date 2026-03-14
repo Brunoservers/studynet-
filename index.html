@@ -76,7 +76,7 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .file-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;gap:12px;flex-wrap:wrap}
 .file-info{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
 .file-ico{font-size:24px;flex-shrink:0}
-.file-name{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-name{font-weight:600;font-size:14px;word-break:break-all;line-height:1.3;margin-bottom:2px}
 .file-date{font-size:11px;color:var(--mu);margin-top:2px}
 .file-acts{display:flex;gap:7px;flex-shrink:0;flex-wrap:wrap}
 .link-zone{padding:0 18px 15px;border-top:1px solid var(--bd)}
@@ -426,10 +426,22 @@ const S = {
 const ROOT = document.getElementById("app");
 
 function go(view, patch = {}) {
-  Object.assign(S, patch);
-  ROOT.innerHTML = "";
-  window.scrollTo(0, 0);
-  ({ gate, home, subjectView, uploadView, settingsView, progressView })[view]?.();
+  try {
+    Object.assign(S, patch);
+    ROOT.innerHTML = "";
+    window.scrollTo(0, 0);
+    const views = { gate, home, subjectView, uploadView, settingsView, progressView };
+    if (views[view]) {
+      views[view]();
+    } else {
+      console.error("View não encontrada:", view);
+      gate(); // fallback para o portão
+    }
+  } catch (e) {
+    console.error("Erro ao navegar para " + view + ":", e);
+    // Se falhar ao renderizar, tenta voltar para o gate como última instância
+    if (view !== "gate") go("gate");
+  }
 }
 
 // ── Modal ─────────────────────────────────────────
@@ -956,7 +968,7 @@ function settingsView() {
     const btn = document.getElementById("sApiSave");
     btn.disabled = true; btn.textContent = "Salvando…";
     try {
-      await sbSetConfig("claude_api_key", k);
+      await sbSetConfig("gemini_api_key", k);
       window._sn_api_key = k;
       document.getElementById("nApiKey").value = "";
       const ok = document.getElementById("sApiOk");
@@ -968,8 +980,8 @@ function settingsView() {
     btn.disabled = false; btn.textContent = "Salvar chave";
   };
   // Mostra se já tem chave salva
-  sbGetConfig("claude_api_key").then(k => {
-    if (k) document.getElementById("nApiKey").placeholder = "✅ Chave já configurada (sk-ant-***)";
+  sbGetConfig("gemini_api_key").then(k => {
+    if (k) document.getElementById("nApiKey").placeholder = "✅ Chave já configurada (AIza...)";
   }).catch(()=>{});
 }
 
@@ -1538,7 +1550,7 @@ function getApiKey() {
 
 async function loadApiKey() {
   try {
-    const key = await sbGetConfig("claude_api_key");
+    const key = await sbGetConfig("gemini_api_key");
     if (key) window._sn_api_key = key;
   } catch(e) {}
 }
@@ -1867,12 +1879,9 @@ function getCurrentQuizDifficulty(fileName) {
   return state ? state.currentDifficulty : "medium";
 }
 
-// ════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════
-// FUNÇÕES PREMIUM DE IA EDUCACIONAL
-// ════════════════════════════════════════════════════
+// (detectTopics e generateMindMap já definidos acima)
 
-async function detectTopics(text) {
+async function _detectTopics_REMOVED(text) {
   const key = getApiKey();
   if (!key) throw new Error("NO_KEY");
   const limitedText = limitText(text, 12000);
@@ -1904,7 +1913,7 @@ Responda APENAS com JSON (sem markdown):
   }
 }
 
-async function generateMindMap(text) {
+async function _generateMindMap_REMOVED(text) {
   const key = getApiKey();
   if (!key) throw new Error("NO_KEY");
   const limitedText = limitText(text, 12000);
@@ -1935,59 +1944,6 @@ Responda APENAS com JSON (sem markdown):
     throw err;
   }
 }
-
-// ════════════════════════════════════════════════════
-// SISTEMA DE QUIZ ADAPTATIVO
-// ════════════════════════════════════════════════════
-const ADAPTIVE_QUIZ_STATE = {};
-
-function initializeAdaptiveQuiz(fileName) {
-  if (!ADAPTIVE_QUIZ_STATE[fileName]) {
-    ADAPTIVE_QUIZ_STATE[fileName] = {
-      currentDifficulty: "medium",
-      correctStreak: 0,
-      wrongStreak: 0
-    };
-  }
-}
-
-function updateQuizDifficulty(fileName, isCorrect) {
-  const state = ADAPTIVE_QUIZ_STATE[fileName];
-  if (!state) return;
-  if (isCorrect) {
-    state.correctStreak++;
-    state.wrongStreak = 0;
-    if (state.correctStreak >= 2) {
-      if (state.currentDifficulty === "easy") {
-        state.currentDifficulty = "medium";
-        console.log("📈 Dificuldade: EASY → MEDIUM");
-      } else if (state.currentDifficulty === "medium") {
-        state.currentDifficulty = "hard";
-        console.log("📈 Dificuldade: MEDIUM → HARD");
-      }
-      state.correctStreak = 0;
-    }
-  } else {
-    state.wrongStreak++;
-    state.correctStreak = 0;
-    if (state.wrongStreak >= 1) {
-      if (state.currentDifficulty === "hard") {
-        state.currentDifficulty = "medium";
-        console.log("📉 Dificuldade: HARD → MEDIUM");
-      } else if (state.currentDifficulty === "medium") {
-        state.currentDifficulty = "easy";
-        console.log("📉 Dificuldade: MEDIUM → EASY");
-      }
-      state.wrongStreak = 0;
-    }
-  }
-}
-
-function getCurrentQuizDifficulty(fileName) {
-  const state = ADAPTIVE_QUIZ_STATE[fileName];
-  return state ? state.currentDifficulty : "medium";
-}
-
 
 // FUNÇÕES DE RESUMO AUTOMÁTICO E CHAT COM DOCUMENTO
 // ════════════════════════════════════════════════════
@@ -2395,13 +2351,6 @@ function openAIPanel(fileName, fileUrl) {
   });
 
   // Verifica cache
-  const cacheKey = getCacheKey(fileName, text);
-  if (AI_CACHE[cacheKey]) {
-    renderAIContent(AI_CACHE[cacheKey], fileName);
-    return;
-  }
-  
-  // Fallback para compatibilidade com cache antigo
   if (AI_CACHE[fileName]) {
     renderAIContent(AI_CACHE[fileName], fileName);
     return;
@@ -2595,16 +2544,25 @@ window.addEventListener("DOMContentLoaded", () => {
   boot();
 });
 
-function boot() {
+async function boot() {
+  console.log("Iniciando boot...");
   try {
+    // Tenta carregar a chave de API antes de decidir para onde ir
+    // Usamos um timeout ou catch para garantir que o boot não trave aqui
+    await Promise.race([
+      loadApiKey(),
+      new Promise(res => setTimeout(res, 3000)) // timeout de 3s para carregar a chave
+    ]).catch(e => console.error("Erro ao carregar API Key:", e));
+    
+    console.log("Role atual:", S.role);
     if (S.role) {
       go("home");
     } else {
       go("gate");
     }
   } catch (e) {
-    console.error("Erro no boot:", e);
-    go("gate"); // fallback
+    console.error("Erro crítico no boot:", e);
+    go("gate"); // fallback final
   }
 }
 </script>
