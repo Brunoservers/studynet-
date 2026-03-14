@@ -168,7 +168,90 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 
 .btn-eye{background:rgba(99,76,220,.12);color:#a48fff;border:1px solid rgba(99,76,220,.3)}
 .btn-eye:hover{background:rgba(99,76,220,.22);color:#c4b5fd}
+.btn-ai{background:linear-gradient(135deg,rgba(99,76,220,.2),rgba(56,182,155,.2));color:#c4b5fd;border:1px solid rgba(99,76,220,.4)}
+.btn-ai:hover{background:linear-gradient(135deg,rgba(99,76,220,.35),rgba(56,182,155,.3));color:#fff}
 
+/* ── AI Study Panel ── */
+.ai-panel-ov{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:400;display:flex;flex-direction:column;animation:fade .2s ease}
+.ai-panel{display:flex;flex-direction:column;height:100%;max-width:780px;margin:0 auto;width:100%}
+.ai-panel-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(8,8,18,.95);border-bottom:1px solid var(--bd);flex-shrink:0}
+.ai-panel-title{flex:1;font-family:var(--fh);font-weight:900;font-size:15px;letter-spacing:-.3px}
+.ai-panel-body{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:14px}
+.ai-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:12px 16px;background:rgba(8,8,18,.6);border-bottom:1px solid var(--bd);flex-shrink:0}
+.ai-tab{background:var(--sf2);border:1px solid var(--bd2);color:var(--mu2);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ai-tab.on{background:rgba(99,76,220,.2);color:#c4b5fd;border-color:rgba(99,76,220,.4)}
+.ai-section{display:none;flex-direction:column;gap:12px;animation:up .2s ease}
+.ai-section.on{display:flex}
+.ai-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px}
+.ai-card-title{font-family:var(--fh);font-weight:700;font-size:13px;color:var(--ac2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.ai-card p{font-size:14px;line-height:1.75;color:var(--tx)}
+.ai-card ul,.ai-card ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.ai-card li{font-size:14px;line-height:1.6;color:var(--tx)}
+
+/* Flashcards */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.fc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px;cursor:pointer;transition:all .2s;min-height:110px;display:flex;flex-direction:column;gap:8px;position:relative}
+.fc:hover{border-color:var(--ac);transform:translateY(-2px)}
+.fc-q{font-size:13px;font-weight:600;color:var(--tx);line-height:1.5}
+.fc-a{font-size:13px;color:var(--ac2);line-height:1.5;display:none;border-top:1px solid var(--bd);padding-top:8px;margin-top:4px}
+.fc.open .fc-a{display:block}
+.fc-hint{font-size:11px;color:var(--mu);margin-top:auto}
+
+/* Quiz */
+.quiz-q{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px;display:flex;flex-direction:column;gap:10px}
+.quiz-q-txt{font-size:14px;font-weight:600;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}
+.quiz-opt{background:var(--sf2);border:1.5px solid var(--bd2);border-radius:10px;padding:10px 14px;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.quiz-opt:hover{border-color:var(--ac);color:var(--tx)}
+.quiz-opt.correct{background:rgba(56,182,155,.15);border-color:var(--ac2);color:var(--ac2)}
+.quiz-opt.wrong{background:rgba(255,77,109,.1);border-color:#ff4d6d;color:#ff4d6d}
+.quiz-exp{font-size:12px;color:var(--mu2);padding:8px 12px;background:rgba(99,76,220,.07);border-radius:8px;display:none}
+.quiz-exp.on{display:block}
+.quiz-score{background:linear-gradient(135deg,rgba(99,76,220,.15),rgba(56,182,155,.1));border:1px solid rgba(99,76,220,.3);border-radius:var(--rl);padding:20px;text-align:center}
+.quiz-score-num{font-family:var(--fh);font-weight:900;font-size:42px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Exercícios */
+.ex-item{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px;display:flex;flex-direction:column;gap:10px}
+.ex-num{font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.05em}
+.ex-txt{font-size:14px;line-height:1.6}
+.ex-ans{background:rgba(56,182,155,.07);border:1px solid rgba(56,182,155,.2);border-radius:10px;padding:12px;font-size:13px;color:var(--ac2);display:none}
+.ex-ans.on{display:block}
+
+/* Conceitos */
+.concept-item{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:16px;display:flex;gap:12px;align-items:flex-start}
+.concept-dot{width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:6px}
+.concept-name{font-weight:700;font-size:14px;margin-bottom:3px}
+.concept-def{font-size:13px;color:var(--mu2);line-height:1.6}
+
+/* Progresso */
+.prog-subject{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.prog-subject-name{font-weight:600;font-size:14px;display:flex;justify-content:space-between}
+.prog-bar-wrap{height:6px;background:var(--bd2);border-radius:99px;overflow:hidden}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .5s ease}
+.prog-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.prog-stat{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px;text-align:center}
+.prog-stat-num{font-family:var(--fh);font-weight:900;font-size:26px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.prog-stat-lbl{font-size:11px;color:var(--mu);margin-top:2px}
+
+/* AI loading */
+.ai-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px 20px;text-align:center}
+.ai-loading-txt{font-size:13px;color:var(--mu2)}
+.ai-gen-steps{display:flex;flex-direction:column;gap:8px;width:100%;max-width:280px}
+.ai-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mu);transition:color .3s}
+.ai-step.done{color:var(--ac2)}.ai-step.active{color:var(--tx)}
+.ai-step-ico{width:20px;height:20px;border-radius:50%;background:var(--bd2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .3s}
+.ai-step.done .ai-step-ico{background:var(--ac2);color:#000}
+.ai-step.active .ai-step-ico{background:var(--ac);color:#fff}
+
+/* API key prompt */
+.api-key-prompt{background:rgba(99,76,220,.07);border:1px solid rgba(99,76,220,.25);border-radius:var(--rl);padding:24px;display:flex;flex-direction:column;gap:12px;text-align:center;align-items:center}
+.api-key-prompt p{font-size:13px;color:var(--mu2);max-width:320px;line-height:1.6}
+
+@media(max-width:600px){
+  .fc-grid{grid-template-columns:1fr}
+  .prog-stats{grid-template-columns:repeat(3,1fr)}
+  .ai-panel-bar{padding:10px 12px}
+}
 </style>
 </head>
 <body>
@@ -180,9 +263,6 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 // ═══════════════════════════════════════════════════
 // CONFIGURAÇÕES
 // ═══════════════════════════════════════════════════
-const CLOUD_NAME    = "dzaogzywr";
-const UPLOAD_PRESET = "studynet";
-
 const SUPA_URL = "https://fihoawkedcgwmvfnrntz.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpaG9hd2tlZGNnd212Zm5ybnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTk5NTksImV4cCI6MjA4ODg5NTk1OX0.-5M_SzvuluMo60-mOhnKYmJGH0B5IzypxB-5q8WCJmg";
 
@@ -255,42 +335,51 @@ async function sha256(text) {
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
 }
 
-// ── Cloudinary upload ─────────────────────────────
-function uploadToCloudinary(file, onProgress) {
-  return new Promise(function(resolve, reject) {
-    const allowedExts = [".pdf",".doc",".docx",".ppt",".pptx",".xls",".xlsx",".zip",".rar",".txt"];
-    const ext = "." + file.name.split(".").pop().toLowerCase();
-    if (!allowedExts.includes(ext)) { reject(new Error("Tipo não permitido: " + ext)); return; }
-    if (file.size > 50 * 1024 * 1024) { reject(new Error("Arquivo muito grande. Máximo: 50MB")); return; }
+// ── Supabase Storage upload ───────────────────────
+async function uploadToSupabase(file, onProgress) {
+  const allowedExts = [".pdf",".doc",".docx",".ppt",".pptx",".xls",".xlsx",".zip",".rar",".txt"];
+  const ext = "." + file.name.split(".").pop().toLowerCase();
+  if (!allowedExts.includes(ext)) throw new Error("Tipo não permitido: " + ext);
+  if (file.size > 50 * 1024 * 1024) throw new Error("Arquivo muito grande. Máximo: 50MB");
 
-    const fd = new FormData();
-    fd.append("upload_preset", UPLOAD_PRESET);
-    fd.append("file", file);
-    fd.append("resource_type", "raw");
+  // Simula progresso enquanto faz o upload
+  let prog = 0;
+  const progInterval = setInterval(() => {
+    prog = Math.min(prog + 5, 85);
+    if (onProgress) onProgress(prog);
+  }, 200);
 
-    const xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = e => {
-      if (e.lengthComputable && onProgress) onProgress(Math.round(e.loaded / e.total * 100));
-    };
-    xhr.onload = () => {
-      if (xhr.status === 200) {
-        const d = JSON.parse(xhr.responseText);
-        // Garante que a URL sempre usa /raw/upload/
-        const rawUrl = normalizeCloudinaryUrl(d.secure_url);
-        resolve({ url: rawUrl, publicId: d.public_id, bytes: d.bytes });
-      } else {
-        let msg = "Erro no upload (status " + xhr.status + ")";
-        try { msg = JSON.parse(xhr.responseText).error.message || msg; } catch(e) {}
-        reject(new Error(msg));
-      }
-    };
-    xhr.onerror = () => reject(new Error("Falha de conexão com Cloudinary"));
-    xhr.open("POST", "https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/raw/upload");
-    xhr.send(fd);
-  });
+  const fileName = Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+  try {
+    const res = await fetch(SUPA_URL + "/storage/v1/object/files/" + fileName, {
+      method: "POST",
+      headers: {
+        "apikey":        SUPA_KEY,
+        "Authorization": "Bearer " + SUPA_KEY,
+        "Content-Type":  file.type || "application/octet-stream",
+        "x-upsert":      "true",
+      },
+      body: file,
+    });
+
+    clearInterval(progInterval);
+    if (onProgress) onProgress(100);
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || err.message || "Erro no upload: " + res.status);
+    }
+
+    const publicUrl = SUPA_URL + "/storage/v1/object/public/files/" + fileName;
+    return { url: publicUrl, publicId: fileName, bytes: file.size };
+  } catch(e) {
+    clearInterval(progInterval);
+    throw e;
+  }
 }
 
-// ── Normaliza URL do Cloudinary para raw/upload ──────
+// ── Mantém compatibilidade (arquivos antigos do Cloudinary continuam funcionando) ──
 function normalizeCloudinaryUrl(url) {
   if (!url) return url;
   return url.replace(/\/image\/upload\//g, "/raw/upload/")
@@ -332,7 +421,7 @@ function go(view, patch = {}) {
   Object.assign(S, patch);
   ROOT.innerHTML = "";
   window.scrollTo(0, 0);
-  ({ gate, home, subjectView, uploadView, settingsView })[view]?.();
+  ({ gate, home, subjectView, uploadView, settingsView, progressView })[view]?.();
 }
 
 // ── Modal ─────────────────────────────────────────
@@ -356,11 +445,12 @@ function mkHdr() {
       <span class="logo-tx">StudyNet</span>
     </button>
     <div class="hdr-r">
-      ${S.role==="adm" ? `<span class="badge">ADM</span><button class="btn btn-g btn-sm" id="hSet">⚙️</button>` : ""}
+      ${S.role==="adm" ? `<span class="badge">ADM</span><button class="btn btn-g btn-sm" id="hSet">⚙️</button>` : `<button class="btn btn-g btn-sm" id="hProg">📊</button>`}
       <button class="btn btn-g btn-sm" id="hSair">Sair</button>
     </div>`;
   h.querySelector("#hL").onclick = () => go("home");
   h.querySelector("#hSet")?.addEventListener("click", () => go("settingsView"));
+  h.querySelector("#hProg")?.addEventListener("click", () => go("progressView"));
   h.querySelector("#hSair").onclick = () => {
     sessionStorage.removeItem("sn_role"); S.role = null; go("gate");
   };
@@ -619,8 +709,9 @@ async function subjectView() {
           </div>
         </div>
         <div class="file-acts">
-          ${canPreview(f.name) ? `<button class="btn btn-eye btn-sm" data-view="${f.id}">👁 Visualizar</button>` : ""}
-          <a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>
+          ${f.name.toLowerCase().endsWith(".pdf") ? `<a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-eye btn-sm">📄 Abrir PDF</a>` : canPreview(f.name) ? `<button class="btn btn-eye btn-sm" data-view="${f.id}">👁 Visualizar</button>` : ""}
+          ${!f.name.toLowerCase().endsWith(".pdf") ? `<a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>` : ""}
+          <button class="btn btn-ai btn-sm" data-ai="${f.id}">✨ Estudar com IA</button>
           ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-del="${f.id}">🗑</button>` : ""}
         </div>
       </div>
@@ -631,6 +722,10 @@ async function subjectView() {
     list.appendChild(card);
 
     renderLinkZone(f);
+
+    card.querySelector(`[data-ai="${f.id}"]`)?.addEventListener("click", () => {
+      openAIPanel(f.name, fUrl);
+    });
 
     card.querySelector(`[data-view="${f.id}"]`)?.addEventListener("click", () => {
       openDocViewer(f.name, fUrl);
@@ -761,10 +856,10 @@ async function uploadView() {
 
     progArea.style.display = "block";
     progBar.style.width = "2%";
-    progMsg.textContent = "Conectando ao Cloudinary…";
+    progMsg.textContent = "Conectando ao Supabase…";
 
     try {
-      const result = await uploadToCloudinary(selectedFile, pct => {
+      const result = await uploadToSupabase(selectedFile, pct => {
         progBar.style.width = pct + "%";
         progMsg.textContent = `Enviando… ${pct}%`;
       });
@@ -776,7 +871,7 @@ async function uploadView() {
         id:          gid(),
         subject_id:  S.subjId,
         name:        selectedFile.name,
-        url:         normalizeCloudinaryUrl(result.url),
+        url:         result.url,
         public_id:   result.publicId,
         size:        result.bytes || selectedFile.size,
         resume_link: "",
@@ -816,6 +911,13 @@ function settingsView() {
       <button class="btn btn-p" id="sSave">Salvar nova senha</button>
       <p id="sOk" class="ok-msg" style="display:none">✅ Senha atualizada!</p>
       <p id="sErr" style="color:#ff4d6d;font-size:13px;display:none"></p>
+    </div>
+    <div class="set-card">
+      <h3>🤖 Chave da API Claude (IA)</h3>
+      <p>Necessária para gerar resumos, flashcards e quiz. Obtenha em <strong>console.anthropic.com</strong>. A chave fica salva apenas no seu navegador.</p>
+      <input class="inp" id="nApiKey" type="password" placeholder="sk-ant-..."/>
+      <button class="btn btn-p" id="sApiSave">Salvar chave</button>
+      <p id="sApiOk" class="ok-msg" style="display:none">✅ Chave salva!</p>
     </div>`;
   page.appendChild(wrap); ROOT.appendChild(page);
 
@@ -839,6 +941,28 @@ function settingsView() {
     }
     saveBtn.disabled = false; saveBtn.textContent = "Salvar nova senha";
   };
+
+  document.getElementById("sApiSave").onclick = async () => {
+    const k = document.getElementById("nApiKey").value.trim();
+    if (!k.startsWith("sk-")) { alert("Chave inválida. Deve começar com sk-"); return; }
+    const btn = document.getElementById("sApiSave");
+    btn.disabled = true; btn.textContent = "Salvando…";
+    try {
+      await sbSetConfig("claude_api_key", k);
+      window._sn_api_key = k;
+      document.getElementById("nApiKey").value = "";
+      const ok = document.getElementById("sApiOk");
+      ok.style.display = "block";
+      setTimeout(() => { if(ok) ok.style.display="none"; }, 3000);
+    } catch(err) {
+      alert("Erro ao salvar: " + err.message);
+    }
+    btn.disabled = false; btn.textContent = "Salvar chave";
+  };
+  // Mostra se já tem chave salva
+  sbGetConfig("claude_api_key").then(k => {
+    if (k) document.getElementById("nApiKey").placeholder = "✅ Chave já configurada (sk-ant-***)";
+  }).catch(()=>{});
 }
 
 // ════════════════════════════════════════════════════
@@ -877,7 +1001,7 @@ function openDocViewer(fileName, fileUrl) {
     <div class="doc-viewer-bar">
       <span class="doc-viewer-badge ${badgeClass}">${badgeText}</span>
       <span class="doc-viewer-title">${esc(fileName)}</span>
-      <a href="${esc(fileUrl)}" download="${esc(fileName)}" class="btn btn-gr btn-sm" style="flex-shrink:0;font-size:12px;padding:5px 11px">⬇ Baixar</a>
+      <a href="${esc(fileUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm" style="flex-shrink:0;font-size:12px;padding:5px 11px">⬇ Baixar</a>
       <button class="btn btn-g btn-sm" id="dvClose" style="flex-shrink:0;font-size:12px;padding:5px 11px">✕</button>
     </div>
     <div class="doc-viewer-body" id="dvBody">
@@ -951,54 +1075,91 @@ function openPdfViewer(container, url, fileName) {
   // Estado de pinch
   let lastPinchDist = 0;
 
+  // Lista de proxies CORS para tentar em sequência
+  const CORS_PROXIES = [
+    u => u,
+    u => "https://corsproxy.io/?" + encodeURIComponent(u),
+    u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
+  ];
+  let proxyIdx = 0;
+
   function initPdf(pdfUrl) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc =
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    tryLoadPdf(pdfUrl);
+  }
 
-    // Tenta carregar diretamente; se falhar por CORS/401, usa Google Docs viewer
-    window.pdfjsLib.getDocument({
-      url: pdfUrl,
-      withCredentials: false,
-      httpHeaders: {},
-    })
+  function tryLoadPdf(pdfUrl) {
+    if (proxyIdx >= CORS_PROXIES.length) {
+      fallbackIframe(pdfUrl);
+      return;
+    }
+
+    const proxiedUrl = CORS_PROXIES[proxyIdx](pdfUrl);
+    proxyIdx++;
+
+    const st = document.getElementById("dvStatus");
+    const msg = document.getElementById("dvStatusMsg");
+    if (st) st.style.display = "flex";
+    if (msg) msg.textContent = proxyIdx === 1 ? "Carregando PDF…" : "Tentando método alternativo…";
+
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (!settled) { settled = true; tryLoadPdf(pdfUrl); }
+    }, 12000);
+
+    window.pdfjsLib.getDocument({ url: proxiedUrl, withCredentials: false, httpHeaders: {} })
       .promise
       .then(pdf => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
         pdfDoc = pdf;
         hideStatus();
         updateNav();
         renderPage(curPage, true);
         setupInteractions();
       })
-      .catch(err => {
-        // Fallback: Google Docs Viewer em iframe
-        const body = document.getElementById("dvBody");
-        if (!body) return;
-        // Remove canvas e footer se existirem
-        document.getElementById("dv-pdf-wrap")?.remove();
-        document.getElementById("dv-pdf-footer")?.remove();
-
-        const st = document.getElementById("dvStatus");
-        if (st) {
-          st.innerHTML = `
-            <div class="spin"></div>
-            <span style="color:var(--mu2);font-size:12px">Abrindo via Google Docs…</span>`;
-        }
-
-        const iframe = document.createElement("iframe");
-        iframe.style.cssText = "flex:1;width:100%;height:100%;border:none;display:block;";
-        iframe.title = "Visualizador PDF";
-        iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(pdfUrl) + "&embedded=true";
-        iframe.onload = () => { if (st) st.style.display = "none"; };
-
-        // Se Google Docs também falhar, mostra erro com botão de download
-        let gdocsLoaded = false;
-        iframe.onload = () => { gdocsLoaded = true; if (st) st.style.display = "none"; };
-        setTimeout(() => {
-          if (!gdocsLoaded) showPdfError(body, pdfUrl, fileName, "Não foi possível visualizar. Faça o download.");
-        }, 8000);
-
-        body.appendChild(iframe);
+      .catch(() => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeout);
+        tryLoadPdf(pdfUrl);
       });
+  }
+
+  function fallbackIframe(pdfUrl) {
+    const body = document.getElementById("dvBody");
+    if (!body) return;
+
+    document.getElementById("dv-pdf-wrap")?.remove();
+    document.getElementById("dv-pdf-footer")?.remove();
+
+    const st = document.getElementById("dvStatus");
+    if (st) {
+      st.style.display = "flex";
+      st.innerHTML = `<div class="spin"></div><span style="color:var(--mu2);font-size:12px">Abrindo visualizador externo…</span>`;
+    }
+
+    const iframe = document.createElement("iframe");
+    iframe.style.cssText = "flex:1;width:100%;height:100%;border:none;display:block;";
+    iframe.title = "Visualizador PDF";
+    iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(pdfUrl) + "&embedded=true";
+
+    let loaded = false;
+    iframe.onload = () => {
+      loaded = true;
+      if (st) st.style.display = "none";
+    };
+
+    setTimeout(() => {
+      if (!loaded) {
+        showPdfError(body, pdfUrl, fileName,
+          "Não foi possível visualizar este PDF no navegador. Use o botão Baixar para abrir no seu leitor de PDF.");
+      }
+    }, 12000);
+
+    body.appendChild(iframe);
   }
 
   function hideStatus() {
@@ -1206,14 +1367,23 @@ function showPdfError(container, url, fileName, msg) {
   if (st) st.innerHTML = `
     <span style="font-size:32px">⚠️</span>
     <span style="color:#f87171;max-width:260px;text-align:center">${esc(msg)}</span>
-    <a href="${esc(url)}" download="${esc(fileName)}" class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
+    <a href="${esc(url)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
 }
 
 // ── DOCX Viewer ─────────────────────────────────────
 function openDocxViewer(container, url) {
   container.insertAdjacentHTML("beforeend", `<div id="dv-docx-out"></div>`);
-  fetch(url)
-    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " — arquivo não acessível"); return r.arrayBuffer(); })
+
+  // Timeout de segurança para o fetch do DOCX
+  const controller = new AbortController();
+  const docxTimeout = setTimeout(() => controller.abort(), 20000);
+
+  fetch(url, { signal: controller.signal })
+    .then(r => {
+      clearTimeout(docxTimeout);
+      if (!r.ok) throw new Error("HTTP " + r.status + " — arquivo não acessível");
+      return r.arrayBuffer();
+    })
     .then(buf => mammoth.convertToHtml({ arrayBuffer: buf }))
     .then(result => {
       const out = document.getElementById("dv-docx-out");
@@ -1223,8 +1393,14 @@ function openDocxViewer(container, url) {
       if (st) st.style.display = "none";
     })
     .catch(err => {
+      clearTimeout(docxTimeout);
       const st = document.getElementById("dvStatus");
-      if (st) st.innerHTML = `<span style="font-size:32px">⚠️</span><span style="color:#f87171">${esc(err.message)}</span>`;
+      const isAbort = err.name === "AbortError";
+      const msg = isAbort ? "Tempo esgotado ao carregar o documento." : err.message;
+      if (st) st.innerHTML = `
+        <span style="font-size:32px">⚠️</span>
+        <span style="color:#f87171;max-width:260px;text-align:center">${esc(msg)}</span>
+        <a href="${esc(url)}" download class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
     });
 }
 
@@ -1237,11 +1413,411 @@ function openOfficeViewer(container, url) {
 }
 
 // ════════════════════════════════════════════════════
+// PROGRESSO DE ESTUDOS
+// ════════════════════════════════════════════════════
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem("sn_progress") || "{}"); } catch { return {}; }
+}
+function saveProgress(p) {
+  localStorage.setItem("sn_progress", JSON.stringify(p));
+}
+function recordStudy(fileName, type) {
+  const p = getProgress();
+  const key = fileName;
+  if (!p[key]) p[key] = { fileName, quizzes: 0, flashcards: 0, exercises: 0, lastStudied: null, score: 0, total: 0 };
+  p[key][type] = (p[key][type] || 0) + 1;
+  p[key].lastStudied = new Date().toISOString();
+  saveProgress(p);
+}
+function recordQuizResult(fileName, correct, total) {
+  const p = getProgress();
+  if (!p[fileName]) p[fileName] = { fileName, quizzes: 0, flashcards: 0, exercises: 0, lastStudied: null, score: 0, total: 0 };
+  p[fileName].score = (p[fileName].score || 0) + correct;
+  p[fileName].total = (p[fileName].total || 0) + total;
+  p[fileName].quizzes = (p[fileName].quizzes || 0) + 1;
+  p[fileName].lastStudied = new Date().toISOString();
+  saveProgress(p);
+}
+
+function progressView() {
+  const page = document.createElement("div"); page.className = "page";
+  page.appendChild(mkHdr());
+  const wrap = document.createElement("main"); wrap.className = "wrap";
+
+  const p = getProgress();
+  const entries = Object.values(p);
+  const totalSessions = entries.reduce((a, e) => a + (e.quizzes||0) + (e.flashcards||0) + (e.exercises||0), 0);
+  const totalCorrect = entries.reduce((a, e) => a + (e.score||0), 0);
+  const totalQ = entries.reduce((a, e) => a + (e.total||0), 0);
+  const avgScore = totalQ > 0 ? Math.round(totalCorrect / totalQ * 100) : 0;
+
+  wrap.innerHTML = `
+    <div style="margin-bottom:24px">
+      <button class="btn btn-g btn-sm" id="prBack" style="margin-bottom:14px">← Voltar</button>
+      <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">📊 Meu Progresso</h1>
+    </div>
+    <div class="prog-stats" style="margin-bottom:20px">
+      <div class="prog-stat"><div class="prog-stat-num">${entries.length}</div><div class="prog-stat-lbl">Materiais estudados</div></div>
+      <div class="prog-stat"><div class="prog-stat-num">${totalSessions}</div><div class="prog-stat-lbl">Sessões de estudo</div></div>
+      <div class="prog-stat"><div class="prog-stat-num">${avgScore}%</div><div class="prog-stat-lbl">Média nos quizzes</div></div>
+    </div>
+    ${entries.length === 0 ? `<div class="empty"><div style="font-size:48px">📚</div><p class="empty-title">Nenhum estudo ainda</p><p class="empty-sub">Use o botão ✨ Estudar com IA em qualquer arquivo para começar!</p></div>` : ""}
+    <div id="progList" style="display:flex;flex-direction:column;gap:10px"></div>`;
+
+  page.appendChild(wrap); ROOT.appendChild(page);
+  document.getElementById("prBack").onclick = () => history.length > 1 ? history.back() : go("home");
+
+  const list = document.getElementById("progList");
+  entries.sort((a,b) => new Date(b.lastStudied) - new Date(a.lastStudied)).forEach(e => {
+    const pct = e.total > 0 ? Math.round(e.score / e.total * 100) : 0;
+    const d = document.createElement("div"); d.className = "prog-subject";
+    d.innerHTML = `
+      <div class="prog-subject-name">
+        <span>${esc(e.fileName)}</span>
+        <span style="color:var(--ac2);font-size:13px">${e.total > 0 ? pct + "% quiz" : ""}</span>
+      </div>
+      <div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${Math.min(pct,100)}%"></div></div>
+      <div style="display:flex;gap:14px;font-size:12px;color:var(--mu)">
+        <span>🃏 ${e.flashcards||0} flashcards</span>
+        <span>📝 ${e.exercises||0} exercícios</span>
+        <span>❓ ${e.quizzes||0} quizzes</span>
+        ${e.lastStudied ? `<span style="margin-left:auto">${fmtDate(e.lastStudied)}</span>` : ""}
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+// ════════════════════════════════════════════════════
+// AI PANEL
+// ════════════════════════════════════════════════════
+// Cache de sessão: evita re-gerar para o mesmo arquivo
+const AI_CACHE = {};
+
+function getApiKey() {
+  return window._sn_api_key || "";
+}
+
+async function loadApiKey() {
+  try {
+    const key = await sbGetConfig("claude_api_key");
+    if (key) window._sn_api_key = key;
+  } catch(e) {}
+}
+
+async function extractTextFromUrl(url, fileName) {
+  const n = fileName.toLowerCase();
+
+  if (n.endsWith(".pdf")) {
+    // Carrega PDF.js se necessário
+    if (!window.pdfjsLib) {
+      await new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const pdf = await window.pdfjsLib.getDocument({ url, withCredentials: false }).promise;
+    let text = "";
+    const maxPages = Math.min(pdf.numPages, 30); // limita a 30 páginas
+    for (let i = 1; i <= maxPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(it => it.str).join(" ") + "\n";
+    }
+    return text.trim().slice(0, 12000); // limita tokens
+  }
+
+  if (n.endsWith(".docx") || n.endsWith(".doc")) {
+    const buf = await fetch(url).then(r => r.arrayBuffer());
+    const result = await mammoth.extractRawText({ arrayBuffer: buf });
+    return result.value.trim().slice(0, 12000);
+  }
+
+  // Para PPT/XLS não conseguimos extrair texto no browser — usa só o nome
+  return `Arquivo: ${fileName}\n(Conteúdo não extraível automaticamente — baseie o material no título do arquivo)`;
+}
+
+async function callClaude(text, fileName) {
+  const key = getApiKey();
+  if (!key) throw new Error("NO_KEY");
+
+  const prompt = `Você é um assistente educacional especialista em criar materiais de estudo em português brasileiro.
+
+Analise o seguinte conteúdo de um documento chamado "${fileName}" e gere material de estudo completo.
+
+CONTEÚDO DO DOCUMENTO:
+${text}
+
+Responda APENAS com um JSON válido neste formato exato (sem markdown, sem texto fora do JSON):
+{
+  "concepts": [
+    {"name": "Nome do conceito", "definition": "Definição clara e objetiva"}
+  ],
+  "flashcards": [
+    {"question": "Pergunta", "answer": "Resposta"}
+  ],
+  "exercises": [
+    {"problem": "Enunciado do exercício", "answer": "Resposta/solução completa"}
+  ],
+  "quiz": [
+    {"question": "Pergunta", "options": ["A) opção", "B) opção", "C) opção", "D) opção"], "correct": 0, "explanation": "Por que esta é a resposta correta"}
+  ]
+}
+
+Regras:
+- Gere exatamente: 5 conceitos-chave, 8 flashcards, 4 exercícios, 6 questões de quiz
+- Tudo em português brasileiro
+- Baseie-se APENAS no conteúdo fornecido
+- correct é o índice (0-3) da opção correta no array options
+- Seja didático e claro`;
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4000,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || "Erro na API: " + res.status);
+  }
+
+  const data = await res.json();
+  const raw = data.content[0].text.trim();
+  // Remove possíveis marcadores de código
+  const clean = raw.replace(/^```json\s*/,"").replace(/```\s*$/,"").trim();
+  return JSON.parse(clean);
+}
+
+function openAIPanel(fileName, fileUrl) {
+  document.getElementById("_ai")?.remove();
+
+  const ov = document.createElement("div");
+  ov.className = "ai-panel-ov"; ov.id = "_ai";
+  ov.innerHTML = `
+    <div class="ai-panel">
+      <div class="ai-panel-bar">
+        <span style="font-size:20px">✨</span>
+        <span class="ai-panel-title">Estudar com IA — ${esc(fileName)}</span>
+        <button class="btn btn-g btn-sm" id="aiClose">✕</button>
+      </div>
+      <div class="ai-tabs" id="aiTabs" style="display:none">
+        <button class="ai-tab on" data-tab="concepts">💡 Conceitos</button>
+        <button class="ai-tab" data-tab="flashcards">🃏 Flashcards</button>
+        <button class="ai-tab" data-tab="exercises">📝 Exercícios</button>
+        <button class="ai-tab" data-tab="quiz">❓ Quiz</button>
+      </div>
+      <div class="ai-panel-body" id="aiBody">
+        <div class="ai-loading" id="aiLoading">
+          <div class="spin" style="width:40px;height:40px"></div>
+          <div class="ai-gen-steps">
+            <div class="ai-step active" id="step1"><div class="ai-step-ico">1</div><span>Extraindo texto do documento…</span></div>
+            <div class="ai-step" id="step2"><div class="ai-step-ico">2</div><span>Enviando para o Claude…</span></div>
+            <div class="ai-step" id="step3"><div class="ai-step-ico">3</div><span>Gerando material de estudo…</span></div>
+            <div class="ai-step" id="step4"><div class="ai-step-ico">4</div><span>Montando conteúdo…</span></div>
+          </div>
+          <p class="ai-loading-txt" id="aiLoadTxt">Isso pode levar alguns segundos…</p>
+        </div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(ov);
+  document.getElementById("aiClose").onclick = () => ov.remove();
+  document.addEventListener("keydown", function escH(e) {
+    if (e.key === "Escape") { ov.remove(); document.removeEventListener("keydown", escH); }
+  });
+
+  // Verifica cache
+  if (AI_CACHE[fileName]) {
+    renderAIContent(AI_CACHE[fileName], fileName);
+    return;
+  }
+
+  // Verifica chave da API
+  if (!getApiKey()) {
+    document.getElementById("aiLoading").innerHTML = `
+      <div class="api-key-prompt">
+        <div style="font-size:40px">🔑</div>
+        <p class="modal-title" style="font-family:var(--fh);font-weight:900;font-size:18px">Chave da API necessária</p>
+        <p>Para gerar material de estudo com IA, o ADM precisa configurar a chave da API Claude nas configurações.</p>
+        <p style="font-size:12px;color:var(--mu)">Obtenha gratuitamente em <strong>console.anthropic.com</strong></p>
+      </div>`;
+    return;
+  }
+
+  // Gera o material
+  generateAIMaterial(fileName, fileUrl);
+}
+
+async function generateAIMaterial(fileName, fileUrl) {
+  const step = id => {
+    ["step1","step2","step3","step4"].forEach((s,i) => {
+      const el = document.getElementById(s);
+      if (!el) return;
+      const num = parseInt(id.replace("step",""));
+      const cur = parseInt(s.replace("step",""));
+      el.className = "ai-step" + (cur < num ? " done" : cur === num ? " active" : "");
+      if (cur < num) el.querySelector(".ai-step-ico").textContent = "✓";
+    });
+  };
+
+  try {
+    step("step1");
+    const text = await extractTextFromUrl(fileUrl, fileName);
+
+    step("step2");
+    const data = await callClaude(text, fileName);
+
+    step("step3");
+    await new Promise(r => setTimeout(r, 400)); // animação
+
+    step("step4");
+    await new Promise(r => setTimeout(r, 300));
+
+    AI_CACHE[fileName] = data;
+    renderAIContent(data, fileName);
+
+  } catch(err) {
+    const loading = document.getElementById("aiLoading");
+    if (!loading) return;
+    if (err.message === "NO_KEY") {
+      loading.innerHTML = `<div class="api-key-prompt"><div style="font-size:40px">🔑</div><p style="font-family:var(--fh);font-weight:900;font-size:18px">Chave não configurada</p><p>O ADM precisa adicionar a chave da API nas ⚙️ Configurações.</p></div>`;
+    } else {
+      loading.innerHTML = `<div style="text-align:center;padding:32px"><div style="font-size:40px">⚠️</div><p style="color:#f87171;margin-top:12px;font-size:14px">${esc(err.message)}</p><button class="btn btn-p" style="margin-top:16px" onclick="generateAIMaterial('${esc(fileName)}','${esc(fileUrl)}')">Tentar novamente</button></div>`;
+    }
+  }
+}
+
+function renderAIContent(data, fileName) {
+  const body = document.getElementById("aiBody");
+  const tabs = document.getElementById("aiTabs");
+  if (!body || !tabs) return;
+  tabs.style.display = "flex";
+
+  body.innerHTML = `
+    <!-- CONCEITOS -->
+    <div class="ai-section on" id="tab-concepts">
+      <div class="ai-card"><div class="ai-card-title">💡 Conceitos-Chave</div></div>
+      ${(data.concepts||[]).map(c => `
+        <div class="concept-item">
+          <div class="concept-dot"></div>
+          <div><div class="concept-name">${esc(c.name)}</div><div class="concept-def">${esc(c.definition)}</div></div>
+        </div>`).join("")}
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div class="ai-section" id="tab-flashcards">
+      <div class="ai-card"><div class="ai-card-title">🃏 Flashcards — toque para revelar</div></div>
+      <div class="fc-grid">
+        ${(data.flashcards||[]).map((fc,i) => `
+          <div class="fc" onclick="this.classList.toggle('open')">
+            <div class="fc-q">${esc(fc.question)}</div>
+            <div class="fc-a">${esc(fc.answer)}</div>
+            <div class="fc-hint">Toque para ver a resposta</div>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="ai-section" id="tab-exercises">
+      <div class="ai-card"><div class="ai-card-title">📝 Exercícios Práticos</div></div>
+      ${(data.exercises||[]).map((ex,i) => `
+        <div class="ex-item">
+          <div class="ex-num">Exercício ${i+1}</div>
+          <div class="ex-txt">${esc(ex.problem)}</div>
+          <button class="btn btn-g btn-sm" onclick="const a=this.nextElementSibling;a.classList.toggle('on');this.textContent=a.classList.contains('on')?'Ocultar resposta':'Ver resposta'">Ver resposta</button>
+          <div class="ex-ans">${esc(ex.answer)}</div>
+        </div>`).join("")}
+    </div>
+
+    <!-- QUIZ -->
+    <div class="ai-section" id="tab-quiz">
+      <div class="ai-card"><div class="ai-card-title" id="quizTitle">❓ Quiz — ${(data.quiz||[]).length} questões</div></div>
+      <div id="quizContainer"></div>
+      <div id="quizScore" class="quiz-score" style="display:none"></div>
+    </div>`;
+
+  // Tabs
+  tabs.querySelectorAll(".ai-tab").forEach(t => {
+    t.onclick = () => {
+      tabs.querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
+      body.querySelectorAll(".ai-section").forEach(x => x.classList.remove("on"));
+      t.classList.add("on");
+      document.getElementById("tab-" + t.dataset.tab)?.classList.add("on");
+      // Registra progresso
+      if (t.dataset.tab === "flashcards") recordStudy(fileName, "flashcards");
+      if (t.dataset.tab === "exercises") recordStudy(fileName, "exercises");
+      if (t.dataset.tab === "quiz") renderQuiz(data.quiz||[], fileName);
+    };
+  });
+}
+
+function renderQuiz(questions, fileName) {
+  const container = document.getElementById("quizContainer");
+  const scoreEl = document.getElementById("quizScore");
+  if (!container || container.children.length > 0) return;
+
+  let answered = 0;
+  let correct = 0;
+
+  questions.forEach((q, qi) => {
+    const div = document.createElement("div"); div.className = "quiz-q";
+    div.innerHTML = `
+      <div class="quiz-q-txt">${qi+1}. ${esc(q.question)}</div>
+      <div class="quiz-opts">
+        ${(q.options||[]).map((opt,oi) => `<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${esc(opt)}</button>`).join("")}
+      </div>
+      <div class="quiz-exp" id="qexp-${qi}">${esc(q.explanation||"")}</div>`;
+    container.appendChild(div);
+
+    div.querySelectorAll(".quiz-opt").forEach(btn => {
+      btn.onclick = () => {
+        if (div.dataset.answered) return;
+        div.dataset.answered = "1";
+        answered++;
+        const chosen = parseInt(btn.dataset.oi);
+        const isCorrect = chosen === q.correct;
+        if (isCorrect) correct++;
+        div.querySelectorAll(".quiz-opt").forEach((b, bi) => {
+          b.disabled = true;
+          if (bi === q.correct) b.classList.add("correct");
+          else if (bi === chosen) b.classList.add("wrong");
+        });
+        document.getElementById(`qexp-${qi}`)?.classList.add("on");
+        if (answered === questions.length) {
+          recordQuizResult(fileName, correct, questions.length);
+          setTimeout(() => {
+            const pct = Math.round(correct / questions.length * 100);
+            const emoji = pct >= 80 ? "🏆" : pct >= 60 ? "👍" : "📚";
+            scoreEl.style.display = "block";
+            scoreEl.innerHTML = `
+              <div style="font-size:32px">${emoji}</div>
+              <div class="quiz-score-num">${pct}%</div>
+              <div style="font-size:14px;color:var(--mu2);margin-top:4px">${correct} de ${questions.length} corretas</div>
+              <button class="btn btn-g btn-sm" style="margin-top:12px" onclick="document.getElementById('quizContainer').innerHTML='';document.getElementById('quizScore').style.display='none';renderQuiz(${JSON.stringify(questions).replace(/</g,'\\u003c')},'${esc(fileName)}')">🔄 Refazer</button>`;
+            scoreEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          }, 400);
+        }
+      };
+    });
+  });
+}
+
+// ════════════════════════════════════════════════════
 // BOOT
 // ════════════════════════════════════════════════════
 function boot() {
-  if (!S.role) go("gate");
-  else go("home");
+  loadApiKey().finally(() => {
+    if (!S.role) go("gate");
+    else go("home");
+  });
 }
 
 boot();
