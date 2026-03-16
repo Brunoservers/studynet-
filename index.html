@@ -632,9 +632,22 @@ async function uploadView() {
     </div>
 
     <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:20px;margin-bottom:16px">
-      <label class="lbl">🔑 Chave da API Gemini</label>
-      <input class="inp" id="uApiKey" type="password" placeholder="AIza… (obtenha grátis em aistudio.google.com)"/>
-      <p style="font-size:11px;color:var(--mu);margin-top:6px">A chave fica apenas nesta sessão, nunca é salva.</p>
+      <label class="lbl">🤖 Provedor de IA</label>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn btn-p btn-sm" id="pGroq" style="flex:1">⚡ Groq <span style="font-size:10px;opacity:.8">(recomendado)</span></button>
+        <button class="btn btn-g btn-sm" id="pGemini" style="flex:1">✨ Gemini</button>
+      </div>
+      <div id="groqInfo" style="background:rgba(56,182,155,.07);border:1px solid rgba(56,182,155,.2);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--ac2);margin-bottom:12px;line-height:1.6">
+        ⚡ <strong>Groq é 100% gratuito</strong>, sem cartão, ultra rápido.<br>
+        Cadastre-se em <strong>console.groq.com</strong> → API Keys → Create API Key
+      </div>
+      <div id="geminiInfo" style="display:none;background:rgba(99,76,220,.07);border:1px solid rgba(99,76,220,.2);border-radius:var(--r);padding:10px 12px;font-size:12px;color:#a48fff;margin-bottom:12px;line-height:1.6">
+        ✨ Gemini gratuito em <strong>aistudio.google.com</strong> → Get API Key.<br>
+        Limite: 15 req/min — PDFs grandes podem dar erro de cota.
+      </div>
+      <label class="lbl" id="keyLabel">🔑 Chave da API Groq</label>
+      <input class="inp" id="uApiKey" type="password" placeholder="gsk_… (Groq API Key)"/>
+      <p style="font-size:11px;color:var(--mu);margin-top:6px">A chave é salva com segurança para o próximo upload.</p>
     </div>
 
     <div class="drop" id="dz" style="border:2px dashed var(--bd2);border-radius:var(--rl);padding:38px 18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px">
@@ -658,10 +671,37 @@ async function uploadView() {
   page.appendChild(wrap); ROOT.appendChild(page);
   document.getElementById("uBack").onclick = () => go("subjectView");
 
-  // Pré-carrega chave salva
-  sbGetConfig("gemini_api_key").then(k => {
-    if (k) { document.getElementById("uApiKey").value = k; document.getElementById("uApiKey").placeholder = "✅ Chave já configurada — pode substituir"; }
+  // Estado do provedor selecionado
+  let provider = "groq"; // "groq" | "gemini"
+
+  // Pré-carrega chave salva do provedor padrão
+  sbGetConfig("groq_api_key").then(k => {
+    if (k) { document.getElementById("uApiKey").value = k; document.getElementById("uApiKey").placeholder = "✅ Chave Groq salva — pode substituir"; }
   }).catch(() => {});
+
+  // Botões de seleção de provedor
+  document.getElementById("pGroq").addEventListener("click", () => {
+    provider = "groq";
+    document.getElementById("pGroq").className = "btn btn-p btn-sm"; document.getElementById("pGroq").style.flex = "1";
+    document.getElementById("pGemini").className = "btn btn-g btn-sm"; document.getElementById("pGemini").style.flex = "1";
+    document.getElementById("groqInfo").style.display = "";
+    document.getElementById("geminiInfo").style.display = "none";
+    document.getElementById("keyLabel").textContent = "🔑 Chave da API Groq";
+    document.getElementById("uApiKey").placeholder = "gsk_…";
+    document.getElementById("uApiKey").value = "";
+    sbGetConfig("groq_api_key").then(k => { if (k) { document.getElementById("uApiKey").value = k; document.getElementById("uApiKey").placeholder = "✅ Chave Groq salva"; } }).catch(() => {});
+  });
+  document.getElementById("pGemini").addEventListener("click", () => {
+    provider = "gemini";
+    document.getElementById("pGemini").className = "btn btn-p btn-sm"; document.getElementById("pGemini").style.flex = "1";
+    document.getElementById("pGroq").className = "btn btn-g btn-sm"; document.getElementById("pGroq").style.flex = "1";
+    document.getElementById("geminiInfo").style.display = "";
+    document.getElementById("groqInfo").style.display = "none";
+    document.getElementById("keyLabel").textContent = "🔑 Chave da API Gemini";
+    document.getElementById("uApiKey").placeholder = "AIza…";
+    document.getElementById("uApiKey").value = "";
+    sbGetConfig("gemini_api_key").then(k => { if (k) { document.getElementById("uApiKey").value = k; document.getElementById("uApiKey").placeholder = "✅ Chave Gemini salva"; } }).catch(() => {});
+  });
 
   let selectedFile = null;
   const dz  = document.getElementById("dz");
@@ -687,7 +727,7 @@ async function uploadView() {
   btn.onclick = async () => {
     if (!selectedFile) return;
     const apiKey = document.getElementById("uApiKey").value.trim();
-    if (!apiKey || apiKey.length < 10) { alert("Por favor informe a chave da API Gemini."); document.getElementById("uApiKey").focus(); return; }
+    if (!apiKey || apiKey.length < 10) { alert("Por favor informe a chave da API " + (provider === "groq" ? "Groq (começa com gsk_)" : "Gemini (começa com AIza)")); document.getElementById("uApiKey").focus(); return; }
 
     btn.disabled = true;
     errEl.style.display = "none";
@@ -708,14 +748,15 @@ async function uploadView() {
       setStep(38, "Extraindo texto do PDF…");
       const pdfText = await extractPdfText(result.url);
 
-      setStep(50, "Enviando para a IA Gemini…");
-      const aiData = await processWithGemini(pdfText, selectedFile.name, apiKey, p => setStep(50 + p * 0.4, `Gerando conteúdo educacional… ${p}%`));
+      setStep(50, provider === "groq" ? "Enviando para o Groq…" : "Enviando para o Gemini…");
+      const aiData = await processWithAI(provider, pdfText, selectedFile.name, apiKey, p => setStep(50 + p * 0.4, `Gerando conteúdo educacional… ${p}%`));
 
       setStep(93, "Salvando material educacional…");
       await saveMateriaData(S.subjId, subj?.name || selectedFile.name, aiData);
 
-      // Salva chave para próximo uso
-      await sbSetConfig("gemini_api_key", apiKey).catch(() => {});
+      // Salva chave para próximo uso (por provedor)
+      const cfgKey = provider === "groq" ? "groq_api_key" : "gemini_api_key";
+      await sbSetConfig(cfgKey, apiKey).catch(() => {});
 
       setStep(100, "✅ Processado com sucesso!");
       setTimeout(() => go("subjectView"), 900);
@@ -756,52 +797,68 @@ async function extractPdfText(url) {
   return text;
 }
 
-// ── Chama Gemini UMA VEZ e gera todo o conteúdo ────────────────────────────────
+// ── Roteador: chama Groq ou Gemini conforme o provedor escolhido ────────────────
+async function processWithAI(provider, text, fileName, apiKey, onProgress) {
+  if (provider === "groq") return processWithGroq(text, fileName, apiKey, onProgress);
+  return processWithGemini(text, fileName, apiKey, onProgress);
+}
+
+// ── Groq (gratuito, sem cartão, ultra rápido) ────────────────────────────────
+// Modelos gratuitos disponíveis: llama-3.3-70b-versatile, llama3-8b-8192, mixtral-8x7b-32768
+async function processWithGroq(text, fileName, apiKey, onProgress) {
+  if (onProgress) onProgress(10);
+
+  const prompt = buildEducationalPrompt(text, fileName);
+
+  if (onProgress) onProgress(30);
+
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + apiKey,
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.4,
+      max_tokens: 6000,
+    })
+  });
+
+  if (onProgress) onProgress(80);
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const msg = err.error?.message || "Erro Groq " + res.status;
+    if (res.status === 401) throw new Error("Chave Groq inválida. Verifique em console.groq.com → API Keys.");
+    if (res.status === 429) throw new Error("Limite Groq atingido. Aguarde 1 minuto e tente novamente.");
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  const raw = data.choices?.[0]?.message?.content?.trim();
+  if (!raw) throw new Error("Resposta vazia do Groq.");
+
+  return parseAIResponse(raw, onProgress);
+}
+
+// ── Gemini (fallback) ────────────────────────────────────────────────────────
 async function processWithGemini(text, fileName, apiKey, onProgress) {
   if (onProgress) onProgress(10);
 
-  const prompt = `Você é um assistente educacional especialista. Analise o documento "${fileName}" e gere material de estudo completo em português brasileiro.
-
-CONTEÚDO DO DOCUMENTO:
-${text.slice(0, 90000)}
-
-Responda APENAS com JSON válido neste formato exato (sem markdown, sem blocos de código):
-{
-  "titulo": "Título principal do conteúdo",
-  "resumo_rapido": "Resumo em 2-3 linhas explicando o tema central",
-  "resumo_detalhado": "Resumo completo em 8-10 linhas cobrindo os principais aspectos",
-  "pontos_chave": ["ponto 1", "ponto 2", "ponto 3", "ponto 4", "ponto 5"],
-  "conceitos": [
-    {"nome": "Nome do conceito", "definicao": "Definição clara e objetiva em 1-2 linhas"}
-  ],
-  "flashcards": [
-    {"pergunta": "Pergunta concisa", "resposta": "Resposta completa e didática"}
-  ],
-  "exercicios": [
-    {"pergunta": "Enunciado claro do exercício", "resposta": "Solução passo a passo"}
-  ],
-  "quiz": [
-    {"pergunta": "Pergunta de múltipla escolha", "alternativas": ["A) opção", "B) opção", "C) opção", "D) opção"], "correta": 0, "explicacao": "Explicação clara da resposta correta"}
-  ]
-}
-
-REQUISITOS:
-- Gere EXATAMENTE: 5 conceitos, 8 flashcards, 4 exercícios, 6 questões de quiz
-- Tudo em português brasileiro
-- Baseie-se APENAS no conteúdo fornecido
-- "correta" é o índice (0-3) da alternativa correta
-- Seja didático e claro`;
+  const prompt = buildEducationalPrompt(text, fileName);
 
   if (onProgress) onProgress(30);
 
   const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + encodeURIComponent(apiKey),
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=" + encodeURIComponent(apiKey),
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 8000, topP: 0.95 }
+        generationConfig: { temperature: 0.4, maxOutputTokens: 6000, topP: 0.95 }
       })
     }
   );
@@ -810,28 +867,61 @@ REQUISITOS:
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    const msg = err.error?.message || "Erro na API Gemini " + res.status;
-    if (res.status === 429) throw new Error("Cota da API esgotada. Aguarde alguns minutos e tente novamente.");
-    if (res.status === 400) throw new Error("Chave da API inválida ou expirada.");
+    const msg = err.error?.message || "Erro Gemini " + res.status;
+    if (res.status === 429) throw new Error("Cota Gemini esgotada. Use o Groq (gratuito, sem limite) ou aguarde.");
+    if (res.status === 400) throw new Error("Chave Gemini inválida. Obtenha em aistudio.google.com.");
     throw new Error(msg);
   }
 
   const data = await res.json();
   const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-  if (!raw) throw new Error("Resposta vazia da API Gemini.");
+  if (!raw) throw new Error("Resposta vazia do Gemini.");
 
+  return parseAIResponse(raw, onProgress);
+}
+
+// ── Prompt educacional compartilhado ─────────────────────────────────────────
+function buildEducationalPrompt(text, fileName) {
+  const textoLimitado = text.slice(0, 18000); // conservador para caber em qualquer modelo
+  return `Você é um assistente educacional. Analise o documento "${fileName}" e gere material de estudo em português brasileiro.
+
+CONTEÚDO:
+${textoLimitado}
+
+Responda APENAS com JSON válido (sem markdown, sem blocos de código, sem texto fora do JSON):
+{
+  "titulo": "Título do conteúdo",
+  "resumo_rapido": "Resumo em 2 linhas",
+  "resumo_detalhado": "Resumo completo em 6-8 linhas",
+  "pontos_chave": ["ponto 1", "ponto 2", "ponto 3", "ponto 4"],
+  "conceitos": [
+    {"nome": "Conceito", "definicao": "Definição objetiva em 1 linha"}
+  ],
+  "flashcards": [
+    {"pergunta": "Pergunta", "resposta": "Resposta didática"}
+  ],
+  "exercicios": [
+    {"pergunta": "Enunciado", "resposta": "Solução"}
+  ],
+  "quiz": [
+    {"pergunta": "Pergunta", "alternativas": ["A) opção", "B) opção", "C) opção", "D) opção"], "correta": 0, "explicacao": "Explicação"}
+  ]
+}
+
+GERE: 5 conceitos, 6 flashcards, 3 exercícios, 5 questões de quiz. "correta" = índice 0-3.`;
+}
+
+// ── Parser de resposta (compartilhado) ───────────────────────────────────────
+function parseAIResponse(raw, onProgress) {
   let clean = raw.replace(/^```json\s*/gm,"").replace(/^```\s*/gm,"").replace(/```\s*$/gm,"").trim();
   const match = clean.match(/\{[\s\S]*\}/);
   if (match) clean = match[0];
-
   let parsed;
   try { parsed = JSON.parse(clean); }
-  catch { throw new Error("A IA retornou um formato inválido. Tente novamente."); }
-
+  catch { throw new Error("A IA retornou formato inválido. Tente novamente."); }
   if (onProgress) onProgress(100);
   return parsed;
 }
-
 // ── Salva/atualiza o JSON da matéria no Supabase ───────────────────────────────
 // Regra: cada matéria tem APENAS UM registro. Upload novo substitui o existente.
 async function saveMateriaData(subjectId, titulo, dataJson) {
@@ -1055,9 +1145,9 @@ function settingsView() {
     </div>
     <div class="set-card">
       <h3>🏗 Arquitetura do Sistema</h3>
-      <p>A IA é chamada <strong>apenas uma vez</strong> quando o ADM faz upload de um PDF. O conteúdo gerado é salvo no banco de dados. Todos os alunos leem os dados prontos — sem nenhuma chamada extra para IA.</p>
+      <p>A IA é chamada <strong>apenas uma vez</strong> quando o ADM faz upload de um PDF. Use o <strong>Groq</strong> (gratuito, sem cartão, ultra rápido) ou o Gemini. O conteúdo é salvo e todos os alunos leem os dados prontos.</p>
       <div style="background:rgba(56,182,155,.07);border:1px solid rgba(56,182,155,.2);border-radius:var(--r);padding:12px;font-size:12px;color:var(--ac2)">
-        ✅ Sem erros de quota · ✅ Alunos ilimitados · ✅ Mais rápido · ✅ Gratuito para alunos
+        ✅ Sem erros de quota · ✅ Alunos ilimitados · ✅ Groq gratuito sem cartão · ✅ Ultra rápido
       </div>
     </div>
     <div class="set-card">
