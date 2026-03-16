@@ -41,6 +41,8 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .btn-g{background:var(--sf2);color:var(--mu2);border:1px solid var(--bd2)}.btn-g:hover{color:var(--tx)}
 .btn-d{background:rgba(255,77,109,.1);color:#ff4d6d;border:1px solid rgba(255,77,109,.3)}
 .btn-gr{background:rgba(56,182,155,.1);color:var(--ac2);border:1.5px solid var(--ac2)}
+.btn-ai{background:linear-gradient(135deg,rgba(99,76,220,.2),rgba(56,182,155,.2));color:#c4b5fd;border:1px solid rgba(99,76,220,.4)}
+.btn-ai:hover{background:linear-gradient(135deg,rgba(99,76,220,.35),rgba(56,182,155,.3));color:#fff}
 .btn-sm{padding:6px 13px;font-size:13px}.btn-fw{width:100%}
 .inp,.sel{width:100%;background:var(--sf);border:1.5px solid var(--bd2);border-radius:var(--r);padding:11px 14px;color:var(--tx);font-family:var(--fb);font-size:14px;outline:none;transition:border-color .18s;appearance:none}
 .inp:focus,.sel:focus{border-color:var(--ac)}.inp::placeholder{color:var(--mu)}
@@ -83,22 +85,8 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .file-date{font-size:11px;color:var(--mu)}
 .file-size{font-size:11px;color:var(--mu)}
 .file-acts{display:flex;gap:7px;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
-.link-zone{padding:0 18px 15px;border-top:1px solid var(--bd)}
-.link-lbl{font-size:11px;color:var(--mu2);font-weight:600;padding:10px 0 7px;display:flex;align-items:center;gap:5px}
-.link-box{display:flex;align-items:center;gap:8px;background:rgba(99,76,220,.07);border:1px solid rgba(99,76,220,.2);border-radius:var(--r);padding:9px 13px}
-.link-box a{color:#a48fff;font-size:13px;text-decoration:none;flex:1;word-break:break-all}
-.link-box a:hover{text-decoration:underline}
-.link-edit-row{display:flex;gap:7px}
-.link-edit-row .inp{font-size:13px;padding:8px 12px}
-.link-empty{font-size:13px;color:var(--mu);font-style:italic}
-.drop{border:2px dashed var(--bd2);border-radius:var(--rl);padding:38px 18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;user-select:none}
-.drop:hover,.drop-on{border-color:var(--ac);background:rgba(99,76,220,.05)}
-.drop-ico{font-size:40px;margin-bottom:10px}
-.drop-lbl{font-family:var(--fh);font-weight:700;font-size:16px;margin-bottom:3px}
-.drop-hint{font-size:13px;color:var(--mu)}
-.prog-wrap{height:6px;background:var(--bd);border-radius:99px;overflow:hidden;margin-bottom:8px}
-.prog-bar{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .25s}
-.prog-msg{font-size:13px;color:var(--mu);text-align:center}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:rgba(56,182,155,.12);color:var(--ac2);border:1px solid rgba(56,182,155,.25)}
+.ai-badge-pending{background:rgba(99,76,220,.1);color:var(--mu2);border-color:rgba(99,76,220,.2)}
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px;animation:fade .2s ease}
 .modal{background:var(--sf);border:1px solid var(--bd2);border-radius:var(--rl);padding:28px 24px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:13px;box-shadow:0 14px 50px rgba(0,0,0,.6);animation:up .22s ease}
 .modal-title{font-family:var(--fh);font-weight:900;font-size:20px;letter-spacing:-.4px}
@@ -118,64 +106,8 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .empty-title{font-family:var(--fh);font-weight:700;font-size:19px;color:var(--mu2)}
 .empty-sub{color:var(--mu);max-width:300px;font-size:13px}
 .spin{width:34px;height:34px;border:3px solid var(--bd2);border-top-color:var(--ac);border-radius:50%;animation:spin .65s linear infinite}
-@media(max-width:600px){
-  .wrap{padding:22px 14px}.hdr{padding:0 14px}
-  .subj-grid{grid-template-columns:1fr}
-  .gate-card{padding:32px 20px}.hero-title{font-size:24px}
-  .modal{padding:24px 18px}
-}
 
-/* ── Visualizador de documentos ── */
-.doc-viewer-ov{position:fixed;inset:0;background:#0a0a14;z-index:300;display:flex;flex-direction:column;animation:fade .2s ease}
-.doc-viewer-bar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#0d0f1c;border-bottom:1px solid var(--bd);flex-shrink:0;flex-wrap:nowrap;min-width:0}
-.doc-viewer-title{flex:1;font-family:var(--fh);font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:var(--tx)}
-.doc-viewer-badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0}
-.dvb-pdf{background:rgba(248,113,113,.18);color:#f87171}
-.dvb-docx{background:rgba(99,76,220,.2);color:#a48fff}
-.dvb-ppt{background:rgba(251,146,60,.18);color:#fb923c}
-.dvb-xls{background:rgba(52,211,153,.18);color:#34d399}
-.dvb-other{background:rgba(136,136,170,.12);color:var(--mu2)}
-
-/* Corpo do viewer */
-.doc-viewer-body{flex:1;overflow:hidden;position:relative;background:#141420;display:flex;flex-direction:column}
-
-/* ── PDF Canvas Viewer ── */
-#dv-pdf-wrap{flex:1;overflow:hidden;position:relative;touch-action:none;cursor:grab;user-select:none}
-#dv-pdf-wrap.grabbing{cursor:grabbing}
-#dv-pdf-canvas-layer{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
-#dv-pdf-canvas-layer canvas{display:block;box-shadow:0 4px 32px rgba(0,0,0,.6);margin:0 auto}
-
-/* Barra de progresso + página */
-#dv-pdf-footer{display:flex;align-items:center;gap:10px;padding:8px 14px;background:#0d0f1c;border-top:1px solid var(--bd);flex-shrink:0}
-#dv-pdf-progress-track{flex:1;height:4px;background:var(--bd2);border-radius:99px;overflow:hidden;cursor:pointer}
-#dv-pdf-progress-fill{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .25s}
-#dv-pdf-page-lbl{font-size:12px;color:var(--mu2);white-space:nowrap;font-weight:600;min-width:56px;text-align:right}
-.dv-nav-btn{background:var(--sf2);border:1px solid var(--bd2);color:var(--mu2);border-radius:7px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all .15s}
-.dv-nav-btn:hover{background:var(--bd2);color:var(--tx)}
-.dv-nav-btn:disabled{opacity:.3;cursor:not-allowed}
-.dv-zoom-btn{background:var(--sf2);border:1px solid var(--bd2);color:var(--mu2);border-radius:7px;padding:0 9px;height:30px;display:flex;align-items:center;font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0;transition:all .15s;gap:4px}
-.dv-zoom-btn:hover{background:var(--bd2);color:var(--tx)}
-
-/* DOCX */
-#dv-docx-out{flex:1;overflow-y:auto;background:#fff;color:#111;font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.8;padding:32px clamp(16px,5vw,80px);box-sizing:border-box}
-#dv-docx-out h1,#dv-docx-out h2,#dv-docx-out h3{margin:1.2em 0 .4em;font-weight:700}
-#dv-docx-out p{margin-bottom:.7em}
-#dv-docx-out table{border-collapse:collapse;width:100%;margin:1em 0}
-#dv-docx-out td,#dv-docx-out th{border:1px solid #ddd;padding:.4rem .7rem}
-
-/* Office iframe */
-#dv-office-frame{flex:1;border:none;display:block;background:#fff}
-
-/* Status / loading */
-.doc-viewer-status{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--mu2);font-size:13px;background:#141420;z-index:10}
-.doc-viewer-status .spin{width:32px;height:32px}
-
-.btn-eye{background:rgba(99,76,220,.12);color:#a48fff;border:1px solid rgba(99,76,220,.3)}
-.btn-eye:hover{background:rgba(99,76,220,.22);color:#c4b5fd}
-.btn-ai{background:linear-gradient(135deg,rgba(99,76,220,.2),rgba(56,182,155,.2));color:#c4b5fd;border:1px solid rgba(99,76,220,.4)}
-.btn-ai:hover{background:linear-gradient(135deg,rgba(99,76,220,.35),rgba(56,182,155,.3));color:#fff}
-
-/* ── AI Study Panel ── */
+/* AI Panel */
 .ai-panel-ov{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:400;display:flex;flex-direction:column;animation:fade .2s ease}
 .ai-panel{display:flex;flex-direction:column;height:100%;max-width:780px;margin:0 auto;width:100%}
 .ai-panel-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(8,8,18,.95);border-bottom:1px solid var(--bd);flex-shrink:0}
@@ -191,8 +123,6 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .ai-card p{font-size:14px;line-height:1.75;color:var(--tx)}
 .ai-card ul,.ai-card ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
 .ai-card li{font-size:14px;line-height:1.6;color:var(--tx)}
-
-/* Flashcards */
 .fc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .fc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px;cursor:pointer;transition:all .2s;min-height:110px;display:flex;flex-direction:column;gap:8px;position:relative}
 .fc:hover{border-color:var(--ac);transform:translateY(-2px)}
@@ -200,8 +130,6 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .fc-a{font-size:13px;color:var(--ac2);line-height:1.5;display:none;border-top:1px solid var(--bd);padding-top:8px;margin-top:4px}
 .fc.open .fc-a{display:block}
 .fc-hint{font-size:11px;color:var(--mu);margin-top:auto}
-
-/* Quiz */
 .quiz-q{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px;display:flex;flex-direction:column;gap:10px}
 .quiz-q-txt{font-size:14px;font-weight:600;line-height:1.5}
 .quiz-opts{display:flex;flex-direction:column;gap:7px}
@@ -213,21 +141,18 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .quiz-exp.on{display:block}
 .quiz-score{background:linear-gradient(135deg,rgba(99,76,220,.15),rgba(56,182,155,.1));border:1px solid rgba(99,76,220,.3);border-radius:var(--rl);padding:20px;text-align:center}
 .quiz-score-num{font-family:var(--fh);font-weight:900;font-size:42px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-
-/* Exercícios */
 .ex-item{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px;display:flex;flex-direction:column;gap:10px}
 .ex-num{font-size:11px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.05em}
 .ex-txt{font-size:14px;line-height:1.6}
 .ex-ans{background:rgba(56,182,155,.07);border:1px solid rgba(56,182,155,.2);border-radius:10px;padding:12px;font-size:13px;color:var(--ac2);display:none}
 .ex-ans.on{display:block}
-
-/* Conceitos */
 .concept-item{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:16px;display:flex;gap:12px;align-items:flex-start}
 .concept-dot{width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0;margin-top:6px}
 .concept-name{font-weight:700;font-size:14px;margin-bottom:3px}
 .concept-def{font-size:13px;color:var(--mu2);line-height:1.6}
-
-/* Progresso */
+.summary-points{display:flex;flex-direction:column;gap:8px}
+.summary-point{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--tx);line-height:1.5}
+.summary-point-dot{width:6px;height:6px;border-radius:50%;background:var(--ac2);flex-shrink:0;margin-top:6px}
 .prog-subject{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:16px 18px;display:flex;flex-direction:column;gap:8px}
 .prog-subject-name{font-weight:600;font-size:14px;display:flex;justify-content:space-between}
 .prog-bar-wrap{height:6px;background:var(--bd2);border-radius:99px;overflow:hidden}
@@ -236,91 +161,50 @@ body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellips
 .prog-stat{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px;text-align:center}
 .prog-stat-num{font-family:var(--fh);font-weight:900;font-size:26px;background:linear-gradient(135deg,var(--ac),var(--ac2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .prog-stat-lbl{font-size:11px;color:var(--mu);margin-top:2px}
-
-/* AI loading */
-.ai-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:48px 20px;text-align:center}
-.ai-loading-txt{font-size:13px;color:var(--mu2)}
-.ai-gen-steps{display:flex;flex-direction:column;gap:8px;width:100%;max-width:280px}
-.ai-step{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mu);transition:color .3s}
-.ai-step.done{color:var(--ac2)}.ai-step.active{color:var(--tx)}
-.ai-step-ico{width:20px;height:20px;border-radius:50%;background:var(--bd2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all .3s}
-.ai-step.done .ai-step-ico{background:var(--ac2);color:#000}
-.ai-step.active .ai-step-ico{background:var(--ac);color:#fff}
-
-/* API key prompt */
-.api-key-prompt{background:rgba(99,76,220,.07);border:1px solid rgba(99,76,220,.25);border-radius:var(--rl);padding:24px;display:flex;flex-direction:column;gap:12px;text-align:center;align-items:center}
-.api-key-prompt p{font-size:13px;color:var(--mu2);max-width:320px;line-height:1.6}
-
-/* Resumo */
-.summary-short{background:linear-gradient(135deg,rgba(99,76,220,.1),rgba(56,182,155,.08));border:1px solid rgba(99,76,220,.25);border-radius:var(--rl);padding:18px}
-.summary-short p{font-size:14px;line-height:1.75;color:var(--tx)}
-.summary-points{display:flex;flex-direction:column;gap:8px}
-.summary-point{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--tx);line-height:1.5}
-.summary-point-dot{width:6px;height:6px;border-radius:50%;background:var(--ac2);flex-shrink:0;margin-top:6px}
-
-/* Chat */
-.chat-msgs{display:flex;flex-direction:column;gap:10px;min-height:80px}
-.chat-msg{display:flex;flex-direction:column;gap:3px;max-width:90%}
-.chat-msg.user{align-self:flex-end;align-items:flex-end}
-.chat-msg.ai{align-self:flex-start;align-items:flex-start}
-.chat-bubble{padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.6}
-.chat-msg.user .chat-bubble{background:rgba(99,76,220,.25);color:var(--tx);border-bottom-right-radius:4px}
-.chat-msg.ai .chat-bubble{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx);border-bottom-left-radius:4px}
-.chat-msg.ai.thinking .chat-bubble{color:var(--mu)}
-.chat-input-row{display:flex;gap:8px;margin-top:4px;flex-shrink:0}
-.chat-input-row .inp{flex:1;padding:9px 13px;font-size:13px}
-.chat-send{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;border:none;border-radius:var(--r);padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .15s}
-.chat-send:disabled{opacity:.4;cursor:not-allowed}
-
+.no-ai-msg{background:rgba(99,76,220,.07);border:1px solid rgba(99,76,220,.2);border-radius:var(--rl);padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.no-ai-msg p{font-size:13px;color:var(--mu2);max-width:300px;line-height:1.6}
 @media(max-width:600px){
+  .wrap{padding:22px 14px}.hdr{padding:0 14px}
+  .subj-grid{grid-template-columns:1fr}
+  .gate-card{padding:32px 20px}.hero-title{font-size:24px}
+  .modal{padding:24px 18px}
   .fc-grid{grid-template-columns:1fr}
   .prog-stats{grid-template-columns:repeat(3,1fr)}
-  .ai-panel-bar{padding:10px 12px}
 }
 </style>
 </head>
 <body>
 <div id="app"><div class="ctr"><div class="spin"></div><p style="color:var(--mu);font-size:13px;margin-top:8px">Carregando…</p></div></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
 "use strict";
 
 // ═══════════════════════════════════════════════════
-// CONFIGURAÇÕES
+// CONFIGURAÇÕES SUPABASE
 // ═══════════════════════════════════════════════════
 const SUPA_URL = "https://fihoawkedcgwmvfnrntz.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpaG9hd2tlZGNnd212Zm5ybnR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTk5NTksImV4cCI6MjA4ODg5NTk1OX0.-5M_SzvuluMo60-mOhnKYmJGH0B5IzypxB-5q8WCJmg";
 
 // ── Supabase REST helpers ─────────────────────────
 async function sbFetch(path, opts = {}) {
-  try {
-    const res = await fetch(SUPA_URL + "/rest/v1/" + path, {
-      headers: {
-        "apikey": SUPA_KEY,
-        "Authorization": "Bearer " + SUPA_KEY,
-        "Content-Type": "application/json",
-        "Prefer": opts.prefer || "return=representation",
-        ...opts.headers,
-      },
-      method: opts.method || "GET",
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || "Erro Supabase " + res.status);
-    }
-
-    const text = await res.text();
-    return text ? JSON.parse(text) : [];
-  } catch (e) {
-    console.error("Erro em sbFetch:", e);
-    alert("Não foi possível conectar ao servidor. Algumas funções podem estar indisponíveis.");
-    return [];
+  const res = await fetch(SUPA_URL + "/rest/v1/" + path, {
+    headers: {
+      "apikey": SUPA_KEY,
+      "Authorization": "Bearer " + SUPA_KEY,
+      "Content-Type": "application/json",
+      "Prefer": opts.prefer || "return=representation",
+      ...opts.headers,
+    },
+    method: opts.method || "GET",
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "Erro Supabase " + res.status);
   }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
 }
 
-// ── CRUD Subjects ─────────────────────────────────
 async function sbGetSubjects() {
   return sbFetch("subjects?select=*&order=created_at.asc");
 }
@@ -333,8 +217,6 @@ async function sbEditSubject(id, p) {
 async function sbDelSubject(id) {
   return sbFetch("subjects?id=eq." + id, { method: "DELETE", prefer: "return=minimal", headers: { "Prefer": "return=minimal" } });
 }
-
-// ── CRUD Files ────────────────────────────────────
 async function sbGetFiles(subjectId) {
   return sbFetch("files?subject_id=eq." + subjectId + "&select=*&order=uploaded_at.asc");
 }
@@ -347,8 +229,6 @@ async function sbEditFile(id, p) {
 async function sbDelFile(id) {
   return sbFetch("files?id=eq." + id, { method: "DELETE", headers: { "Prefer": "return=minimal" } });
 }
-
-// ── Config (senha ADM) ────────────────────────────
 async function sbGetConfig(key) {
   const rows = await sbFetch("config?key=eq." + key + "&select=value");
   return rows[0]?.value || null;
@@ -362,10 +242,12 @@ async function sbSetConfig(key, value) {
   });
 }
 
-// ── Hash SHA-256 ──────────────────────────────────
-async function sha256(text) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+// ── Busca JSON pré-gerado da matéria ─────────────────────────────────────────
+// O JSON fica salvo na tabela "materias" com chave = subject_id
+// Gerado pelo admin_upload.html no momento do upload do PDF
+async function sbGetMateriaData(subjectId) {
+  const rows = await sbFetch("materias?subject_id=eq." + subjectId + "&select=*&order=updated_at.desc&limit=1");
+  return rows[0] || null;
 }
 
 // ── Supabase Storage upload ───────────────────────
@@ -374,50 +256,26 @@ async function uploadToSupabase(file, onProgress) {
   const ext = "." + file.name.split(".").pop().toLowerCase();
   if (!allowedExts.includes(ext)) throw new Error("Tipo não permitido: " + ext);
   if (file.size > 50 * 1024 * 1024) throw new Error("Arquivo muito grande. Máximo: 50MB");
-
-  // Simula progresso enquanto faz o upload
   let prog = 0;
-  const progInterval = setInterval(() => {
-    prog = Math.min(prog + 5, 85);
-    if (onProgress) onProgress(prog);
-  }, 200);
-
+  const progInterval = setInterval(() => { prog = Math.min(prog + 5, 85); if (onProgress) onProgress(prog); }, 200);
   const fileName = Date.now() + "_" + file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-
   try {
     const res = await fetch(SUPA_URL + "/storage/v1/object/files/" + fileName, {
       method: "POST",
-      headers: {
-        "apikey":        SUPA_KEY,
-        "Authorization": "Bearer " + SUPA_KEY,
-        "Content-Type":  file.type || "application/octet-stream",
-        "x-upsert":      "true",
-      },
+      headers: { "apikey": SUPA_KEY, "Authorization": "Bearer " + SUPA_KEY, "Content-Type": file.type || "application/octet-stream", "x-upsert": "true" },
       body: file,
     });
-
     clearInterval(progInterval);
     if (onProgress) onProgress(100);
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error || err.message || "Erro no upload: " + res.status);
-    }
-
+    if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || err.message || "Erro no upload: " + res.status); }
     const publicUrl = SUPA_URL + "/storage/v1/object/public/files/" + fileName;
     return { url: publicUrl, publicId: fileName, bytes: file.size };
-  } catch(e) {
-    clearInterval(progInterval);
-    throw e;
-  }
+  } catch(e) { clearInterval(progInterval); throw e; }
 }
 
-// ── Mantém compatibilidade (arquivos antigos do Cloudinary continuam funcionando) ──
-function normalizeCloudinaryUrl(url) {
-  if (!url) return url;
-  return url.replace(/\/image\/upload\//g, "/raw/upload/")
-            .replace(/\/video\/upload\//g, "/raw/upload/")
-            .replace(/\/auto\/upload\//g,  "/raw/upload/");
+async function sha256(text) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
 }
 
 // ── Helpers ───────────────────────────────────────
@@ -441,35 +299,44 @@ function fileIcon(name) {
   return "📎";
 }
 
-// ── Estado global ─────────────────────────────────
-const S = {
-  role:   sessionStorage.getItem("sn_role") || null,
-  subjId: null,
-};
+// ── Progresso de estudo (localStorage) ───────────────────────────────────────
+function getStudyData() {
+  try { return JSON.parse(localStorage.getItem("sn_study") || "{}"); } catch { return {}; }
+}
+function saveStudyData(d) {
+  try { localStorage.setItem("sn_study", JSON.stringify(d)); } catch {}
+}
+function recordStudy(subjId, type) {
+  const d = getStudyData();
+  if (!d[subjId]) d[subjId] = { flashcards: 0, exercises: 0, quizzes: 0, quizScore: 0, quizTotal: 0, lastStudied: null };
+  if (type === "flashcards") d[subjId].flashcards++;
+  if (type === "exercises")  d[subjId].exercises++;
+  d[subjId].lastStudied = new Date().toISOString();
+  saveStudyData(d);
+}
+function recordQuizResult(subjId, correct, total) {
+  const d = getStudyData();
+  if (!d[subjId]) d[subjId] = { flashcards: 0, exercises: 0, quizzes: 0, quizScore: 0, quizTotal: 0, lastStudied: null };
+  d[subjId].quizzes++;
+  d[subjId].quizScore  = (d[subjId].quizScore  || 0) + correct;
+  d[subjId].quizTotal  = (d[subjId].quizTotal  || 0) + total;
+  d[subjId].lastStudied = new Date().toISOString();
+  saveStudyData(d);
+}
 
-// ── Render engine ─────────────────────────────────
+// ── Estado global ─────────────────────────────────
+const S = { role: sessionStorage.getItem("sn_role") || null, subjId: null };
 const ROOT = document.getElementById("app");
 
 function go(view, patch = {}) {
-  try {
-    Object.assign(S, patch);
-    ROOT.innerHTML = "";
-    window.scrollTo(0, 0);
-    const views = { gate, home, subjectView, uploadView, settingsView, progressView };
-    if (views[view]) {
-      views[view]();
-    } else {
-      console.error("View não encontrada:", view);
-      gate(); // fallback para o portão
-    }
-  } catch (e) {
-    console.error("Erro ao navegar para " + view + ":", e);
-    // Se falhar ao renderizar, tenta voltar para o gate como última instância
-    if (view !== "gate") go("gate");
-  }
+  Object.assign(S, patch);
+  ROOT.innerHTML = "";
+  window.scrollTo(0, 0);
+  const views = { gate, home, subjectView, uploadView, settingsView, progressView };
+  if (views[view]) views[view]();
+  else gate();
 }
 
-// ── Modal ─────────────────────────────────────────
 function openModal(html, onMount) {
   document.getElementById("_ov")?.remove();
   const ov = document.createElement("div");
@@ -481,7 +348,6 @@ function openModal(html, onMount) {
 }
 function closeModal() { document.getElementById("_ov")?.remove(); }
 
-// ── Header ────────────────────────────────────────
 function mkHdr() {
   const h = document.createElement("header"); h.className = "hdr";
   h.innerHTML = `
@@ -496,11 +362,12 @@ function mkHdr() {
   h.querySelector("#hL").onclick = () => go("home");
   h.querySelector("#hSet")?.addEventListener("click", () => go("settingsView"));
   h.querySelector("#hProg")?.addEventListener("click", () => go("progressView"));
-  h.querySelector("#hSair").onclick = () => {
-    sessionStorage.removeItem("sn_role"); S.role = null; go("gate");
-  };
+  h.querySelector("#hSair").onclick = () => { sessionStorage.removeItem("sn_role"); S.role = null; go("gate"); };
   return h;
 }
+
+const EMOJIS = ["🧠","📊","📈","📉","🗂","🏛","🔬","🔗","📚","📐","🎯","💡","🧮","🌍","⚗️","🏗","📝","🎓","🔭","💰","📜","🧬","📡","🎲","🖊","🖥","📱","🏆"];
+const COLORS  = ["#a78bfa","#34d399","#60a5fa","#f472b6","#fb923c","#facc15","#2dd4bf","#f87171","#818cf8","#4ade80","#38bdf8","#e879f9","#f97316","#a3e635","#fb7185","#fcd34d"];
 
 // ════════════════════════════════════════════════════
 // GATE
@@ -531,26 +398,17 @@ function gate() {
     const p   = document.getElementById("gPass").value;
     if (!p) return;
     btn.disabled = true; btn.textContent = "…";
-
     try {
       const h = await sha256(p);
       let stored = await sbGetConfig("adm_hash");
-      if (!stored) {
-        // primeira vez: cria hash padrão
-        stored = await sha256("adm2024");
-        await sbSetConfig("adm_hash", stored);
-      }
-      if (h === stored) {
-        sessionStorage.setItem("sn_role","adm"); S.role="adm"; go("home");
-      } else {
+      if (!stored) { stored = await sha256("adm2024"); await sbSetConfig("adm_hash", stored); }
+      if (h === stored) { sessionStorage.setItem("sn_role","adm"); S.role="adm"; go("home"); }
+      else {
         const e = document.getElementById("gErr");
         if (e) { e.style.display = "block"; setTimeout(() => { if(e) e.style.display="none"; }, 2500); }
         btn.disabled = false; btn.textContent = "→";
       }
-    } catch(err) {
-      alert("Erro ao verificar senha: " + err.message);
-      btn.disabled = false; btn.textContent = "→";
-    }
+    } catch(err) { alert("Erro ao verificar senha: " + err.message); btn.disabled = false; btn.textContent = "→"; }
   };
 
   document.getElementById("gAdm").onclick = tryAdm;
@@ -560,25 +418,16 @@ function gate() {
 // ════════════════════════════════════════════════════
 // HOME
 // ════════════════════════════════════════════════════
-const EMOJIS = ["🧠","📊","📈","📉","🗂","🏛","🔬","🔗","📚","📐","🎯","💡","🧮","🌍","⚗️","🏗","📝","🎓","🔭","💰","📜","🧬","📡","🎲","🖊","🖥","📱","🏆"];
-const COLORS  = ["#a78bfa","#34d399","#60a5fa","#f472b6","#fb923c","#facc15","#2dd4bf","#f87171","#818cf8","#4ade80","#38bdf8","#e879f9","#f97316","#a3e635","#fb7185","#fcd34d"];
-
 async function home() {
   const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
   const wrap = document.createElement("main"); wrap.className = "wrap";
-
-  // Loading state
   wrap.innerHTML = `<div class="ctr" style="min-height:60vh"><div class="spin"></div><p style="color:var(--mu);font-size:13px;margin-top:8px">Carregando matérias…</p></div>`;
   page.appendChild(wrap); ROOT.appendChild(page);
 
   let subjs = [];
-  try {
-    subjs = await sbGetSubjects();
-  } catch(e) {
-    wrap.innerHTML = `<div class="empty"><div style="font-size:48px">⚠️</div><p class="empty-title">Erro ao carregar</p><p class="empty-sub">${esc(e.message)}</p></div>`;
-    return;
-  }
+  try { subjs = await sbGetSubjects(); }
+  catch(e) { wrap.innerHTML = `<div class="empty"><div style="font-size:48px">⚠️</div><p class="empty-title">Erro ao carregar</p><p class="empty-sub">${esc(e.message)}</p></div>`; return; }
 
   wrap.innerHTML = `
     <div class="hero">
@@ -609,9 +458,7 @@ async function home() {
         <div class="subj-name">${esc(s.name)}</div>
         <div class="subj-sub">${esc(s.sub||"")}</div>
         <div class="subj-ft">
-          <span class="subj-chip" style="background:${s.color}22;color:${s.color}" data-go="${s.id}">
-            Ver arquivos →
-          </span>
+          <span class="subj-chip" style="background:${s.color}22;color:${s.color}" data-go="${s.id}">Ver arquivos →</span>
           ${S.role==="adm" ? `<div class="subj-adm">
             <button class="btn btn-g btn-sm" data-edit="${s.id}">✏️</button>
             <button class="btn btn-d btn-sm" data-del="${s.id}">🗑</button>
@@ -621,44 +468,25 @@ async function home() {
     grid.appendChild(card);
   });
 
-  document.querySelectorAll("[data-go]").forEach(el =>
-    el.onclick = () => go("subjectView", { subjId: el.dataset.go })
-  );
-  document.querySelectorAll("[data-edit]").forEach(el =>
-    el.onclick = e => {
-      e.stopPropagation();
-      const s = subjs.find(x => x.id === el.dataset.edit);
-      openSubjModal(s);
-    }
-  );
-  document.querySelectorAll("[data-del]").forEach(el =>
-    el.onclick = async e => {
-      e.stopPropagation();
-      const s = subjs.find(x => x.id === el.dataset.del);
-      if (!confirm(`Excluir a matéria "${s?.name}"?`)) return;
-      try {
-        await sbDelSubject(el.dataset.del);
-        go("home");
-      } catch(err) { alert("Erro ao excluir: " + err.message); }
-    }
-  );
+  document.querySelectorAll("[data-go]").forEach(el => el.onclick = () => go("subjectView", { subjId: el.dataset.go }));
+  document.querySelectorAll("[data-edit]").forEach(el => el.onclick = e => { e.stopPropagation(); openSubjModal(subjs.find(x => x.id === el.dataset.edit)); });
+  document.querySelectorAll("[data-del]").forEach(el => el.onclick = async e => {
+    e.stopPropagation();
+    const s = subjs.find(x => x.id === el.dataset.del);
+    if (!confirm(`Excluir a matéria "${s?.name}"?`)) return;
+    try { await sbDelSubject(el.dataset.del); go("home"); }
+    catch(err) { alert("Erro ao excluir: " + err.message); }
+  });
 }
 
 function openSubjModal(existing = null) {
   const isEdit = !!existing;
   let selEmoji = existing?.emoji || "📚";
   let selColor = existing?.color || "#a78bfa";
-
   openModal(`
     <p class="modal-title">${isEdit ? "Editar Matéria" : "Nova Matéria"}</p>
-    <div>
-      <span class="lbl">Ícone</span>
-      <div class="emoji-grid">${EMOJIS.map(e=>`<button class="emj${e===selEmoji?" emj-on":""}" data-e="${e}">${e}</button>`).join("")}</div>
-    </div>
-    <div>
-      <span class="lbl">Cor</span>
-      <div class="clr-grid">${COLORS.map(c=>`<div class="clr${c===selColor?" clr-on":""}" data-c="${c}" style="background:${c}"></div>`).join("")}</div>
-    </div>
+    <div><span class="lbl">Ícone</span><div class="emoji-grid">${EMOJIS.map(e=>`<button class="emj${e===selEmoji?" emj-on":""}" data-e="${e}">${e}</button>`).join("")}</div></div>
+    <div><span class="lbl">Cor</span><div class="clr-grid">${COLORS.map(c=>`<div class="clr${c===selColor?" clr-on":""}" data-c="${c}" style="background:${c}"></div>`).join("")}</div></div>
     <div><label class="lbl">Nome *</label><input class="inp" id="mName" placeholder="ex: Cálculo I" value="${esc(existing?.name||"")}"/></div>
     <div><label class="lbl">Subtítulo (opcional)</label><input class="inp" id="mSub" placeholder="ex: Derivadas e Integrais" value="${esc(existing?.sub||"")}"/></div>
     <div class="modal-row">
@@ -666,12 +494,8 @@ function openSubjModal(existing = null) {
       <button class="btn btn-p" id="mOk">${isEdit ? "Salvar" : "Criar"}</button>
     </div>`,
   m => {
-    m.querySelectorAll(".emj").forEach(b => {
-      b.onclick = () => { selEmoji=b.dataset.e; m.querySelectorAll(".emj").forEach(x=>x.className="emj"+(x.dataset.e===selEmoji?" emj-on":"")); };
-    });
-    m.querySelectorAll(".clr").forEach(b => {
-      b.onclick = () => { selColor=b.dataset.c; m.querySelectorAll(".clr").forEach(x=>x.className="clr"+(x.dataset.c===selColor?" clr-on":"")); };
-    });
+    m.querySelectorAll(".emj").forEach(b => { b.onclick = () => { selEmoji=b.dataset.e; m.querySelectorAll(".emj").forEach(x=>x.className="emj"+(x.dataset.e===selEmoji?" emj-on":"")); }; });
+    m.querySelectorAll(".clr").forEach(b => { b.onclick = () => { selColor=b.dataset.c; m.querySelectorAll(".clr").forEach(x=>x.className="clr"+(x.dataset.c===selColor?" clr-on":"")); }; });
     m.querySelector("#mCan").onclick = closeModal;
     m.querySelector("#mOk").onclick = async () => {
       const name = m.querySelector("#mName").value.trim();
@@ -680,16 +504,10 @@ function openSubjModal(existing = null) {
       const okBtn = m.querySelector("#mOk");
       okBtn.disabled = true; okBtn.textContent = "Salvando…";
       try {
-        if (isEdit) {
-          await sbEditSubject(existing.id, { name, sub, emoji: selEmoji, color: selColor });
-        } else {
-          await sbAddSubject({ id: gid(), name, sub, emoji: selEmoji, color: selColor });
-        }
+        if (isEdit) await sbEditSubject(existing.id, { name, sub, emoji: selEmoji, color: selColor });
+        else await sbAddSubject({ id: gid(), name, sub, emoji: selEmoji, color: selColor });
         closeModal(); go("home");
-      } catch(err) {
-        alert("Erro ao salvar: " + err.message);
-        okBtn.disabled = false; okBtn.textContent = isEdit ? "Salvar" : "Criar";
-      }
+      } catch(err) { alert("Erro ao salvar: " + err.message); okBtn.disabled = false; okBtn.textContent = isEdit ? "Salvar" : "Criar"; }
     };
   });
 }
@@ -701,8 +519,7 @@ async function subjectView() {
   const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
   const wrap = document.createElement("main"); wrap.className = "wrap";
-
-  wrap.innerHTML = `<div class="ctr" style="min-height:60vh"><div class="spin"></div><p style="color:var(--mu);font-size:13px;margin-top:8px">Carregando…</p></div>`;
+  wrap.innerHTML = `<div class="ctr" style="min-height:60vh"><div class="spin"></div></div>`;
   page.appendChild(wrap); ROOT.appendChild(page);
 
   let subj, fs;
@@ -716,38 +533,55 @@ async function subjectView() {
     return;
   }
 
+  // Busca se existe material de IA gerado para esta matéria
+  let materiaData = null;
+  try { materiaData = await sbGetMateriaData(S.subjId); } catch {}
+
   wrap.innerHTML = `
     <div class="subj-hdr">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
         <button class="btn btn-g btn-sm" id="sBack">← Voltar</button>
-        ${S.role==="adm" ? `<button class="btn btn-p btn-sm" id="sUp">⬆ Upload</button>` : ""}
+        ${S.role==="adm" ? `<button class="btn btn-p btn-sm" id="sUp">⬆ Upload + Processar IA</button>` : ""}
       </div>
       <div class="subj-title">
         <span style="color:${subj.color}">${subj.emoji}</span> ${esc(subj.name)}
         ${subj.sub ? `<span style="color:var(--mu);font-size:16px;font-weight:400"> — ${esc(subj.sub)}</span>` : ""}
       </div>
-      <div class="subj-meta">${fs.length} arquivo(s) disponível(is)</div>
+      <div class="subj-meta" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span>${fs.length} arquivo(s)</span>
+        ${materiaData ? `<span class="ai-badge">✨ Material IA disponível — atualizado ${fmtDate(materiaData.updated_at||materiaData.created_at)}</span>` : `<span class="ai-badge ai-badge-pending">⏳ Sem material IA ainda</span>`}
+      </div>
     </div>
+
+    ${materiaData ? `
+    <div style="margin-bottom:20px">
+      <button class="btn btn-ai" id="btnEstudar" style="width:100%;padding:14px">✨ Estudar com IA — ${esc(subj.name)}</button>
+    </div>` : ""}
+
     <div class="file-list" id="fileList"></div>
     ${fs.length===0 ? `<div class="empty">
       <div style="font-size:48px">📂</div>
       <p class="empty-title">Nenhum arquivo ainda</p>
-      <p class="empty-sub">${S.role==="adm" ? "Clique em ⬆ Upload para adicionar arquivos." : "O ADM ainda não publicou arquivos nesta matéria."}</p>
+      <p class="empty-sub">${S.role==="adm" ? "Clique em ⬆ Upload para adicionar e processar arquivos." : "O ADM ainda não publicou arquivos nesta matéria."}</p>
     </div>` : ""}`;
 
   document.getElementById("sBack").onclick = () => go("home");
   document.getElementById("sUp")?.addEventListener("click", () => go("uploadView"));
 
+  document.getElementById("btnEstudar")?.addEventListener("click", () => {
+    openStudyPanel(subj, materiaData.data_json);
+  });
+
   const list = document.getElementById("fileList");
   fs.forEach((f, i) => {
-    const fUrl = normalizeCloudinaryUrl(f.url);
+    const fUrl = f.url;
     const card = document.createElement("div");
     card.className = "file-card";
     card.style.animationDelay = `${i*35}ms`;
     card.innerHTML = `
       <div class="file-card-hdr">
         <div class="file-top">
-          <div class="file-ico" aria-hidden="true">${fileIcon(f.name)}</div>
+          <div class="file-ico">${fileIcon(f.name)}</div>
           <div class="file-name" title="${esc(f.name)}">${esc(f.name)}</div>
         </div>
         <div class="file-footer">
@@ -756,77 +590,23 @@ async function subjectView() {
             ${f.size ? `<span class="file-size">${fmtSize(f.size)}</span>` : ""}
           </div>
           <div class="file-acts">
-            ${f.name.toLowerCase().endsWith(".pdf") ? `<a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-eye btn-sm">📄 Abrir PDF</a>` : canPreview(f.name) ? `<button class="btn btn-eye btn-sm" data-view="${f.id}">👁 Visualizar</button>` : ""}
-            ${!f.name.toLowerCase().endsWith(".pdf") ? `<a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">⬇ Baixar</a>` : ""}
-            <button class="btn btn-ai btn-sm" data-ai="${f.id}">✨ Estudar com IA</button>
+            <a href="${esc(fUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm">📄 Abrir</a>
             ${S.role==="adm" ? `<button class="btn btn-d btn-sm" data-del="${f.id}">🗑</button>` : ""}
           </div>
         </div>
-      </div>
-      <div class="link-zone">
-        <div class="link-lbl">🔗 Link do Resumo</div>
-        <div id="lz_${f.id}"></div>
       </div>`;
     list.appendChild(card);
 
-    renderLinkZone(f);
-
-    card.querySelector(`[data-ai="${f.id}"]`)?.addEventListener("click", () => {
-      openAIPanel(f.name, fUrl);
-    });
-
-    card.querySelector(`[data-view="${f.id}"]`)?.addEventListener("click", () => {
-      openDocViewer(f.name, fUrl);
-    });
-
     card.querySelector(`[data-del="${f.id}"]`)?.addEventListener("click", async () => {
       if (!confirm(`Excluir "${f.name}"?`)) return;
-      try {
-        await sbDelFile(f.id);
-        go("subjectView");
-      } catch(err) { alert("Erro ao excluir: " + err.message); }
+      try { await sbDelFile(f.id); go("subjectView"); }
+      catch(err) { alert("Erro ao excluir: " + err.message); }
     });
   });
 }
 
-function renderLinkZone(f) {
-  const lz = document.getElementById(`lz_${f.id}`);
-  if (!lz) return;
-  if (f.resume_link) {
-    lz.innerHTML = `<div class="link-box">
-      <a href="${esc(f.resume_link)}" target="_blank" rel="noopener">📄 Abrir resumo</a>
-      ${S.role==="adm" ? `<button class="btn btn-g btn-sm" id="le_${f.id}">✏️</button>` : ""}
-    </div>`;
-    document.getElementById(`le_${f.id}`)?.addEventListener("click", () => editLinkZone(f));
-  } else {
-    lz.innerHTML = S.role==="adm"
-      ? `<button class="btn btn-g btn-sm" id="la_${f.id}">+ Adicionar link do resumo</button>`
-      : `<span class="link-empty">Nenhum resumo disponível ainda.</span>`;
-    document.getElementById(`la_${f.id}`)?.addEventListener("click", () => editLinkZone(f));
-  }
-}
-
-function editLinkZone(f) {
-  const lz = document.getElementById(`lz_${f.id}`);
-  if (!lz) return;
-  lz.innerHTML = `<div class="link-edit-row">
-    <input class="inp" id="li_${f.id}" placeholder="Cole o link do resumo aqui…" value="${esc(f.resume_link||"")}"/>
-    <button class="btn btn-p btn-sm" id="ls_${f.id}">Salvar</button>
-    <button class="btn btn-g btn-sm" id="lc_${f.id}">✕</button>
-  </div>`;
-  document.getElementById(`ls_${f.id}`).onclick = async () => {
-    const v = document.getElementById(`li_${f.id}`).value.trim();
-    try {
-      await sbEditFile(f.id, { resume_link: v });
-      f.resume_link = v;
-      renderLinkZone(f);
-    } catch(err) { alert("Erro ao salvar link: " + err.message); }
-  };
-  document.getElementById(`lc_${f.id}`).onclick = () => renderLinkZone(f);
-}
-
 // ════════════════════════════════════════════════════
-// UPLOAD VIEW
+// UPLOAD VIEW (apenas admin)
 // ════════════════════════════════════════════════════
 async function uploadView() {
   if (S.role !== "adm") { go("home"); return; }
@@ -835,41 +615,53 @@ async function uploadView() {
   page.appendChild(mkHdr());
   const wrap = document.createElement("main"); wrap.className = "wrap wrap-sm";
 
-  // busca dados do subject
   let subj = null;
-  try {
-    const subjs = await sbGetSubjects();
-    subj = subjs.find(s => s.id === S.subjId);
-  } catch(e) {}
+  try { const subjs = await sbGetSubjects(); subj = subjs.find(s => s.id === S.subjId); } catch {}
 
   wrap.innerHTML = `
     <div style="margin-bottom:24px">
       <button class="btn btn-g btn-sm" id="uBack" style="margin-bottom:14px">← Voltar</button>
-      <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">⬆ Upload de Arquivo</h1>
+      <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">⬆ Upload + Processar IA</h1>
       <p style="font-size:13px;margin-top:8px">
         <span style="color:${subj?.color};font-weight:600">${subj?.emoji} ${esc(subj?.name)}</span>
         ${subj?.sub ? `<span style="color:var(--mu)"> — ${esc(subj?.sub)}</span>` : ""}
       </p>
+      <div style="background:rgba(56,182,155,.08);border:1px solid rgba(56,182,155,.2);border-radius:var(--r);padding:12px 16px;margin-top:12px;font-size:13px;color:var(--ac2);line-height:1.6">
+        ✨ <strong>Nova arquitetura:</strong> Após o upload, a IA processa o PDF automaticamente e salva o conteúdo educacional. Os alunos acessam instantaneamente sem nenhuma chamada extra para IA.
+      </div>
     </div>
 
-    <div class="drop" id="dz">
-      <input type="file" id="fi" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.zip,.rar,.txt" style="display:none"/>
-      <div class="drop-ico" id="dIco">☁️</div>
-      <p class="drop-lbl" id="dLbl">Toque aqui para escolher o arquivo</p>
-      <p class="drop-hint">PDF, Word, PowerPoint, Excel, ZIP… (máx. 50MB)</p>
+    <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:20px;margin-bottom:16px">
+      <label class="lbl">🔑 Chave da API Gemini</label>
+      <input class="inp" id="uApiKey" type="password" placeholder="AIza… (obtenha grátis em aistudio.google.com)"/>
+      <p style="font-size:11px;color:var(--mu);margin-top:6px">A chave fica apenas nesta sessão, nunca é salva.</p>
+    </div>
+
+    <div class="drop" id="dz" style="border:2px dashed var(--bd2);border-radius:var(--rl);padding:38px 18px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px">
+      <input type="file" id="fi" accept=".pdf" style="display:none"/>
+      <div style="font-size:40px;margin-bottom:10px" id="dIco">📄</div>
+      <p style="font-family:var(--fh);font-weight:700;font-size:16px;margin-bottom:3px" id="dLbl">Toque aqui para escolher o PDF</p>
+      <p style="font-size:13px;color:var(--mu)">Apenas PDF (máx. 50MB)</p>
     </div>
 
     <div id="progArea" style="display:none;margin-bottom:16px">
-      <div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
-      <p class="prog-msg" id="progMsg">Aguardando…</p>
+      <div style="height:6px;background:var(--bd);border-radius:99px;overflow:hidden;margin-bottom:8px">
+        <div style="height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:99px;transition:width .25s" id="progBar"></div>
+      </div>
+      <p style="font-size:13px;color:var(--mu);text-align:center" id="progMsg">Aguardando…</p>
     </div>
 
-    <button class="btn btn-p btn-fw" id="btnUp" disabled>🚀 Enviar arquivo</button>
-    <p id="upErr" style="color:#ff4d6d;font-size:13px;margin-top:10px;text-align:center;display:none"></p>`;
+    <button class="btn btn-p btn-fw" id="btnUp" disabled>🚀 Enviar e Processar com IA</button>
+    <p id="upErr" style="color:#ff4d6d;font-size:13px;margin-top:10px;text-align:center;display:none"></p>
+    <p style="font-size:12px;color:var(--mu);margin-top:12px;text-align:center">O processamento pode levar 30–60 segundos. Não feche a página.</p>`;
 
   page.appendChild(wrap); ROOT.appendChild(page);
-
   document.getElementById("uBack").onclick = () => go("subjectView");
+
+  // Pré-carrega chave salva
+  sbGetConfig("gemini_api_key").then(k => {
+    if (k) { document.getElementById("uApiKey").value = k; document.getElementById("uApiKey").placeholder = "✅ Chave já configurada — pode substituir"; }
+  }).catch(() => {});
 
   let selectedFile = null;
   const dz  = document.getElementById("dz");
@@ -878,57 +670,55 @@ async function uploadView() {
   const errEl = document.getElementById("upErr");
 
   function pick(file) {
-    if (!file) return;
+    if (!file || !file.name.toLowerCase().endsWith(".pdf")) { alert("Por favor selecione um arquivo PDF."); return; }
     selectedFile = file;
-    document.getElementById("dIco").textContent = fileIcon(file.name);
+    document.getElementById("dIco").textContent = "📄";
     document.getElementById("dLbl").textContent = file.name + " (" + fmtSize(file.size) + ")";
     btn.disabled = false;
     errEl.style.display = "none";
-    dz.classList.remove("drop-on");
   }
 
   dz.onclick = () => fi.click();
   fi.onchange = e => pick(e.target.files[0]);
-  dz.ondragover  = e => { e.preventDefault(); dz.classList.add("drop-on"); };
-  dz.ondragleave = () => dz.classList.remove("drop-on");
-  dz.ondrop = e => { e.preventDefault(); pick(e.dataTransfer.files[0]); };
+  dz.ondragover  = e => { e.preventDefault(); dz.style.borderColor = "var(--ac)"; };
+  dz.ondragleave = () => { dz.style.borderColor = ""; };
+  dz.ondrop = e => { e.preventDefault(); dz.style.borderColor = ""; pick(e.dataTransfer.files[0]); };
 
   btn.onclick = async () => {
     if (!selectedFile) return;
+    const apiKey = document.getElementById("uApiKey").value.trim();
+    if (!apiKey || apiKey.length < 10) { alert("Por favor informe a chave da API Gemini."); document.getElementById("uApiKey").focus(); return; }
+
     btn.disabled = true;
     errEl.style.display = "none";
-
     const progArea = document.getElementById("progArea");
     const progBar  = document.getElementById("progBar");
     const progMsg  = document.getElementById("progMsg");
-
     progArea.style.display = "block";
-    progBar.style.width = "2%";
-    progMsg.textContent = "Conectando ao Supabase…";
+
+    const setStep = (pct, msg) => { progBar.style.width = pct + "%"; progMsg.textContent = msg; };
 
     try {
-      const result = await uploadToSupabase(selectedFile, pct => {
-        progBar.style.width = pct + "%";
-        progMsg.textContent = `Enviando… ${pct}%`;
-      });
+      setStep(5, "Enviando arquivo…");
+      const result = await uploadToSupabase(selectedFile, p => setStep(Math.min(p * 0.3, 30), `Enviando… ${p}%`));
 
-      progBar.style.width = "90%";
-      progMsg.textContent = "Salvando no banco de dados…";
+      setStep(32, "Salvando no banco de dados…");
+      await sbAddFile({ id: gid(), subject_id: S.subjId, name: selectedFile.name, url: result.url, public_id: result.publicId, size: result.bytes || selectedFile.size });
 
-      await sbAddFile({
-        id:          gid(),
-        subject_id:  S.subjId,
-        name:        selectedFile.name,
-        url:         result.url,
-        public_id:   result.publicId,
-        size:        result.bytes || selectedFile.size,
-        resume_link: "",
-      });
+      setStep(38, "Extraindo texto do PDF…");
+      const pdfText = await extractPdfText(result.url);
 
-      progBar.style.width = "100%";
-      progMsg.textContent = "✅ Enviado com sucesso!";
+      setStep(50, "Enviando para a IA Gemini…");
+      const aiData = await processWithGemini(pdfText, selectedFile.name, apiKey, p => setStep(50 + p * 0.4, `Gerando conteúdo educacional… ${p}%`));
 
-      setTimeout(() => go("subjectView"), 800);
+      setStep(93, "Salvando material educacional…");
+      await saveMateriaData(S.subjId, subj?.name || selectedFile.name, aiData);
+
+      // Salva chave para próximo uso
+      await sbSetConfig("gemini_api_key", apiKey).catch(() => {});
+
+      setStep(100, "✅ Processado com sucesso!");
+      setTimeout(() => go("subjectView"), 900);
 
     } catch(e) {
       progArea.style.display = "none";
@@ -938,6 +728,317 @@ async function uploadView() {
       errEl.style.display = "block";
     }
   };
+}
+
+// ── Extrai texto do PDF via PDF.js ────────────────────────────────────────────
+async function extractPdfText(url) {
+  if (!window.pdfjsLib) {
+    await new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  const pdf = await window.pdfjsLib.getDocument({ url, withCredentials: false }).promise;
+  let text = "";
+  const maxPages = Math.min(pdf.numPages, 50);
+  for (let i = 1; i <= maxPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(it => it.str).join(" ") + "\n";
+  }
+  text = text.trim();
+  if (text.length > 100000) text = text.slice(0, 100000);
+  if (!text) throw new Error("Não foi possível extrair texto do PDF. Verifique se o PDF contém texto selecionável.");
+  return text;
+}
+
+// ── Chama Gemini UMA VEZ e gera todo o conteúdo ────────────────────────────────
+async function processWithGemini(text, fileName, apiKey, onProgress) {
+  if (onProgress) onProgress(10);
+
+  const prompt = `Você é um assistente educacional especialista. Analise o documento "${fileName}" e gere material de estudo completo em português brasileiro.
+
+CONTEÚDO DO DOCUMENTO:
+${text.slice(0, 90000)}
+
+Responda APENAS com JSON válido neste formato exato (sem markdown, sem blocos de código):
+{
+  "titulo": "Título principal do conteúdo",
+  "resumo_rapido": "Resumo em 2-3 linhas explicando o tema central",
+  "resumo_detalhado": "Resumo completo em 8-10 linhas cobrindo os principais aspectos",
+  "pontos_chave": ["ponto 1", "ponto 2", "ponto 3", "ponto 4", "ponto 5"],
+  "conceitos": [
+    {"nome": "Nome do conceito", "definicao": "Definição clara e objetiva em 1-2 linhas"}
+  ],
+  "flashcards": [
+    {"pergunta": "Pergunta concisa", "resposta": "Resposta completa e didática"}
+  ],
+  "exercicios": [
+    {"pergunta": "Enunciado claro do exercício", "resposta": "Solução passo a passo"}
+  ],
+  "quiz": [
+    {"pergunta": "Pergunta de múltipla escolha", "alternativas": ["A) opção", "B) opção", "C) opção", "D) opção"], "correta": 0, "explicacao": "Explicação clara da resposta correta"}
+  ]
+}
+
+REQUISITOS:
+- Gere EXATAMENTE: 5 conceitos, 8 flashcards, 4 exercícios, 6 questões de quiz
+- Tudo em português brasileiro
+- Baseie-se APENAS no conteúdo fornecido
+- "correta" é o índice (0-3) da alternativa correta
+- Seja didático e claro`;
+
+  if (onProgress) onProgress(30);
+
+  const res = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + encodeURIComponent(apiKey),
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: 8000, topP: 0.95 }
+      })
+    }
+  );
+
+  if (onProgress) onProgress(80);
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const msg = err.error?.message || "Erro na API Gemini " + res.status;
+    if (res.status === 429) throw new Error("Cota da API esgotada. Aguarde alguns minutos e tente novamente.");
+    if (res.status === 400) throw new Error("Chave da API inválida ou expirada.");
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+  if (!raw) throw new Error("Resposta vazia da API Gemini.");
+
+  let clean = raw.replace(/^```json\s*/gm,"").replace(/^```\s*/gm,"").replace(/```\s*$/gm,"").trim();
+  const match = clean.match(/\{[\s\S]*\}/);
+  if (match) clean = match[0];
+
+  let parsed;
+  try { parsed = JSON.parse(clean); }
+  catch { throw new Error("A IA retornou um formato inválido. Tente novamente."); }
+
+  if (onProgress) onProgress(100);
+  return parsed;
+}
+
+// ── Salva/atualiza o JSON da matéria no Supabase ───────────────────────────────
+// Regra: cada matéria tem APENAS UM registro. Upload novo substitui o existente.
+async function saveMateriaData(subjectId, titulo, dataJson) {
+  // Busca se já existe
+  const existing = await sbFetch("materias?subject_id=eq." + subjectId + "&select=id").catch(() => []);
+
+  const payload = {
+    subject_id: subjectId,
+    titulo: titulo,
+    data_json: dataJson,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (existing && existing.length > 0) {
+    // Atualiza o existente
+    await sbFetch("materias?subject_id=eq." + subjectId, { method: "PATCH", body: payload });
+  } else {
+    // Cria novo
+    await sbFetch("materias", { method: "POST", body: { ...payload, id: gid(), created_at: new Date().toISOString() } });
+  }
+}
+
+// ════════════════════════════════════════════════════
+// PAINEL DE ESTUDO — lê apenas o JSON pré-gerado
+// Nenhuma chamada para IA aqui
+// ════════════════════════════════════════════════════
+function openStudyPanel(subj, dataJson) {
+  document.getElementById("_ai")?.remove();
+
+  const data = typeof dataJson === "string" ? JSON.parse(dataJson) : dataJson;
+
+  const ov = document.createElement("div");
+  ov.className = "ai-panel-ov"; ov.id = "_ai";
+  ov.innerHTML = `
+    <div class="ai-panel">
+      <div class="ai-panel-bar">
+        <span style="font-size:20px">✨</span>
+        <span class="ai-panel-title">Estudar — ${esc(subj.name)}</span>
+        <button class="btn btn-g btn-sm" id="aiClose">✕</button>
+      </div>
+      <div class="ai-tabs" id="aiTabs">
+        <button class="ai-tab on" data-tab="summary">📄 Resumo</button>
+        <button class="ai-tab" data-tab="concepts">💡 Conceitos</button>
+        <button class="ai-tab" data-tab="flashcards">🃏 Flashcards</button>
+        <button class="ai-tab" data-tab="exercises">📝 Exercícios</button>
+        <button class="ai-tab" data-tab="quiz">❓ Quiz</button>
+      </div>
+      <div class="ai-panel-body" id="aiBody"></div>
+    </div>`;
+
+  document.body.appendChild(ov);
+  document.getElementById("aiClose").onclick = () => ov.remove();
+  document.addEventListener("keydown", function escH(e) {
+    if (e.key === "Escape") { ov.remove(); document.removeEventListener("keydown", escH); }
+  });
+
+  renderStudyContent(data, subj.id);
+
+  document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(t => {
+    t.addEventListener("click", () => {
+      document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
+      document.getElementById("aiBody").querySelectorAll(".ai-section").forEach(x => { x.classList.remove("on"); x.style.display = "none"; });
+      t.classList.add("on");
+      const sec = document.getElementById("tab-" + t.dataset.tab);
+      if (sec) { sec.classList.add("on"); sec.style.display = "flex"; }
+      if (t.dataset.tab === "flashcards") recordStudy(subj.id, "flashcards");
+      if (t.dataset.tab === "exercises")  recordStudy(subj.id, "exercises");
+      if (t.dataset.tab === "quiz")       renderQuiz(data.quiz || [], subj.id);
+    });
+  });
+}
+
+function renderStudyContent(data, subjId) {
+  const body = document.getElementById("aiBody");
+  if (!body) return;
+
+  const pontos = data.pontos_chave || data.key_points || [];
+
+  body.innerHTML = `
+    <!-- RESUMO -->
+    <div class="ai-section on" id="tab-summary">
+      <div class="ai-card">
+        <div class="ai-card-title">📄 Resumo Rápido</div>
+        <p>${esc(data.resumo_rapido || data.short_summary || "Não disponível.")}</p>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-title">📋 Resumo Detalhado</div>
+        <p>${esc(data.resumo_detalhado || data.detailed_summary || "Não disponível.")}</p>
+      </div>
+      ${pontos.length ? `
+      <div class="ai-card">
+        <div class="ai-card-title">🎯 Pontos-Chave</div>
+        <div class="summary-points">
+          ${pontos.map(p => `<div class="summary-point"><div class="summary-point-dot"></div><span>${esc(p)}</span></div>`).join("")}
+        </div>
+      </div>` : ""}
+    </div>
+
+    <!-- CONCEITOS -->
+    <div class="ai-section" id="tab-concepts" style="display:none">
+      <div class="ai-card"><div class="ai-card-title">💡 Conceitos-Chave</div></div>
+      ${(data.conceitos || data.concepts || []).map(c => `
+        <div class="concept-item">
+          <div class="concept-dot"></div>
+          <div>
+            <div class="concept-name">${esc(c.nome || c.name)}</div>
+            <div class="concept-def">${esc(c.definicao || c.definition)}</div>
+          </div>
+        </div>`).join("")}
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div class="ai-section" id="tab-flashcards" style="display:none">
+      <div class="ai-card"><div class="ai-card-title">🃏 Flashcards — toque para revelar</div></div>
+      <div class="fc-grid">
+        ${(data.flashcards || []).map(fc => `
+          <div class="fc" onclick="this.classList.toggle('open')">
+            <div class="fc-q">${esc(fc.pergunta || fc.question)}</div>
+            <div class="fc-a">${esc(fc.resposta || fc.answer)}</div>
+            <div class="fc-hint">Toque para ver a resposta</div>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <!-- EXERCÍCIOS -->
+    <div class="ai-section" id="tab-exercises" style="display:none">
+      <div class="ai-card"><div class="ai-card-title">📝 Exercícios Práticos</div></div>
+      ${(data.exercicios || data.exercises || []).map((ex, i) => `
+        <div class="ex-item">
+          <div class="ex-num">Exercício ${i+1}</div>
+          <div class="ex-txt">${esc(ex.pergunta || ex.problem)}</div>
+          <button class="btn btn-g btn-sm" onclick="const a=this.nextElementSibling;a.classList.toggle('on');this.textContent=a.classList.contains('on')?'Ocultar resposta':'Ver resposta'">Ver resposta</button>
+          <div class="ex-ans">${esc(ex.resposta || ex.answer)}</div>
+        </div>`).join("")}
+    </div>
+
+    <!-- QUIZ -->
+    <div class="ai-section" id="tab-quiz" style="display:none">
+      <div class="ai-card"><div class="ai-card-title">❓ Quiz — ${(data.quiz||[]).length} questões</div></div>
+      <div id="quizContainer"></div>
+      <div id="quizScore" class="quiz-score" style="display:none"></div>
+    </div>`;
+}
+
+// ── Quiz adaptativo ───────────────────────────────────────────────────────────
+const QUIZ_STATE = {};
+function initQuizState(id) {
+  if (!QUIZ_STATE[id]) QUIZ_STATE[id] = { difficulty: "medium", streak: 0 };
+}
+function updateQuizDifficulty(id, correct) {
+  const s = QUIZ_STATE[id];
+  if (!s) return;
+  if (correct) { s.streak++; if (s.streak >= 2) { if (s.difficulty==="easy") s.difficulty="medium"; else if (s.difficulty==="medium") s.difficulty="hard"; s.streak=0; } }
+  else { s.streak=0; if (s.difficulty==="hard") s.difficulty="medium"; else if (s.difficulty==="medium") s.difficulty="easy"; }
+}
+
+function renderQuiz(questions, subjId) {
+  initQuizState(subjId);
+  const container = document.getElementById("quizContainer");
+  const scoreEl   = document.getElementById("quizScore");
+  if (!container || container.children.length > 0) return;
+
+  let answered = 0, correct = 0;
+
+  questions.forEach((q, qi) => {
+    const opts = q.alternativas || q.options || [];
+    const div = document.createElement("div");
+    div.className = "quiz-q";
+    div.innerHTML = `
+      <div class="quiz-q-txt">${qi+1}. ${esc(q.pergunta || q.question)}</div>
+      <div class="quiz-opts">${opts.map((opt,oi) => `<button class="quiz-opt" data-oi="${oi}">${esc(opt)}</button>`).join("")}</div>
+      <div class="quiz-exp" id="qexp-${qi}">${esc(q.explicacao || q.explanation || "")}</div>`;
+    container.appendChild(div);
+
+    div.querySelectorAll(".quiz-opt").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (div.dataset.answered) return;
+        div.dataset.answered = "1";
+        answered++;
+        const chosen    = parseInt(btn.dataset.oi);
+        const correctIdx = q.correta !== undefined ? q.correta : q.correct;
+        const isCorrect = chosen === correctIdx;
+        if (isCorrect) correct++;
+        updateQuizDifficulty(subjId, isCorrect);
+        div.querySelectorAll(".quiz-opt").forEach((b, bi) => {
+          b.disabled = true;
+          if (bi === correctIdx) b.classList.add("correct");
+          else if (bi === chosen) b.classList.add("wrong");
+        });
+        document.getElementById(`qexp-${qi}`)?.classList.add("on");
+        if (answered === questions.length) {
+          recordQuizResult(subjId, correct, questions.length);
+          setTimeout(() => {
+            const pct = Math.round(correct / questions.length * 100);
+            const emoji = pct >= 80 ? "🏆" : pct >= 60 ? "👍" : "📚";
+            scoreEl.style.display = "block";
+            scoreEl.innerHTML = `
+              <div style="font-size:32px">${emoji}</div>
+              <div class="quiz-score-num">${pct}%</div>
+              <div style="font-size:14px;color:var(--mu2);margin-top:4px">${correct} de ${questions.length} corretas</div>
+              <button class="btn btn-g btn-sm" style="margin-top:12px" onclick="document.getElementById('quizContainer').innerHTML='';document.getElementById('quizScore').style.display='none';renderQuiz(${JSON.stringify(questions).replace(/</g,'\\u003c')},'${esc(String(subjId))}')">🔄 Refazer</button>`;
+            scoreEl.scrollIntoView({ behavior:"smooth", block:"nearest" });
+          }, 400);
+        }
+      });
+    });
+  });
 }
 
 // ════════════════════════════════════════════════════
@@ -953,19 +1054,19 @@ function settingsView() {
       <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">⚙️ Configurações</h1>
     </div>
     <div class="set-card">
+      <h3>🏗 Arquitetura do Sistema</h3>
+      <p>A IA é chamada <strong>apenas uma vez</strong> quando o ADM faz upload de um PDF. O conteúdo gerado é salvo no banco de dados. Todos os alunos leem os dados prontos — sem nenhuma chamada extra para IA.</p>
+      <div style="background:rgba(56,182,155,.07);border:1px solid rgba(56,182,155,.2);border-radius:var(--r);padding:12px;font-size:12px;color:var(--ac2)">
+        ✅ Sem erros de quota · ✅ Alunos ilimitados · ✅ Mais rápido · ✅ Gratuito para alunos
+      </div>
+    </div>
+    <div class="set-card">
       <h3>Alterar senha do ADM</h3>
       <p>Senha padrão: <strong>adm2024</strong></p>
       <input class="inp" id="nPass" type="password" placeholder="Nova senha (mín. 4 caracteres)"/>
       <button class="btn btn-p" id="sSave">Salvar nova senha</button>
       <p id="sOk" class="ok-msg" style="display:none">✅ Senha atualizada!</p>
       <p id="sErr" style="color:#ff4d6d;font-size:13px;display:none"></p>
-    </div>
-    <div class="set-card">
-      <h3>🤖 Chave da API Gemini (IA)</h3>
-      <p>Necessária para gerar resumos, flashcards e quiz. Obtenha <strong>gratuitamente</strong> em <strong>aistudio.google.com</strong> → Get API Key. A chave fica salva no banco de dados.</p>
-      <input class="inp" id="nApiKey" type="password" placeholder="AIza..."/>
-      <button class="btn btn-p" id="sApiSave">Salvar chave</button>
-      <p id="sApiOk" class="ok-msg" style="display:none">✅ Chave salva!</p>
     </div>`;
   page.appendChild(wrap); ROOT.appendChild(page);
 
@@ -989,515 +1090,27 @@ function settingsView() {
     }
     saveBtn.disabled = false; saveBtn.textContent = "Salvar nova senha";
   };
-
-  document.getElementById("sApiSave").onclick = async () => {
-    const k = document.getElementById("nApiKey").value.trim();
-    if (!k || k.length < 10) { alert("Chave inválida."); return; }
-    const btn = document.getElementById("sApiSave");
-    btn.disabled = true; btn.textContent = "Salvando…";
-    try {
-      await sbSetConfig("gemini_api_key", k);
-      _apiKeyStore.set(k);
-      document.getElementById("nApiKey").value = "";
-      const ok = document.getElementById("sApiOk");
-      ok.style.display = "block";
-      setTimeout(() => { if(ok) ok.style.display="none"; }, 3000);
-    } catch(err) {
-      alert("Erro ao salvar: " + err.message);
-    }
-    btn.disabled = false; btn.textContent = "Salvar chave";
-  };
-  // Mostra se já tem chave salva
-  sbGetConfig("gemini_api_key").then(k => {
-    if (k) document.getElementById("nApiKey").placeholder = "✅ Chave já configurada (AIza...)";
-  }).catch(()=>{});
 }
 
 // ════════════════════════════════════════════════════
-// VISUALIZADOR DE DOCUMENTOS (PDF.js nativo)
+// PROGRESSO
 // ════════════════════════════════════════════════════
-function docViewerBadge(name) {
-  const n = (name || "").toLowerCase();
-  if (n.endsWith(".pdf"))  return ["PDF",  "dvb-pdf"];
-  if (n.endsWith(".docx") || n.endsWith(".doc")) return ["DOCX", "dvb-docx"];
-  if (n.endsWith(".pptx") || n.endsWith(".ppt")) return ["PPT",  "dvb-ppt"];
-  if (n.endsWith(".xlsx") || n.endsWith(".xls")) return ["XLS",  "dvb-xls"];
-  return ["DOC", "dvb-other"];
-}
-
-function canPreview(name) {
-  const n = (name || "").toLowerCase();
-  return n.endsWith(".pdf") || n.endsWith(".docx") || n.endsWith(".doc") ||
-         n.endsWith(".pptx") || n.endsWith(".ppt") ||
-         n.endsWith(".xlsx") || n.endsWith(".xls");
-}
-
-function openDocViewer(fileName, fileUrl) {
-  document.getElementById("_dv")?.remove();
-
-  fileUrl = normalizeCloudinaryUrl(fileUrl);
-
-  const [badgeText, badgeClass] = docViewerBadge(fileName);
-  const n = fileName.toLowerCase();
-  const isPdf  = n.endsWith(".pdf");
-  const isDocx = n.endsWith(".docx") || n.endsWith(".doc");
-
-  const ov = document.createElement("div");
-  ov.className = "doc-viewer-ov";
-  ov.id = "_dv";
-  ov.innerHTML = `
-    <div class="doc-viewer-bar">
-      <span class="doc-viewer-badge ${badgeClass}">${badgeText}</span>
-      <span class="doc-viewer-title">${esc(fileName)}</span>
-      <a href="${esc(fileUrl)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm" style="flex-shrink:0;font-size:12px;padding:5px 11px">⬇ Baixar</a>
-      <button class="btn btn-g btn-sm" id="dvClose" style="flex-shrink:0;font-size:12px;padding:5px 11px">✕</button>
-    </div>
-    <div class="doc-viewer-body" id="dvBody">
-      <div class="doc-viewer-status" id="dvStatus">
-        <div class="spin"></div>
-        <span id="dvStatusMsg">Carregando…</span>
-      </div>
-    </div>`;
-
-  document.body.appendChild(ov);
-
-  const dvClose = document.getElementById("dvClose");
-  dvClose.onclick = () => { ov.remove(); };
-
-  const escH = e => { if (e.key === "Escape") { ov.remove(); document.removeEventListener("keydown", escH); } };
-  document.addEventListener("keydown", escH);
-
-  const dvBody = document.getElementById("dvBody");
-
-  // ── PDF com PDF.js ──────────────────────────────
-  if (isPdf) {
-    openPdfViewer(dvBody, fileUrl, fileName);
-  }
-  // ── DOCX com Mammoth ────────────────────────────
-  else if (isDocx) {
-    openDocxViewer(dvBody, fileUrl);
-  }
-  // ── Office Online (PPT / XLS) ───────────────────
-  else {
-    openOfficeViewer(dvBody, fileUrl);
-  }
-}
-
-// ── PDF Viewer ──────────────────────────────────────
-function openPdfViewer(container, url, fileName) {
-  // Injeta estrutura
-  container.insertAdjacentHTML("beforeend", `
-    <div id="dv-pdf-wrap">
-      <div id="dv-pdf-canvas-layer"></div>
-    </div>
-    <div id="dv-pdf-footer">
-      <button class="dv-nav-btn" id="dvPrev" title="Página anterior">‹</button>
-      <button class="dv-nav-btn" id="dvNext" title="Próxima página">›</button>
-      <div id="dv-pdf-progress-track"><div id="dv-pdf-progress-fill" style="width:0%"></div></div>
-      <span id="dv-pdf-page-lbl">1 / ?</span>
-      <button class="dv-zoom-btn" id="dvZoomOut" title="Reduzir">−</button>
-      <button class="dv-zoom-btn" id="dvZoomIn"  title="Ampliar">+</button>
-    </div>`);
-
-  // Carrega PDF.js dinamicamente
-  if (!window.pdfjsLib) {
-    const s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-    s.onload  = () => initPdf(url);
-    s.onerror = () => showPdfError(container, url, fileName, "Falha ao carregar PDF.js");
-    document.head.appendChild(s);
-  } else {
-    initPdf(url);
-  }
-
-  let pdfDoc = null;
-  let curPage = 1;
-  let scale   = 1.4;
-  let rendering = false;
-
-  // Estado de pan (arrastar)
-  let panX = 0, panY = 0;
-  let startPanX = 0, startPanY = 0;
-  let isPanning = false;
-
-  // Estado de pinch
-  let lastPinchDist = 0;
-
-  // Lista de proxies CORS para tentar em sequência
-  const CORS_PROXIES = [
-    u => u,
-    u => "https://corsproxy.io/?" + encodeURIComponent(u),
-    u => "https://api.allorigins.win/raw?url=" + encodeURIComponent(u),
-  ];
-  let proxyIdx = 0;
-
-  function initPdf(pdfUrl) {
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    tryLoadPdf(pdfUrl);
-  }
-
-  function tryLoadPdf(pdfUrl) {
-    if (proxyIdx >= CORS_PROXIES.length) {
-      fallbackIframe(pdfUrl);
-      return;
-    }
-
-    const proxiedUrl = CORS_PROXIES[proxyIdx](pdfUrl);
-    proxyIdx++;
-
-    const st = document.getElementById("dvStatus");
-    const msg = document.getElementById("dvStatusMsg");
-    if (st) st.style.display = "flex";
-    if (msg) msg.textContent = proxyIdx === 1 ? "Carregando PDF…" : "Tentando método alternativo…";
-
-    let settled = false;
-    const timeout = setTimeout(() => {
-      if (!settled) { settled = true; tryLoadPdf(pdfUrl); }
-    }, 12000);
-
-    window.pdfjsLib.getDocument({ url: proxiedUrl, withCredentials: false, httpHeaders: {} })
-      .promise
-      .then(pdf => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timeout);
-        pdfDoc = pdf;
-        hideStatus();
-        updateNav();
-        renderPage(curPage, true);
-        setupInteractions();
-      })
-      .catch(() => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timeout);
-        tryLoadPdf(pdfUrl);
-      });
-  }
-
-  function fallbackIframe(pdfUrl) {
-    const body = document.getElementById("dvBody");
-    if (!body) return;
-
-    document.getElementById("dv-pdf-wrap")?.remove();
-    document.getElementById("dv-pdf-footer")?.remove();
-
-    const st = document.getElementById("dvStatus");
-    if (st) {
-      st.style.display = "flex";
-      st.innerHTML = `<div class="spin"></div><span style="color:var(--mu2);font-size:12px">Abrindo visualizador externo…</span>`;
-    }
-
-    const iframe = document.createElement("iframe");
-    iframe.style.cssText = "flex:1;width:100%;height:100%;border:none;display:block;";
-    iframe.title = "Visualizador PDF";
-    iframe.src = "https://docs.google.com/gview?url=" + encodeURIComponent(pdfUrl) + "&embedded=true";
-
-    let loaded = false;
-    iframe.onload = () => {
-      loaded = true;
-      if (st) st.style.display = "none";
-    };
-
-    setTimeout(() => {
-      if (!loaded) {
-        showPdfError(body, pdfUrl, fileName,
-          "Não foi possível visualizar este PDF no navegador. Use o botão Baixar para abrir no seu leitor de PDF.");
-      }
-    }, 12000);
-
-    body.appendChild(iframe);
-  }
-
-  function hideStatus() {
-    const st = document.getElementById("dvStatus");
-    if (st) st.style.display = "none";
-  }
-
-  function renderPage(num, resetPan = false) {
-    if (rendering || !pdfDoc) return;
-    rendering = true;
-
-    if (resetPan) { panX = 0; panY = 0; }
-
-    pdfDoc.getPage(num).then(page => {
-      const wrap = document.getElementById("dv-pdf-wrap");
-      if (!wrap) { rendering = false; return; }
-
-      const vp = page.getViewport({ scale });
-      const layer = document.getElementById("dv-pdf-canvas-layer");
-      layer.innerHTML = "";
-
-      const canvas  = document.createElement("canvas");
-      const ctx     = canvas.getContext("2d");
-      canvas.width  = vp.width;
-      canvas.height = vp.height;
-      layer.appendChild(canvas);
-
-      // Centraliza o canvas
-      const ww = wrap.clientWidth;
-      const wh = wrap.clientHeight;
-      const initX = Math.max(0, (ww - vp.width)  / 2);
-      const initY = Math.max(0, (wh - vp.height) / 2);
-      panX = resetPan ? initX : panX;
-      panY = resetPan ? initY : panY;
-      applyTransform();
-
-      page.render({ canvasContext: ctx, viewport: vp }).promise.then(() => {
-        rendering = false;
-        updateProgress();
-      });
-    });
-  }
-
-  function applyTransform() {
-    const layer = document.getElementById("dv-pdf-canvas-layer");
-    if (layer) layer.style.transform = `translate(${panX}px,${panY}px)`;
-  }
-
-  function updateNav() {
-    const prev = document.getElementById("dvPrev");
-    const next = document.getElementById("dvNext");
-    if (prev) prev.disabled = curPage <= 1;
-    if (next) next.disabled = curPage >= (pdfDoc?.numPages || 1);
-  }
-
-  function updateProgress() {
-    const total = pdfDoc?.numPages || 1;
-    const pct   = ((curPage - 1) / Math.max(total - 1, 1)) * 100;
-    const fill  = document.getElementById("dv-pdf-progress-fill");
-    const lbl   = document.getElementById("dv-pdf-page-lbl");
-    if (fill) fill.style.width = pct + "%";
-    if (lbl)  lbl.textContent  = `${curPage} / ${total}`;
-    updateNav();
-  }
-
-  function goPage(n) {
-    if (!pdfDoc) return;
-    const clamped = Math.max(1, Math.min(pdfDoc.numPages, n));
-    if (clamped === curPage) return;
-    curPage = clamped;
-    renderPage(curPage, true);
-  }
-
-  function setupInteractions() {
-    const wrap = document.getElementById("dv-pdf-wrap");
-    if (!wrap) return;
-
-    // Botões de navegação
-    document.getElementById("dvPrev").onclick = () => goPage(curPage - 1);
-    document.getElementById("dvNext").onclick = () => goPage(curPage + 1);
-
-    // Zoom focal: mantém o ponto (px, py) fixo na tela ao mudar escala
-    function applyZoom(newScale, px, py) {
-      newScale = Math.max(0.6, Math.min(4, newScale));
-      const ratio = newScale / scale;
-      panX = px - ratio * (px - panX);
-      panY = py - ratio * (py - panY);
-      scale = newScale;
-      renderPage(curPage, false);
-    }
-
-    // Botões de zoom (zoom focal no centro da tela)
-    document.getElementById("dvZoomIn").onclick = () => {
-      const wrap = document.getElementById("dv-pdf-wrap");
-      applyZoom(scale * 1.25, wrap.clientWidth / 2, wrap.clientHeight / 2);
-    };
-    document.getElementById("dvZoomOut").onclick = () => {
-      const wrap = document.getElementById("dv-pdf-wrap");
-      applyZoom(scale * 0.8, wrap.clientWidth / 2, wrap.clientHeight / 2);
-    };
-
-    // Barra de progresso clicável
-    document.getElementById("dv-pdf-progress-track").onclick = e => {
-      if (!pdfDoc) return;
-      const rect = e.currentTarget.getBoundingClientRect();
-      const pct  = (e.clientX - rect.left) / rect.width;
-      goPage(Math.round(1 + pct * (pdfDoc.numPages - 1)));
-    };
-
-    // ── Touch: pan + pinch + swipe ──────────────
-    let touchStartX = 0, touchStartY = 0;
-    let touchPanX = 0, touchPanY = 0;
-    let swipeStartX = 0;
-
-    wrap.addEventListener("touchstart", e => {
-      if (e.touches.length === 1) {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        touchPanX   = panX;
-        touchPanY   = panY;
-        swipeStartX = e.touches[0].clientX;
-      } else if (e.touches.length === 2) {
-        lastPinchDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY);
-      }
-    }, { passive: true });
-
-    wrap.addEventListener("touchmove", e => {
-      if (e.touches.length === 1) {
-        const dx = e.touches[0].clientX - touchStartX;
-        const dy = e.touches[0].clientY - touchStartY;
-        panX = touchPanX + dx;
-        panY = touchPanY + dy;
-        applyTransform();
-      } else if (e.touches.length === 2) {
-        e.preventDefault();
-        const dist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY);
-        const factor = dist / lastPinchDist;
-        lastPinchDist = dist;
-
-        // Ponto médio dos dois dedos como focal point
-        const rect = wrap.getBoundingClientRect();
-        const mx = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
-        const my = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
-        applyZoom(scale * factor, mx, my);
-      }
-    }, { passive: false });
-
-    wrap.addEventListener("touchend", e => {
-      // Swipe horizontal para trocar página (só se não houve pinch)
-      if (e.changedTouches.length === 1 && e.touches.length === 0) {
-        const dx = e.changedTouches[0].clientX - swipeStartX;
-        if (Math.abs(dx) > 60 && scale <= 1.5) {
-          if (dx < 0) goPage(curPage + 1);
-          else        goPage(curPage - 1);
-        }
-      }
-    }, { passive: true });
-
-    // ── Mouse: pan ──────────────────────────────
-    wrap.addEventListener("mousedown", e => {
-      isPanning = true;
-      startPanX = e.clientX - panX;
-      startPanY = e.clientY - panY;
-      wrap.classList.add("grabbing");
-    });
-    window.addEventListener("mousemove", e => {
-      if (!isPanning) return;
-      panX = e.clientX - startPanX;
-      panY = e.clientY - startPanY;
-      applyTransform();
-    });
-    window.addEventListener("mouseup", () => {
-      isPanning = false;
-      wrap.classList.remove("grabbing");
-    });
-
-    // ── Scroll do mouse: zoom focal no cursor ───────────
-    wrap.addEventListener("wheel", e => {
-      e.preventDefault();
-      const rect = wrap.getBoundingClientRect();
-      const px = e.clientX - rect.left;
-      const py = e.clientY - rect.top;
-      const factor = e.deltaY < 0 ? 1.1 : 0.9;
-      applyZoom(scale * factor, px, py);
-    }, { passive: false });
-
-    // ── Teclado ─────────────────────────────────
-    const keyH = e => {
-      if (!document.getElementById("_dv")) { document.removeEventListener("keydown", keyH); return; }
-      if (e.key === "ArrowRight" || e.key === "ArrowDown")  goPage(curPage + 1);
-      if (e.key === "ArrowLeft"  || e.key === "ArrowUp")    goPage(curPage - 1);
-      if (e.key === "+" || e.key === "=") { const w = document.getElementById("dv-pdf-wrap"); applyZoom(scale * 1.25, w.clientWidth/2, w.clientHeight/2); }
-      if (e.key === "-")                  { const w = document.getElementById("dv-pdf-wrap"); applyZoom(scale * 0.8,  w.clientWidth/2, w.clientHeight/2); }
-    };
-    document.addEventListener("keydown", keyH);
-  }
-}
-
-function showPdfError(container, url, fileName, msg) {
-  const st = document.getElementById("dvStatus");
-  if (st) st.innerHTML = `
-    <span style="font-size:32px">⚠️</span>
-    <span style="color:#f87171;max-width:260px;text-align:center">${esc(msg)}</span>
-    <a href="${esc(url)}" target="_blank" rel="noopener" class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
-}
-
-// ── DOCX Viewer ─────────────────────────────────────
-function openDocxViewer(container, url) {
-  container.insertAdjacentHTML("beforeend", `<div id="dv-docx-out"></div>`);
-
-  // Timeout de segurança para o fetch do DOCX
-  const controller = new AbortController();
-  const docxTimeout = setTimeout(() => controller.abort(), 20000);
-
-  fetch(url, { signal: controller.signal })
-    .then(r => {
-      clearTimeout(docxTimeout);
-      if (!r.ok) throw new Error("HTTP " + r.status + " — arquivo não acessível");
-      return r.arrayBuffer();
-    })
-    .then(buf => mammoth.convertToHtml({ arrayBuffer: buf }))
-    .then(result => {
-      const out = document.getElementById("dv-docx-out");
-      if (!out) return;
-      out.innerHTML = result.value || "<p><em>Documento vazio.</em></p>";
-      const st = document.getElementById("dvStatus");
-      if (st) st.style.display = "none";
-    })
-    .catch(err => {
-      clearTimeout(docxTimeout);
-      const st = document.getElementById("dvStatus");
-      const isAbort = err.name === "AbortError";
-      const msg = isAbort ? "Tempo esgotado ao carregar o documento." : err.message;
-      if (st) st.innerHTML = `
-        <span style="font-size:32px">⚠️</span>
-        <span style="color:#f87171;max-width:260px;text-align:center">${esc(msg)}</span>
-        <a href="${esc(url)}" download class="btn btn-gr btn-sm" style="pointer-events:all">⬇ Baixar arquivo</a>`;
-    });
-}
-
-// ── Office Viewer ────────────────────────────────────
-function openOfficeViewer(container, url) {
-  container.insertAdjacentHTML("beforeend",
-    `<iframe id="dv-office-frame" src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}" title="Visualizador"></iframe>`);
-  const fr = document.getElementById("dv-office-frame");
-  fr.onload = () => { const st = document.getElementById("dvStatus"); if (st) st.style.display = "none"; };
-}
-
-// ════════════════════════════════════════════════════
-// PROGRESSO DE ESTUDOS
-// ════════════════════════════════════════════════════
-function getProgress() {
-  try { return JSON.parse(localStorage.getItem("sn_progress") || "{}"); } catch { return {}; }
-}
-function saveProgress(p) {
-  localStorage.setItem("sn_progress", JSON.stringify(p));
-}
-function recordStudy(fileName, type) {
-  const p = getProgress();
-  const key = fileName;
-  if (!p[key]) p[key] = { fileName, quizzes: 0, flashcards: 0, exercises: 0, lastStudied: null, score: 0, total: 0 };
-  p[key][type] = (p[key][type] || 0) + 1;
-  p[key].lastStudied = new Date().toISOString();
-  saveProgress(p);
-}
-function recordQuizResult(fileName, correct, total) {
-  const p = getProgress();
-  if (!p[fileName]) p[fileName] = { fileName, quizzes: 0, flashcards: 0, exercises: 0, lastStudied: null, score: 0, total: 0 };
-  p[fileName].score = (p[fileName].score || 0) + correct;
-  p[fileName].total = (p[fileName].total || 0) + total;
-  p[fileName].quizzes = (p[fileName].quizzes || 0) + 1;
-  p[fileName].lastStudied = new Date().toISOString();
-  saveProgress(p);
-}
-
-function progressView() {
+async function progressView() {
   const page = document.createElement("div"); page.className = "page";
   page.appendChild(mkHdr());
-  const wrap = document.createElement("main"); wrap.className = "wrap";
+  const wrap = document.createElement("main"); wrap.className = "wrap wrap-sm";
+  page.appendChild(wrap); ROOT.appendChild(page);
 
-  const p = getProgress();
-  const entries = Object.values(p);
-  const totalSessions = entries.reduce((a, e) => a + (e.quizzes||0) + (e.flashcards||0) + (e.exercises||0), 0);
-  const totalCorrect = entries.reduce((a, e) => a + (e.score||0), 0);
-  const totalQ = entries.reduce((a, e) => a + (e.total||0), 0);
+  const d = getStudyData();
+  const entries = Object.entries(d).map(([subjId, v]) => ({ subjId, ...v }));
+  const totalSessions = entries.reduce((a, e) => a + (e.flashcards||0) + (e.exercises||0) + (e.quizzes||0), 0);
+  const totalCorrect  = entries.reduce((a, e) => a + (e.quizScore||0), 0);
+  const totalQ        = entries.reduce((a, e) => a + (e.quizTotal||0), 0);
   const avgScore = totalQ > 0 ? Math.round(totalCorrect / totalQ * 100) : 0;
+
+  // Busca nomes das matérias
+  let subjs = [];
+  try { subjs = await sbGetSubjects(); } catch {}
 
   wrap.innerHTML = `
     <div style="margin-bottom:24px">
@@ -1505,24 +1118,24 @@ function progressView() {
       <h1 style="font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:-.5px">📊 Meu Progresso</h1>
     </div>
     <div class="prog-stats" style="margin-bottom:20px">
-      <div class="prog-stat"><div class="prog-stat-num">${entries.length}</div><div class="prog-stat-lbl">Materiais estudados</div></div>
-      <div class="prog-stat"><div class="prog-stat-num">${totalSessions}</div><div class="prog-stat-lbl">Sessões de estudo</div></div>
-      <div class="prog-stat"><div class="prog-stat-num">${avgScore}%</div><div class="prog-stat-lbl">Média nos quizzes</div></div>
+      <div class="prog-stat"><div class="prog-stat-num">${entries.length}</div><div class="prog-stat-lbl">Matérias estudadas</div></div>
+      <div class="prog-stat"><div class="prog-stat-num">${totalSessions}</div><div class="prog-stat-lbl">Sessões</div></div>
+      <div class="prog-stat"><div class="prog-stat-num">${avgScore}%</div><div class="prog-stat-lbl">Média quiz</div></div>
     </div>
-    ${entries.length === 0 ? `<div class="empty"><div style="font-size:48px">📚</div><p class="empty-title">Nenhum estudo ainda</p><p class="empty-sub">Use o botão ✨ Estudar com IA em qualquer arquivo para começar!</p></div>` : ""}
+    ${entries.length === 0 ? `<div class="empty"><div style="font-size:48px">📚</div><p class="empty-title">Nenhum estudo ainda</p><p class="empty-sub">Use o botão ✨ Estudar com IA em qualquer matéria!</p></div>` : ""}
     <div id="progList" style="display:flex;flex-direction:column;gap:10px"></div>`;
 
-  page.appendChild(wrap); ROOT.appendChild(page);
-  document.getElementById("prBack").onclick = () => history.length > 1 ? history.back() : go("home");
+  document.getElementById("prBack").onclick = () => go("home");
 
   const list = document.getElementById("progList");
   entries.sort((a,b) => new Date(b.lastStudied) - new Date(a.lastStudied)).forEach(e => {
-    const pct = e.total > 0 ? Math.round(e.score / e.total * 100) : 0;
-    const d = document.createElement("div"); d.className = "prog-subject";
-    d.innerHTML = `
+    const subj = subjs.find(s => s.id === e.subjId);
+    const pct = e.quizTotal > 0 ? Math.round(e.quizScore / e.quizTotal * 100) : 0;
+    const d2 = document.createElement("div"); d2.className = "prog-subject";
+    d2.innerHTML = `
       <div class="prog-subject-name">
-        <span class="file-name">${esc(e.fileName)}</span>
-        <span style="color:var(--ac2);font-size:13px">${e.total > 0 ? pct + "% quiz" : ""}</span>
+        <span>${subj ? esc(subj.emoji + " " + subj.name) : esc(e.subjId)}</span>
+        <span style="color:var(--ac2);font-size:13px">${e.quizTotal > 0 ? pct + "% quiz" : ""}</span>
       </div>
       <div class="prog-bar-wrap"><div class="prog-bar-fill" style="width:${Math.min(pct,100)}%"></div></div>
       <div style="display:flex;gap:14px;font-size:12px;color:var(--mu)">
@@ -1531,778 +1144,7 @@ function progressView() {
         <span>❓ ${e.quizzes||0} quizzes</span>
         ${e.lastStudied ? `<span style="margin-left:auto">${fmtDate(e.lastStudied)}</span>` : ""}
       </div>`;
-    list.appendChild(d);
-  });
-}
-
-// ════════════════════════════════════════════════════
-// AI PANEL
-// ════════════════════════════════════════════════════
-const AI_CACHE = {};
-
-// ── Chave da API de IA (closure privado) ─────────────────────────────────
-const _apiKeyStore = (() => {
-  let _k = "";
-  return { get: () => _k, set: v => { _k = String(v || ""); } };
-})();
-function getApiKey() { return _apiKeyStore.get(); }
-async function loadApiKey() {
-  try {
-    const key = await sbGetConfig("gemini_api_key");
-    if (key) _apiKeyStore.set(key);
-  } catch(e) {}
-}
-
-async function extractTextFromUrl(url, fileName) {
-  const n = fileName.toLowerCase();
-
-  if (n.endsWith(".pdf")) {
-    // Carrega PDF.js se necessário
-    if (!window.pdfjsLib) {
-      await new Promise((res, rej) => {
-        const s = document.createElement("script");
-        s.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-        s.onload = res; s.onerror = rej;
-        document.head.appendChild(s);
-      });
-    }
-    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    const pdf = await window.pdfjsLib.getDocument({ url, withCredentials: false }).promise;
-    let text = "";
-    const maxPages = Math.min(pdf.numPages, 50); // limita a 30 páginas
-    for (let i = 1; i <= maxPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map(it => it.str).join(" ") + "\n";
-    }
-    let result = text.trim();
-    if (result.length > 120000) {
-      result = result.slice(0, 120000).trim();
-    }
-    return result; // limita tokens
-  }
-
-  if (n.endsWith(".docx") || n.endsWith(".doc")) {
-    const buf = await fetch(url).then(r => r.arrayBuffer());
-    const result = await mammoth.extractRawText({ arrayBuffer: buf });
-    return result.value.trim().slice(0, 12000);
-  }
-
-  // Para PPT/XLS não conseguimos extrair texto no browser — usa só o nome
-  return `Arquivo: ${fileName}\n(Conteúdo não extraível automaticamente — baseie o material no título do arquivo)`;
-}
-
-// ════════════════════════════════════════════════════
-// FUNÇÕES AUXILIARES DE PROCESSAMENTO DE TEXTO
-// ════════════════════════════════════════════════════
-
-function limitText(text, max = 12000) {
-  /**
-   * Limita o tamanho do texto para evitar estouro de tokens.
-   * @param {string} text - Texto a ser limitado
-   * @param {number} max - Tamanho máximo em caracteres
-   * @returns {string} Texto limitado
-   */
-  if (!text || typeof text !== 'string') return '';
-  if (text.length <= max) return text;
-  return text.substring(0, max).trim();
-}
-
-function chunkText(text, size = 6000) {
-  /**
-   * Divide um texto grande em pedaços menores para processamento.
-   * @param {string} text - Texto a ser dividido
-   * @param {number} size - Tamanho máximo de cada pedaço
-   * @returns {string[]} Array de pedaços de texto
-   */
-  if (!text || typeof text !== 'string') return [];
-  const chunks = [];
-  for (let i = 0; i < text.length; i += size) {
-    chunks.push(text.substring(i, i + size));
-  }
-  return chunks;
-}
-
-function buildPrompt(text, fileName) {
-  /**
-   * Constrói um prompt educacional estruturado para a IA.
-   * @param {string} text - Conteúdo do documento
-   * @param {string} fileName - Nome do arquivo
-   * @returns {string} Prompt formatado
-   */
-  return `Você é um assistente educacional especialista em criar materiais de estudo em português brasileiro.
-
-Analise o seguinte conteúdo de um documento chamado "${fileName}" e gere material de estudo completo e estruturado.
-
-CONTEÚDO DO DOCUMENTO:
-${text}
-
-Responda APENAS com um JSON válido neste formato exato (sem markdown, sem blocos de código, sem texto fora do JSON):
-{
-  "concepts": [
-    {"name": "Nome do conceito", "definition": "Definição clara e objetiva em 1-2 linhas"}
-  ],
-  "flashcards": [
-    {"question": "Pergunta concisa", "answer": "Resposta completa e didática"}
-  ],
-  "exercises": [
-    {"problem": "Enunciado claro do exercício", "answer": "Solução passo a passo"}
-  ],
-  "quiz": [
-    {"question": "Pergunta de múltipla escolha", "options": ["A) opção", "B) opção", "C) opção", "D) opção"], "correct": 0, "explanation": "Explicação clara da resposta correta"}
-  ]
-}
-
-REQUISITOS OBRIGATÓRIOS:
-- Gere EXATAMENTE: 5 conceitos-chave, 8 flashcards, 4 exercícios, 6 questões de quiz
-- Tudo em português brasileiro correto
-- Baseie-se APENAS no conteúdo fornecido
-- correct é o índice (0-3) da opção correta no array options
-- Seja didático, claro e educativo
-- Nível: ensino médio / universitário inicial
-- Não inclua blocos markdown (\`\`\`json, \`\`\`) na resposta`;
-}
-
-// ════════════════════════════════════════════════════
-// INTEGRAÇÃO COM GOOGLE GEMINI 1.5 FLASH
-const ADAPTIVE_QUIZ_STATE = {};
-
-function initializeAdaptiveQuiz(fileName) {
-  if (!ADAPTIVE_QUIZ_STATE[fileName]) {
-    ADAPTIVE_QUIZ_STATE[fileName] = { currentDifficulty: "medium", correctStreak: 0, wrongStreak: 0 };
-  }
-}
-
-function updateQuizDifficulty(fileName, isCorrect) {
-  const state = ADAPTIVE_QUIZ_STATE[fileName];
-  if (!state) return;
-  if (isCorrect) {
-    state.correctStreak++;
-    state.wrongStreak = 0;
-    if (state.correctStreak >= 2) {
-      if (state.currentDifficulty === "easy") state.currentDifficulty = "medium";
-      else if (state.currentDifficulty === "medium") state.currentDifficulty = "hard";
-      state.correctStreak = 0;
-    }
-  } else {
-    state.wrongStreak++;
-    state.correctStreak = 0;
-    if (state.currentDifficulty === "hard") state.currentDifficulty = "medium";
-    else if (state.currentDifficulty === "medium") state.currentDifficulty = "easy";
-    state.wrongStreak = 0;
-  }
-}
-
-function getCurrentQuizDifficulty(fileName) {
-  return ADAPTIVE_QUIZ_STATE[fileName]?.currentDifficulty || "medium";
-}
-
-// ════════════════════════════════════════════════════
-// RESUMO E CHAT COM DOCUMENTO (Gemini)
-// ════════════════════════════════════════════════════
-
-async function generateSummary(text, fileName) {
-  /**
-   * Gera resumo curto, detalhado e tópicos principais do documento.
-   * @param {string} text - Texto extraído do documento
-   * @param {string} fileName - Nome do arquivo
-   * @returns {Promise<Object>} Objeto com resumos e tópicos
-   */
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
-
-  const limitedText = limitText(text, 12000);
-  if (!limitedText) {
-    throw new Error("Não foi possível extrair conteúdo do documento");
-  }
-
-  const prompt = `Você é um especialista em análise de documentos educacionais.
-
-Analise o seguinte documento "${fileName}" e gere:
-1. Um resumo CURTO (máximo 3 linhas)
-2. Um resumo DETALHADO (máximo 10 linhas)
-3. Uma lista de 5-7 tópicos principais
-
-CONTEÚDO DO DOCUMENTO:
-${limitedText}
-
-Responda APENAS com um JSON válido neste formato (sem markdown, sem blocos de código):
-{
-  "short_summary": "Resumo muito breve do documento",
-  "detailed_summary": "Resumo mais completo e detalhado",
-  "key_points": ["Tópico 1", "Tópico 2", "Tópico 3", "Tópico 4", "Tópico 5"]
-}`;
-
-  try {
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + encodeURIComponent(key),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 1500,
-            topP: 0.9,
-            topK: 40
-          }
-        })
-      }
-    );
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || "Erro ao gerar resumo");
-    }
-
-    const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!raw) throw new Error("Resposta vazia do resumo");
-
-    let clean = raw
-      .replace(/^```json\s*/gm, "")
-      .replace(/^```\s*/gm, "")
-      .replace(/```\s*$/gm, "")
-      .trim();
-
-    const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (jsonMatch) clean = jsonMatch[0];
-
-    const result = JSON.parse(clean);
-    return result;
-  } catch (err) {
-    console.error("Erro ao gerar resumo:", err);
-    throw err;
-  }
-}
-
-async function askDocument(question, documentText) {
-  /**
-   * Responde perguntas sobre o documento usando o Gemini.
-   * @param {string} question - Pergunta do usuário
-   * @param {string} documentText - Texto do documento
-   * @returns {Promise<string>} Resposta da IA
-   */
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
-
-  const limitedText = limitText(documentText, 12000);
-  if (!limitedText) {
-    throw new Error("Documento vazio ou inválido");
-  }
-
-  const prompt = `Você é um assistente educacional que responde perguntas baseado APENAS no conteúdo fornecido.
-
-CONTEÚDO DO DOCUMENTO:
-${limitedText}
-
-PERGUNTA DO USUÁRIO:
-${question}
-
-INSTRUÇÕES:
-- Responda APENAS usando informações do documento
-- Se a resposta não estiver no documento, diga: "Esta informação não está disponível no documento fornecido"
-- Seja claro, conciso e educativo
-- Cite a parte relevante do documento quando possível`;
-
-  try {
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + encodeURIComponent(key),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 1000,
-            topP: 0.9,
-            topK: 40
-          }
-        })
-      }
-    );
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || "Erro ao responder pergunta");
-    }
-
-    const data = await res.json();
-    const answer = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!answer) throw new Error("Resposta vazia");
-
-    return answer;
-  } catch (err) {
-    console.error("Erro ao responder pergunta:", err);
-    throw err;
-  }
-}
-
-// ════════════════════════════════════════════════════
-// INTEGRAÇÃO COM GOOGLE GEMINI 1.5 FLASH
-// ════════════════════════════════════════════════════
-
-async function callGemini(text, fileName) {
-  const key = getApiKey();
-  if (!key) throw new Error("NO_KEY");
-
-  // Limita o texto para evitar estouro de tokens
-  const limitedText = limitText(text, 12000);
-  if (!limitedText) {
-    throw new Error("Não foi possível extrair conteúdo do documento");
-  }
-
-  // Se o texto for muito grande, usar chunking
-  const chunks = chunkText(limitedText, 6000);
-  let allResults = {
-    concepts: [],
-    flashcards: [],
-    exercises: [],
-    quiz: []
-  };
-
-  // Se houver múltiplos chunks, processar cada um
-  if (chunks.length > 1) {
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      const prompt = buildPrompt(chunk, `${fileName} (Parte ${i + 1}/${chunks.length})`);
-      
-      try {
-        const result = await processSingleChunk(prompt, key);
-        // Combinar resultados
-        allResults.concepts.push(...(result.concepts || []));
-        allResults.flashcards.push(...(result.flashcards || []));
-        allResults.exercises.push(...(result.exercises || []));
-        allResults.quiz.push(...(result.quiz || []));
-      } catch (err) {
-      }
-    }
-    
-    // Limitar aos números corretos
-    allResults.concepts = allResults.concepts.slice(0, 5);
-    allResults.flashcards = allResults.flashcards.slice(0, 8);
-    allResults.exercises = allResults.exercises.slice(0, 4);
-    allResults.quiz = allResults.quiz.slice(0, 6);
-    
-    return allResults;
-  }
-
-  // Se for um único chunk, processar normalmente
-  const prompt = buildPrompt(limitedText, fileName);
-
-  try {
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + encodeURIComponent(key),
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 4000,
-            topP: 0.95,
-            topK: 40
-          }
-        })
-      }
-    );
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      const errorMsg = err.error?.message || err.message || "Erro desconhecido";
-      throw new Error(`Erro na API Gemini (${res.status}): ${errorMsg}`);
-    }
-
-    const data = await res.json();
-
-    // Extrai o texto da resposta do Gemini
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    if (!raw) {
-      throw new Error("Resposta vazia da API Gemini");
-    }
-
-    // Remove blocos markdown se presentes
-    let clean = raw
-      .replace(/^```json\s*/gm, "")
-      .replace(/^```\s*/gm, "")
-      .replace(/```\s*$/gm, "")
-      .trim();
-
-    // Tenta extrair JSON se estiver dentro de texto
-    const jsonMatch = clean.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      clean = jsonMatch[0];
-    }
-
-    // Converte para JSON
-    let result;
-    try {
-      result = JSON.parse(clean);
-    } catch (parseErr) {
-      throw new Error("Resposta da IA não é um JSON válido");
-    }
-
-    // Valida a estrutura da resposta
-    if (!result.concepts || !result.flashcards || !result.exercises || !result.quiz) {
-      throw new Error("Resposta da IA com estrutura incompleta");
-    }
-
-    return result;
-
-  } catch (err) {
-    if (err.message === "NO_KEY") throw err;
-    throw new Error(err.message || "Erro ao chamar API Gemini");
-  }
-}
-
-async function processSingleChunk(prompt, key) {
-  /**
-   * Processa um único chunk de texto com a API Gemini.
-   * Função auxiliar para callGemini.
-   */
-  const res = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" + encodeURIComponent(key),
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 2000,
-          topP: 0.95,
-          topK: 40
-        }
-      })
-    }
-  );
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || "Erro ao processar chunk");
-  }
-
-  const data = await res.json();
-  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-  if (!raw) throw new Error("Resposta vazia do chunk");
-
-  let clean = raw
-    .replace(/^```json\s*/gm, "")
-    .replace(/^```\s*/gm, "")
-    .replace(/```\s*$/gm, "")
-    .trim();
-
-  const jsonMatch = clean.match(/\{[\s\S]*\}/);
-  if (jsonMatch) clean = jsonMatch[0];
-
-  return JSON.parse(clean);
-}
-
-
-function openAIPanel(fileName, fileUrl) {
-  document.getElementById("_ai")?.remove();
-
-  const ov = document.createElement("div");
-  ov.className = "ai-panel-ov"; ov.id = "_ai";
-  ov.innerHTML = `
-    <div class="ai-panel">
-      <div class="ai-panel-bar">
-        <span style="font-size:20px">✨</span>
-        <span class="ai-panel-title">Estudar com IA — ${esc(fileName)}</span>
-        <button class="btn btn-g btn-sm" id="aiClose">✕</button>
-      </div>
-      <div class="ai-tabs" id="aiTabs" style="display:none">
-        <button class="ai-tab on" data-tab="summary">📄 Resumo</button>
-        <button class="ai-tab" data-tab="concepts">💡 Conceitos</button>
-        <button class="ai-tab" data-tab="flashcards">🃏 Flashcards</button>
-        <button class="ai-tab" data-tab="exercises">📝 Exercícios</button>
-        <button class="ai-tab" data-tab="quiz">❓ Quiz</button>
-        <button class="ai-tab" data-tab="chat">💬 Chat</button>
-      </div>
-      <div class="ai-panel-body" id="aiBody">
-        <div class="ai-loading" id="aiLoading">
-          <div class="spin" style="width:40px;height:40px"></div>
-          <div class="ai-gen-steps">
-            <div class="ai-step active" id="step1"><div class="ai-step-ico">1</div><span>Extraindo texto do documento…</span></div>
-            <div class="ai-step" id="step2"><div class="ai-step-ico">2</div><span>Enviando para o Gemini…</span></div>
-            <div class="ai-step" id="step3"><div class="ai-step-ico">3</div><span>Gerando material de estudo…</span></div>
-            <div class="ai-step" id="step4"><div class="ai-step-ico">4</div><span>Montando conteúdo…</span></div>
-          </div>
-          <p class="ai-loading-txt" id="aiLoadTxt">Isso pode levar alguns segundos…</p>
-        </div>
-      </div>
-    </div>`;
-
-  document.body.appendChild(ov);
-  document.getElementById("aiClose").onclick = () => ov.remove();
-  document.addEventListener("keydown", function escH(e) {
-    if (e.key === "Escape") { ov.remove(); document.removeEventListener("keydown", escH); }
-  });
-
-  // Verifica cache
-  if (AI_CACHE[fileName]) {
-    renderAIContent(AI_CACHE[fileName], fileName);
-    return;
-  }
-
-  // Verifica chave da API
-  if (!getApiKey()) {
-    document.getElementById("aiLoading").innerHTML = `
-      <div class="api-key-prompt">
-        <div style="font-size:40px">🔑</div>
-        <p class="modal-title" style="font-family:var(--fh);font-weight:900;font-size:18px">Chave da API necessária</p>
-        <p>Para gerar material de estudo com IA, o ADM precisa configurar a chave da API Gemini nas configurações.</p>
-        <p style="font-size:12px;color:var(--mu)">Obtenha gratuitamente em <strong>aistudio.google.com</strong></p>
-      </div>`;
-    return;
-  }
-
-  // Gera o material
-  generateAIMaterial(fileName, fileUrl);
-}
-
-async function generateAIMaterial(fileName, fileUrl) {
-  const step = id => {
-    ["step1","step2","step3","step4"].forEach(s => {
-      const el = document.getElementById(s);
-      if (!el) return;
-      const num = parseInt(id.replace("step",""));
-      const cur = parseInt(s.replace("step",""));
-      el.className = "ai-step" + (cur < num ? " done" : cur === num ? " active" : "");
-      if (cur < num) el.querySelector(".ai-step-ico").textContent = "✓";
-    });
-  };
-
-  try {
-    step("step1");
-    const text = await extractTextFromUrl(fileUrl, fileName);
-
-    step("step2");
-    const [data, summary] = await Promise.all([
-      callGemini(text, fileName),
-      generateSummary(text, fileName).catch(() => null),
-    ]);
-
-    step("step3");
-    await new Promise(r => setTimeout(r, 300));
-
-    step("step4");
-    await new Promise(r => setTimeout(r, 200));
-
-    AI_CACHE[fileName] = { ...data, summary, docText: text };
-    renderAIContent(AI_CACHE[fileName], fileName);
-
-  } catch(err) {
-    const loading = document.getElementById("aiLoading");
-    if (!loading) return;
-    if (err.message === "NO_KEY") {
-      loading.innerHTML = `<div class="api-key-prompt"><div style="font-size:40px">🔑</div><p style="font-family:var(--fh);font-weight:900;font-size:18px">Chave não configurada</p><p>O ADM precisa adicionar a chave da API Gemini nas ⚙️ Configurações.</p></div>`;
-    } else {
-      loading.innerHTML = `<div style="text-align:center;padding:32px"><div style="font-size:40px">⚠️</div><p style="color:#f87171;margin-top:12px;font-size:14px">${esc(err.message)}</p><button class="btn btn-p" style="margin-top:16px" onclick="generateAIMaterial('${esc(fileName)}','${esc(fileUrl)}')">Tentar novamente</button></div>`;
-    }
-  }
-}
-
-function renderAIContent(data, fileName) {
-  const body = document.getElementById("aiBody");
-  const tabs = document.getElementById("aiTabs");
-  if (!body || !tabs) return;
-  tabs.style.display = "flex";
-
-  const sum = data.summary;
-
-  body.innerHTML = `
-    <!-- RESUMO -->
-    <div class="ai-section on" id="tab-summary">
-      <div class="ai-card">
-        <div class="ai-card-title">📄 Resumo Rápido</div>
-        <p>${esc(sum?.short_summary || "Resumo não disponível.")}</p>
-      </div>
-      <div class="ai-card">
-        <div class="ai-card-title">📋 Resumo Detalhado</div>
-        <p>${esc(sum?.detailed_summary || "Resumo detalhado não disponível.")}</p>
-      </div>
-      ${sum?.key_points?.length ? `
-      <div class="ai-card">
-        <div class="ai-card-title">🎯 Pontos-Chave</div>
-        <div class="summary-points">
-          ${sum.key_points.map(p => `
-            <div class="summary-point">
-              <div class="summary-point-dot"></div>
-              <span>${esc(p)}</span>
-            </div>`).join("")}
-        </div>
-      </div>` : ""}
-    </div>
-
-    <!-- CONCEITOS -->
-    <div class="ai-section" id="tab-concepts">
-      <div class="ai-card"><div class="ai-card-title">💡 Conceitos-Chave</div></div>
-      ${(data.concepts||[]).map(c => `
-        <div class="concept-item">
-          <div class="concept-dot"></div>
-          <div><div class="concept-name">${esc(c.name)}</div><div class="concept-def">${esc(c.definition)}</div></div>
-        </div>`).join("")}
-    </div>
-
-    <!-- FLASHCARDS -->
-    <div class="ai-section" id="tab-flashcards">
-      <div class="ai-card"><div class="ai-card-title">🃏 Flashcards — toque para revelar</div></div>
-      <div class="fc-grid">
-        ${(data.flashcards||[]).map(fc => `
-          <div class="fc" onclick="this.classList.toggle('open')">
-            <div class="fc-q">${esc(fc.question)}</div>
-            <div class="fc-a">${esc(fc.answer)}</div>
-            <div class="fc-hint">Toque para ver a resposta</div>
-          </div>`).join("")}
-      </div>
-    </div>
-
-    <!-- EXERCÍCIOS -->
-    <div class="ai-section" id="tab-exercises">
-      <div class="ai-card"><div class="ai-card-title">📝 Exercícios Práticos</div></div>
-      ${(data.exercises||[]).map((ex,i) => `
-        <div class="ex-item">
-          <div class="ex-num">Exercício ${i+1}</div>
-          <div class="ex-txt">${esc(ex.problem)}</div>
-          <button class="btn btn-g btn-sm" onclick="const a=this.nextElementSibling;a.classList.toggle('on');this.textContent=a.classList.contains('on')?'Ocultar resposta':'Ver resposta'">Ver resposta</button>
-          <div class="ex-ans">${esc(ex.answer)}</div>
-        </div>`).join("")}
-    </div>
-
-    <!-- QUIZ -->
-    <div class="ai-section" id="tab-quiz">
-      <div class="ai-card"><div class="ai-card-title">❓ Quiz — ${(data.quiz||[]).length} questões</div></div>
-      <div id="quizContainer"></div>
-      <div id="quizScore" class="quiz-score" style="display:none"></div>
-    </div>
-
-    <!-- CHAT -->
-    <div class="ai-section" id="tab-chat" style="height:100%;display:none;flex-direction:column;gap:10px">
-      <div class="ai-card"><div class="ai-card-title">💬 Pergunte sobre o documento</div></div>
-      <div class="ai-card" style="flex:1;display:flex;flex-direction:column;gap:12px;min-height:260px">
-        <div class="chat-msgs" id="chatMsgs"></div>
-        <div class="chat-input-row">
-          <input class="inp" id="chatInput" placeholder="Digite sua pergunta…" autocomplete="off"/>
-          <button class="chat-send" id="chatSend">Enviar</button>
-        </div>
-      </div>
-    </div>`;
-
-  // ── Tabs ──
-  tabs.querySelectorAll(".ai-tab").forEach(t => {
-    t.addEventListener("click", () => {
-      tabs.querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
-      body.querySelectorAll(".ai-section").forEach(x => { x.classList.remove("on"); x.style.display = "none"; });
-      t.classList.add("on");
-      const sec = document.getElementById("tab-" + t.dataset.tab);
-      if (sec) { sec.classList.add("on"); sec.style.display = "flex"; }
-      if (t.dataset.tab === "flashcards") recordStudy(fileName, "flashcards");
-      if (t.dataset.tab === "exercises")  recordStudy(fileName, "exercises");
-      if (t.dataset.tab === "quiz")       renderQuiz(data.quiz||[], fileName);
-    });
-  });
-
-  // ── Chat wiring ──
-  const docText = data.docText || "";
-  const chatMsgs = document.getElementById("chatMsgs");
-  const chatInput = document.getElementById("chatInput");
-  const chatSend  = document.getElementById("chatSend");
-
-  const appendMsg = (text, role) => {
-    const d = document.createElement("div");
-    d.className = `chat-msg ${role}`;
-    d.innerHTML = `<div class="chat-bubble">${esc(text)}</div>`;
-    chatMsgs.appendChild(d);
-    chatMsgs.scrollTop = chatMsgs.scrollHeight;
-    return d;
-  };
-
-  const sendChat = async () => {
-    const q = chatInput.value.trim();
-    if (!q) return;
-    chatInput.value = "";
-    chatSend.disabled = true;
-    appendMsg(q, "user");
-    const thinking = appendMsg("Pensando…", "ai thinking");
-    try {
-      const ans = await askDocument(q, docText);
-      thinking.querySelector(".chat-bubble").textContent = ans;
-      thinking.classList.remove("thinking");
-    } catch(e) {
-      thinking.querySelector(".chat-bubble").textContent = "❌ " + e.message;
-    }
-    chatSend.disabled = false;
-    chatInput.focus();
-  };
-
-  chatSend.addEventListener("click", sendChat);
-  chatInput.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } });
-}
-
-function renderQuiz(questions, fileName) {
-  initializeAdaptiveQuiz(fileName);
-  questions = questions.map(q => ({
-    ...q,
-    difficulty: q.difficulty || getCurrentQuizDifficulty(fileName),
-  }));
-  const container = document.getElementById("quizContainer");
-  const scoreEl   = document.getElementById("quizScore");
-  if (!container || container.children.length > 0) return;
-
-  let answered = 0, correct = 0;
-
-  questions.forEach((q, qi) => {
-    const div = document.createElement("div");
-    div.className = "quiz-q";
-    div.innerHTML = `
-      <div class="quiz-q-txt">${qi+1}. ${esc(q.question)}</div>
-      <div class="quiz-opts">
-        ${(q.options||[]).map((opt,oi) => `<button class="quiz-opt" data-oi="${oi}">${esc(opt)}</button>`).join("")}
-      </div>
-      <div class="quiz-exp" id="qexp-${qi}">${esc(q.explanation||"")}</div>`;
-    container.appendChild(div);
-
-    div.querySelectorAll(".quiz-opt").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (div.dataset.answered) return;
-        div.dataset.answered = "1";
-        answered++;
-        const chosen    = parseInt(btn.dataset.oi);
-        const isCorrect = chosen === q.correct;
-        if (isCorrect) correct++;
-
-        // ── Atualiza dificuldade adaptativa aqui, onde a resposta é conhecida ──
-        updateQuizDifficulty(fileName, isCorrect);
-
-        div.querySelectorAll(".quiz-opt").forEach((b, bi) => {
-          b.disabled = true;
-          if (bi === q.correct) b.classList.add("correct");
-          else if (bi === chosen) b.classList.add("wrong");
-        });
-        document.getElementById(`qexp-${qi}`)?.classList.add("on");
-
-        if (answered === questions.length) {
-          recordQuizResult(fileName, correct, questions.length);
-          setTimeout(() => {
-            const pct   = Math.round(correct / questions.length * 100);
-            const emoji = pct >= 80 ? "🏆" : pct >= 60 ? "👍" : "📚";
-            scoreEl.style.display = "block";
-            scoreEl.innerHTML = `
-              <div style="font-size:32px">${emoji}</div>
-              <div class="quiz-score-num">${pct}%</div>
-              <div style="font-size:14px;color:var(--mu2);margin-top:4px">${correct} de ${questions.length} corretas</div>
-              <div style="font-size:12px;color:var(--mu);margin-top:4px">Dificuldade adaptativa: ${getCurrentQuizDifficulty(fileName)}</div>
-              <button class="btn btn-g btn-sm" style="margin-top:12px" onclick="document.getElementById('quizContainer').innerHTML='';document.getElementById('quizScore').style.display='none';renderQuiz(${JSON.stringify(questions).replace(/</g,'\\u003c')},'${esc(fileName)}')">🔄 Refazer</button>`;
-            scoreEl.scrollIntoView({ behavior:"smooth", block:"nearest" });
-          }, 400);
-        }
-      });
-    });
+    list.appendChild(d2);
   });
 }
 
@@ -2310,20 +1152,8 @@ function renderQuiz(questions, fileName) {
 // BOOT
 // ════════════════════════════════════════════════════
 window.addEventListener("DOMContentLoaded", () => {
-  boot();
+  S.role ? go("home") : go("gate");
 });
-
-async function boot() {
-  try {
-    await Promise.race([
-      loadApiKey(),
-      new Promise(res => setTimeout(res, 3000))
-    ]).catch(() => {});
-    S.role ? go("home") : go("gate");
-  } catch (e) {
-    go("gate");
-  }
-}
 </script>
 </body>
 </html>
