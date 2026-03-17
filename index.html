@@ -549,7 +549,7 @@ async function subjectView() {
       </div>
       <div class="subj-meta" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <span>${fs.length} arquivo(s)</span>
-        ${materiaData ? `<span class="ai-badge">✨ Material IA disponível — atualizado ${fmtDate(materiaData.updated_at||materiaData.created_at)}</span>` : `<span class="ai-badge ai-badge-pending">⏳ Sem material IA ainda</span>`}
+        ${materiaData ? (() => { const parsed = typeof materiaData.data_json === "string" ? JSON.parse(materiaData.data_json) : materiaData.data_json; const n = parsed?.pdfs?.length || 1; return `<span class="ai-badge">✨ ${n} PDF${n>1?"s":""} processado${n>1?"s":""} — atualizado ${fmtDate(materiaData.updated_at||materiaData.created_at)}</span>`; })() : `<span class="ai-badge ai-badge-pending">⏳ Sem material IA ainda</span>`}
       </div>
     </div>
 
@@ -752,7 +752,7 @@ async function uploadView() {
       const aiData = await processWithAI(provider, pdfText, selectedFile.name, apiKey, p => setStep(50 + p * 0.4, `Gerando conteúdo educacional… ${p}%`));
 
       setStep(93, "Salvando material educacional…");
-      await saveMateriaData(S.subjId, subj?.name || selectedFile.name, aiData);
+      await saveMateriaData(S.subjId, subj?.name || selectedFile.name, aiData, selectedFile.name);
 
       // Salva chave para próximo uso (por provedor)
       const cfgKey = provider === "groq" ? "groq_api_key" : "gemini_api_key";
@@ -924,23 +924,35 @@ function parseAIResponse(raw, onProgress) {
 }
 // ── Salva/atualiza o JSON da matéria no Supabase ───────────────────────────────
 // Regra: cada matéria tem APENAS UM registro. Upload novo substitui o existente.
-async function saveMateriaData(subjectId, titulo, dataJson) {
-  // Busca se já existe
-  const existing = await sbFetch("materias?subject_id=eq." + subjectId + "&select=id").catch(() => []);
+async function saveMateriaData(subjectId, titulo, dataJson, nomeArquivo) {
+  // Busca registro existente da matéria
+  const existing = await sbFetch("materias?subject_id=eq." + subjectId + "&select=*").catch(() => []);
 
-  const payload = {
-    subject_id: subjectId,
-    titulo: titulo,
-    data_json: dataJson,
-    updated_at: new Date().toISOString(),
+  const novoPdf = {
+    nome: nomeArquivo || titulo,
+    data: new Date().toISOString(),
+    ...dataJson,
   };
 
+  let pdfs = [];
   if (existing && existing.length > 0) {
-    // Atualiza o existente
-    await sbFetch("materias?subject_id=eq." + subjectId, { method: "PATCH", body: payload });
+    // Lê array atual e adiciona novo PDF
+    const atual = existing[0].data_json;
+    const parsed = typeof atual === "string" ? JSON.parse(atual) : atual;
+    pdfs = Array.isArray(parsed?.pdfs) ? parsed.pdfs : [];
+    // Remove se já existe PDF com mesmo nome (re-upload do mesmo arquivo = atualiza)
+    pdfs = pdfs.filter(p => p.nome !== novoPdf.nome);
+    pdfs.push(novoPdf);
+    await sbFetch("materias?subject_id=eq." + subjectId, {
+      method: "PATCH",
+      body: { data_json: { pdfs }, updated_at: new Date().toISOString() }
+    });
   } else {
-    // Cria novo
-    await sbFetch("materias", { method: "POST", body: { ...payload, id: gid(), created_at: new Date().toISOString() } });
+    pdfs = [novoPdf];
+    await sbFetch("materias", {
+      method: "POST",
+      body: { id: gid(), subject_id: subjectId, titulo, data_json: { pdfs }, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    });
   }
 }
 
@@ -951,10 +963,22 @@ async function saveMateriaData(subjectId, titulo, dataJson) {
 function openStudyPanel(subj, dataJson) {
   document.getElementById("_ai")?.remove();
 
-  const data = typeof dataJson === "string" ? JSON.parse(dataJson) : dataJson;
+  const raw = typeof dataJson === "string" ? JSON.parse(dataJson) : dataJson;
+  // Suporte ao formato novo (array de PDFs) e legado (objeto único)
+  const pdfs = Array.isArray(raw?.pdfs) ? raw.pdfs : [{ nome: subj.name, ...raw }];
 
   const ov = document.createElement("div");
   ov.className = "ai-panel-ov"; ov.id = "_ai";
+
+  // Abas de PDFs (só mostra se tiver mais de 1)
+  const pdfTabsHtml = pdfs.length > 1
+    ? `<div id="pdfTabs" style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px 0;background:rgba(8,8,18,.6);border-bottom:1px solid var(--bd);flex-shrink:0;overflow-x:auto">
+        ${pdfs.map((p, i) => `<button class="pdf-tab${i===0?" pdf-tab-on":""}" data-pi="${i}" style="background:${i===0?"rgba(99,76,220,.25)":"var(--sf2)"};border:1px solid ${i===0?"rgba(99,76,220,.5)":"var(--bd2)"};color:${i===0?"#c4b5fd":"var(--mu2)"};border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s">
+          📄 ${esc(p.nome || ("PDF " + (i+1)))}
+        </button>`).join("")}
+       </div>`
+    : "";
+
   ov.innerHTML = `
     <div class="ai-panel">
       <div class="ai-panel-bar">
@@ -962,6 +986,7 @@ function openStudyPanel(subj, dataJson) {
         <span class="ai-panel-title">Estudar — ${esc(subj.name)}</span>
         <button class="btn btn-g btn-sm" id="aiClose">✕</button>
       </div>
+      ${pdfTabsHtml}
       <div class="ai-tabs" id="aiTabs">
         <button class="ai-tab on" data-tab="summary">📄 Resumo</button>
         <button class="ai-tab" data-tab="concepts">💡 Conceitos</button>
@@ -978,8 +1003,33 @@ function openStudyPanel(subj, dataJson) {
     if (e.key === "Escape") { ov.remove(); document.removeEventListener("keydown", escH); }
   });
 
-  renderStudyContent(data, subj.id);
+  // Índice do PDF ativo
+  let activePdfIdx = 0;
 
+  function switchPdf(idx) {
+    activePdfIdx = idx;
+    // Atualiza visual das abas de PDF
+    ov.querySelectorAll(".pdf-tab").forEach((b, i) => {
+      const on = i === idx;
+      b.style.background = on ? "rgba(99,76,220,.25)" : "var(--sf2)";
+      b.style.borderColor = on ? "rgba(99,76,220,.5)" : "var(--bd2)";
+      b.style.color       = on ? "#c4b5fd" : "var(--mu2)";
+    });
+    // Volta sempre para aba Resumo ao trocar de PDF
+    document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
+    document.getElementById("aiTabs").querySelector("[data-tab='summary']").classList.add("on");
+    renderStudyContent(pdfs[idx], subj.id);
+  }
+
+  // Wiring das abas de PDF
+  ov.querySelectorAll(".pdf-tab").forEach(b => {
+    b.addEventListener("click", () => switchPdf(parseInt(b.dataset.pi)));
+  });
+
+  // Renderiza o primeiro PDF
+  renderStudyContent(pdfs[0], subj.id);
+
+  // Wiring das abas de conteúdo
   document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(t => {
     t.addEventListener("click", () => {
       document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
@@ -989,7 +1039,7 @@ function openStudyPanel(subj, dataJson) {
       if (sec) { sec.classList.add("on"); sec.style.display = "flex"; }
       if (t.dataset.tab === "flashcards") recordStudy(subj.id, "flashcards");
       if (t.dataset.tab === "exercises")  recordStudy(subj.id, "exercises");
-      if (t.dataset.tab === "quiz")       renderQuiz(data.quiz || [], subj.id);
+      if (t.dataset.tab === "quiz")       renderQuiz(pdfs[activePdfIdx].quiz || [], subj.id + "_" + activePdfIdx);
     });
   });
 }
@@ -1003,6 +1053,7 @@ function renderStudyContent(data, subjId) {
   body.innerHTML = `
     <!-- RESUMO -->
     <div class="ai-section on" id="tab-summary">
+      ${data.nome ? `<div style="font-size:12px;color:var(--mu);margin-bottom:4px;font-weight:600">📄 ${esc(data.nome)}</div>` : ""}
       <div class="ai-card">
         <div class="ai-card-title">📄 Resumo Rápido</div>
         <p>${esc(data.resumo_rapido || data.short_summary || "Não disponível.")}</p>
