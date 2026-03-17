@@ -599,7 +599,13 @@ async function subjectView() {
 
     card.querySelector(`[data-del="${f.id}"]`)?.addEventListener("click", async () => {
       if (!confirm(`Excluir "${f.name}"?`)) return;
-      try { await sbDelFile(f.id); go("subjectView"); }
+      try {
+        // 1. Remove o arquivo
+        await sbDelFile(f.id);
+        // 2. Remove a entrada correspondente no array de PDFs da matéria
+        await removePdfFromMateria(S.subjId, f.name);
+        go("subjectView");
+      }
       catch(err) { alert("Erro ao excluir: " + err.message); }
     });
   });
@@ -952,6 +958,32 @@ async function saveMateriaData(subjectId, titulo, dataJson, nomeArquivo) {
     await sbFetch("materias", {
       method: "POST",
       body: { id: gid(), subject_id: subjectId, titulo, data_json: { pdfs }, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
+    });
+  }
+}
+
+// ── Remove um PDF específico do array da matéria ─────────────────────────────
+async function removePdfFromMateria(subjectId, nomeArquivo) {
+  const existing = await sbFetch("materias?subject_id=eq." + subjectId + "&select=*").catch(() => []);
+  if (!existing || existing.length === 0) return; // nada a fazer
+
+  const atual = existing[0].data_json;
+  const parsed = typeof atual === "string" ? JSON.parse(atual) : atual;
+  const pdfs = Array.isArray(parsed?.pdfs) ? parsed.pdfs : [];
+
+  const novoPdfs = pdfs.filter(p => p.nome !== nomeArquivo);
+
+  if (novoPdfs.length === 0) {
+    // Sem PDFs restantes: apaga o registro inteiro da matéria
+    await sbFetch("materias?subject_id=eq." + subjectId, {
+      method: "DELETE",
+      headers: { "Prefer": "return=minimal" }
+    });
+  } else {
+    // Atualiza mantendo os demais PDFs
+    await sbFetch("materias?subject_id=eq." + subjectId, {
+      method: "PATCH",
+      body: { data_json: { pdfs: novoPdfs }, updated_at: new Date().toISOString() }
     });
   }
 }
