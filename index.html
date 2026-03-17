@@ -996,21 +996,22 @@ function openStudyPanel(subj, dataJson) {
   document.getElementById("_ai")?.remove();
 
   const raw = typeof dataJson === "string" ? JSON.parse(dataJson) : dataJson;
-  // Suporte ao formato novo (array de PDFs) e legado (objeto único)
   const pdfs = Array.isArray(raw?.pdfs) ? raw.pdfs : [{ nome: subj.name, ...raw }];
+
+  // Mescla tudo de todos os PDFs numa visão única, separando por tópico
+  const todosResumos    = pdfs.map(p => ({
+    nome: p.nome || p.titulo || "PDF",
+    resumo_rapido:    p.resumo_rapido    || p.short_summary    || "",
+    resumo_detalhado: p.resumo_detalhado || p.detailed_summary || "",
+    pontos_chave:     p.pontos_chave     || p.key_points       || [],
+  }));
+  const todosConceitos  = pdfs.flatMap((p, i) => (p.conceitos || p.concepts || []).map(c => ({ ...c, _pdf: p.nome || ("PDF " + (i+1)) })));
+  const todosFlashcards = pdfs.flatMap((p, i) => (p.flashcards || []).map(f => ({ ...f, _pdf: p.nome || ("PDF " + (i+1)) })));
+  const todosExercicios = pdfs.flatMap((p, i) => (p.exercicios || p.exercises || []).map(e => ({ ...e, _pdf: p.nome || ("PDF " + (i+1)) })));
+  const todosQuiz       = pdfs.flatMap((p, i) => (p.quiz || []).map(q => ({ ...q, _pdf: p.nome || ("PDF " + (i+1)) })));
 
   const ov = document.createElement("div");
   ov.className = "ai-panel-ov"; ov.id = "_ai";
-
-  // Abas de PDFs (só mostra se tiver mais de 1)
-  const pdfTabsHtml = pdfs.length > 1
-    ? `<div id="pdfTabs" style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 16px 0;background:rgba(8,8,18,.6);border-bottom:1px solid var(--bd);flex-shrink:0;overflow-x:auto">
-        ${pdfs.map((p, i) => `<button class="pdf-tab${i===0?" pdf-tab-on":""}" data-pi="${i}" style="background:${i===0?"rgba(99,76,220,.25)":"var(--sf2)"};border:1px solid ${i===0?"rgba(99,76,220,.5)":"var(--bd2)"};color:${i===0?"#c4b5fd":"var(--mu2)"};border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s">
-          📄 ${esc(p.nome || ("PDF " + (i+1)))}
-        </button>`).join("")}
-       </div>`
-    : "";
-
   ov.innerHTML = `
     <div class="ai-panel">
       <div class="ai-panel-bar">
@@ -1018,7 +1019,6 @@ function openStudyPanel(subj, dataJson) {
         <span class="ai-panel-title">Estudar — ${esc(subj.name)}</span>
         <button class="btn btn-g btn-sm" id="aiClose">✕</button>
       </div>
-      ${pdfTabsHtml}
       <div class="ai-tabs" id="aiTabs">
         <button class="ai-tab on" data-tab="summary">📄 Resumo</button>
         <button class="ai-tab" data-tab="concepts">💡 Conceitos</button>
@@ -1035,33 +1035,8 @@ function openStudyPanel(subj, dataJson) {
     if (e.key === "Escape") { ov.remove(); document.removeEventListener("keydown", escH); }
   });
 
-  // Índice do PDF ativo
-  let activePdfIdx = 0;
+  renderStudyContent({ todosResumos, todosConceitos, todosFlashcards, todosExercicios, todosQuiz }, subj.id);
 
-  function switchPdf(idx) {
-    activePdfIdx = idx;
-    // Atualiza visual das abas de PDF
-    ov.querySelectorAll(".pdf-tab").forEach((b, i) => {
-      const on = i === idx;
-      b.style.background = on ? "rgba(99,76,220,.25)" : "var(--sf2)";
-      b.style.borderColor = on ? "rgba(99,76,220,.5)" : "var(--bd2)";
-      b.style.color       = on ? "#c4b5fd" : "var(--mu2)";
-    });
-    // Volta sempre para aba Resumo ao trocar de PDF
-    document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
-    document.getElementById("aiTabs").querySelector("[data-tab='summary']").classList.add("on");
-    renderStudyContent(pdfs[idx], subj.id);
-  }
-
-  // Wiring das abas de PDF
-  ov.querySelectorAll(".pdf-tab").forEach(b => {
-    b.addEventListener("click", () => switchPdf(parseInt(b.dataset.pi)));
-  });
-
-  // Renderiza o primeiro PDF
-  renderStudyContent(pdfs[0], subj.id);
-
-  // Wiring das abas de conteúdo
   document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(t => {
     t.addEventListener("click", () => {
       document.getElementById("aiTabs").querySelectorAll(".ai-tab").forEach(x => x.classList.remove("on"));
@@ -1071,79 +1046,119 @@ function openStudyPanel(subj, dataJson) {
       if (sec) { sec.classList.add("on"); sec.style.display = "flex"; }
       if (t.dataset.tab === "flashcards") recordStudy(subj.id, "flashcards");
       if (t.dataset.tab === "exercises")  recordStudy(subj.id, "exercises");
-      if (t.dataset.tab === "quiz")       renderQuiz(pdfs[activePdfIdx].quiz || [], subj.id + "_" + activePdfIdx);
+      if (t.dataset.tab === "quiz")       renderQuiz(todosQuiz, subj.id);
     });
   });
 }
 
-function renderStudyContent(data, subjId) {
+function pdfSeparador(nome) {
+  return `<div style="display:flex;align-items:center;gap:8px;margin:18px 0 10px">
+    <div style="flex:1;height:1px;background:var(--bd2)"></div>
+    <span style="font-size:11px;font-weight:700;color:var(--mu2);white-space:nowrap;padding:3px 10px;background:var(--sf2);border:1px solid var(--bd2);border-radius:99px">📄 ${esc(nome)}</span>
+    <div style="flex:1;height:1px;background:var(--bd2)"></div>
+  </div>`;
+}
+
+function renderStudyContent({ todosResumos, todosConceitos, todosFlashcards, todosExercicios, todosQuiz }, subjId) {
   const body = document.getElementById("aiBody");
   if (!body) return;
 
-  const pontos = data.pontos_chave || data.key_points || [];
+  // ── RESUMO: todos os PDFs em sequência ──
+  const resumoHtml = todosResumos.map((r, i) => `
+    ${i > 0 ? '<div style="height:1px;background:var(--bd2);margin:8px 0"></div>' : ""}
+    <div style="font-size:11px;font-weight:700;color:var(--mu2);padding:4px 10px;background:var(--sf2);border:1px solid var(--bd2);border-radius:99px;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px">📄 ${esc(r.nome)}</div>
+    <div class="ai-card" style="margin-bottom:8px">
+      <div class="ai-card-title">📄 Resumo Rápido</div>
+      <p>${esc(r.resumo_rapido || "Não disponível.")}</p>
+    </div>
+    <div class="ai-card" style="margin-bottom:8px">
+      <div class="ai-card-title">📋 Resumo Detalhado</div>
+      <p>${esc(r.resumo_detalhado || "Não disponível.")}</p>
+    </div>
+    ${r.pontos_chave.length ? `
+    <div class="ai-card" style="margin-bottom:8px">
+      <div class="ai-card-title">🎯 Pontos-Chave</div>
+      <div class="summary-points">
+        ${r.pontos_chave.map(p => `<div class="summary-point"><div class="summary-point-dot"></div><span>${esc(p)}</span></div>`).join("")}
+      </div>
+    </div>` : ""}
+  `).join("");
+
+  // ── CONCEITOS: agrupa por PDF ──
+  let conceitosHtml = "";
+  let ultimoPdfC = null;
+  todosConceitos.forEach(c => {
+    if (c._pdf !== ultimoPdfC) { conceitosHtml += pdfSeparador(c._pdf); ultimoPdfC = c._pdf; }
+    conceitosHtml += `
+      <div class="concept-item">
+        <div class="concept-dot"></div>
+        <div>
+          <div class="concept-name">${esc(c.nome || c.name)}</div>
+          <div class="concept-def">${esc(c.definicao || c.definition)}</div>
+        </div>
+      </div>`;
+  });
+
+  // ── FLASHCARDS: agrupa por PDF ──
+  let flashHtml = '<div class="fc-grid">';
+  let ultimoPdfF = null;
+  todosFlashcards.forEach(fc => {
+    if (fc._pdf !== ultimoPdfF) {
+      flashHtml += `</div>${pdfSeparador(fc._pdf)}<div class="fc-grid">`;
+      ultimoPdfF = fc._pdf;
+    }
+    flashHtml += `
+      <div class="fc" onclick="this.classList.toggle('open')">
+        <div class="fc-q">${esc(fc.pergunta || fc.question)}</div>
+        <div class="fc-a">${esc(fc.resposta || fc.answer)}</div>
+        <div class="fc-hint">Toque para ver a resposta</div>
+      </div>`;
+  });
+  flashHtml += "</div>";
+
+  // ── EXERCÍCIOS: agrupa por PDF ──
+  let exHtml = "";
+  let ultimoPdfE = null;
+  let exCount = 0;
+  todosExercicios.forEach(ex => {
+    if (ex._pdf !== ultimoPdfE) { exHtml += pdfSeparador(ex._pdf); ultimoPdfE = ex._pdf; exCount = 0; }
+    exCount++;
+    exHtml += `
+      <div class="ex-item">
+        <div class="ex-num">Exercício ${exCount}</div>
+        <div class="ex-txt">${esc(ex.pergunta || ex.problem)}</div>
+        <button class="btn btn-g btn-sm" onclick="const a=this.nextElementSibling;a.classList.toggle('on');this.textContent=a.classList.contains('on')?'Ocultar resposta':'Ver resposta'">Ver resposta</button>
+        <div class="ex-ans">${esc(ex.resposta || ex.answer)}</div>
+      </div>`;
+  });
 
   body.innerHTML = `
     <!-- RESUMO -->
     <div class="ai-section on" id="tab-summary">
-      ${data.nome ? `<div style="font-size:12px;color:var(--mu);margin-bottom:4px;font-weight:600">📄 ${esc(data.nome)}</div>` : ""}
-      <div class="ai-card">
-        <div class="ai-card-title">📄 Resumo Rápido</div>
-        <p>${esc(data.resumo_rapido || data.short_summary || "Não disponível.")}</p>
-      </div>
-      <div class="ai-card">
-        <div class="ai-card-title">📋 Resumo Detalhado</div>
-        <p>${esc(data.resumo_detalhado || data.detailed_summary || "Não disponível.")}</p>
-      </div>
-      ${pontos.length ? `
-      <div class="ai-card">
-        <div class="ai-card-title">🎯 Pontos-Chave</div>
-        <div class="summary-points">
-          ${pontos.map(p => `<div class="summary-point"><div class="summary-point-dot"></div><span>${esc(p)}</span></div>`).join("")}
-        </div>
-      </div>` : ""}
+      ${resumoHtml}
     </div>
 
     <!-- CONCEITOS -->
     <div class="ai-section" id="tab-concepts" style="display:none">
-      <div class="ai-card"><div class="ai-card-title">💡 Conceitos-Chave</div></div>
-      ${(data.conceitos || data.concepts || []).map(c => `
-        <div class="concept-item">
-          <div class="concept-dot"></div>
-          <div>
-            <div class="concept-name">${esc(c.nome || c.name)}</div>
-            <div class="concept-def">${esc(c.definicao || c.definition)}</div>
-          </div>
-        </div>`).join("")}
+      <div class="ai-card"><div class="ai-card-title">💡 Conceitos-Chave — ${todosConceitos.length} no total</div></div>
+      ${conceitosHtml}
     </div>
 
     <!-- FLASHCARDS -->
     <div class="ai-section" id="tab-flashcards" style="display:none">
-      <div class="ai-card"><div class="ai-card-title">🃏 Flashcards — toque para revelar</div></div>
-      <div class="fc-grid">
-        ${(data.flashcards || []).map(fc => `
-          <div class="fc" onclick="this.classList.toggle('open')">
-            <div class="fc-q">${esc(fc.pergunta || fc.question)}</div>
-            <div class="fc-a">${esc(fc.resposta || fc.answer)}</div>
-            <div class="fc-hint">Toque para ver a resposta</div>
-          </div>`).join("")}
-      </div>
+      <div class="ai-card"><div class="ai-card-title">🃏 Flashcards — ${todosFlashcards.length} no total — toque para revelar</div></div>
+      ${flashHtml}
     </div>
 
     <!-- EXERCÍCIOS -->
     <div class="ai-section" id="tab-exercises" style="display:none">
-      <div class="ai-card"><div class="ai-card-title">📝 Exercícios Práticos</div></div>
-      ${(data.exercicios || data.exercises || []).map((ex, i) => `
-        <div class="ex-item">
-          <div class="ex-num">Exercício ${i+1}</div>
-          <div class="ex-txt">${esc(ex.pergunta || ex.problem)}</div>
-          <button class="btn btn-g btn-sm" onclick="const a=this.nextElementSibling;a.classList.toggle('on');this.textContent=a.classList.contains('on')?'Ocultar resposta':'Ver resposta'">Ver resposta</button>
-          <div class="ex-ans">${esc(ex.resposta || ex.answer)}</div>
-        </div>`).join("")}
+      <div class="ai-card"><div class="ai-card-title">📝 Exercícios — ${todosExercicios.length} no total</div></div>
+      ${exHtml}
     </div>
 
     <!-- QUIZ -->
     <div class="ai-section" id="tab-quiz" style="display:none">
-      <div class="ai-card"><div class="ai-card-title">❓ Quiz — ${(data.quiz||[]).length} questões</div></div>
+      <div class="ai-card"><div class="ai-card-title">❓ Quiz — ${todosQuiz.length} questões de todos os PDFs</div></div>
       <div id="quizContainer"></div>
       <div id="quizScore" class="quiz-score" style="display:none"></div>
     </div>`;
